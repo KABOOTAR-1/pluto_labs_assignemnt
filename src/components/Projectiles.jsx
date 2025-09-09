@@ -1,6 +1,4 @@
 import React, { useEffect } from 'react';
-import { useAtom } from 'jotai';
-import { projectilesAtom, enemiesAtom, scoreAtom, enemiesKilledAtom } from '../config/atoms';
 import { gameConfig } from '../config/gameConfig';
 import { Bullet } from './projectiles/Bullet';
 
@@ -8,11 +6,14 @@ const ProjectileTypes = {
   bullet: Bullet,
 };
 
-const Projectiles = () => {
-  const [projectiles, setProjectiles] = useAtom(projectilesAtom);
-  const [enemies, setEnemies] = useAtom(enemiesAtom);
-  const [, setScore] = useAtom(scoreAtom);
-  const [, setEnemiesKilled] = useAtom(enemiesKilledAtom);
+const Projectiles = ({
+  projectiles,
+  setProjectiles,
+  enemies,
+  setEnemies,
+  setScore,
+  setEnemiesKilled
+}) => {
 
   const handleHit = (projectileId, enemyId, damage) => {
     setProjectiles(prev => prev.filter(p => p.id !== projectileId));

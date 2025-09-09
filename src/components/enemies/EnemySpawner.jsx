@@ -1,12 +1,12 @@
 import { useEnemySpawner } from "../../hooks/useEnemySpawner";
-import { useAtomValue, useAtom } from "jotai";
-import { enemiesAtom, playerPositionAtom, gameStateAtom } from "../../config/atoms";
 import { gameConfig } from "../../config/gameConfig";
 
-const EnemySpawner = () => {
-  const [enemies, setEnemies] = useAtom(enemiesAtom);
-  const playerPosition = useAtomValue(playerPositionAtom);
-  const gameState = useAtomValue(gameStateAtom);
+const EnemySpawner = ({
+  enemies,
+  setEnemies,
+  playerPosition,
+  gameState
+}) => {
 
   useEnemySpawner({
     enemies,

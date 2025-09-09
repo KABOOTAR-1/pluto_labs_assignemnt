@@ -1,6 +1,4 @@
 import React from "react";
-import { useAtom } from "jotai";
-import { enemiesAtom, playerPositionAtom, playerHealthAtom, gameStateAtom } from "../config/atoms";
 import { FastEnemy } from "./enemies/FastEnemy";
 import { TankEnemy } from "./enemies/TankEnemy";
 
@@ -9,11 +7,14 @@ const EnemyComponents = {
   tank: TankEnemy,
 };
 
-const Enemies = () => {
-  const [enemies, setEnemies] = useAtom(enemiesAtom);
-  const [playerPosition] = useAtom(playerPositionAtom);
-  const [, setPlayerHealth] = useAtom(playerHealthAtom);
-  const [gameState, setGameState] = useAtom(gameStateAtom);
+const Enemies = ({
+  enemies,
+  setEnemies,
+  playerPosition,
+  setPlayerHealth,
+  gameState,
+  setGameState
+}) => {
 
   const removeEnemy = (id) => {
     setEnemies((prev) => prev.filter((e) => e.id !== id));
