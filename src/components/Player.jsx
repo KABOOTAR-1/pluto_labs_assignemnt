@@ -55,7 +55,7 @@ const Player = () => {
   
   setCurrentProjectileType(firstProjectileId);
 
-  usePlayerMovement(api, playerPosition, gameState);
+  usePlayerMovement(api, playerPosition, gameState, handleGameOver);
   usePlayerRotation(api, gameState, handleRotationChange);
   usePlayerShooting(playerPosition, playerRotation, gameState, selectedProjectileType, handleShoot);
   usePlayerCamera(playerPosition, gameState);

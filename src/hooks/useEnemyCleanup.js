@@ -6,7 +6,7 @@ export const useEnemyCleanup = (
   onRemove
 ) => {
   useFrame(() => {
-    if (Math.abs(position[0]) > 100 || Math.abs(position[2]) > 100) {
+    if (Math.abs(position[0]) > 40 || Math.abs(position[2]) > 40) {
       onRemove(id);
     }
   });

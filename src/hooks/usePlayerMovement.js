@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { gameConfig } from "../config/gameConfig";
 import { useKeyControls } from "../hooks/useKeyControls";
 
-export const usePlayerMovement = (api, playerPosition, gameState) => {
+export const usePlayerMovement = (api, playerPosition, gameState, handleGameOver) => {
   const { forward, backward, left, right } = useKeyControls();
 
   useFrame((_, delta) => {
@@ -15,6 +15,9 @@ export const usePlayerMovement = (api, playerPosition, gameState) => {
     if (backward) z += moveSpeed;
     if (left) x -= moveSpeed;
     if (right) x += moveSpeed;
+    if (Math.abs(x) > 40 || Math.abs(z) > 40) {
+      handleGameOver();
+    }
 
     api.position.set(x, 0.5, z);
   });
