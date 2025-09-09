@@ -12,9 +12,11 @@ import {
   playerHealthAtom,
   scoreAtom,
   enemiesKilledAtom,
-  showHUDAtom
+  showHUDAtom,
+  currentProjectileTypeAtom
 } from '../config/atoms';
 import { gameConfig } from '../config/gameConfig';
+import { getProjectileType } from '../data/projectileTypes';
 import Player from './Player';
 import Floor from './Floor';
 import Enemies from './Enemies';
@@ -31,6 +33,9 @@ const Scene = () => {
   const [score, setScore] = useAtom(scoreAtom);
   const [enemiesKilled, setEnemiesKilled] = useAtom(enemiesKilledAtom);
   const [showHUD] = useAtom(showHUDAtom);
+  const [currentProjectileTypeId] = useAtom(currentProjectileTypeAtom);
+  
+  const projectileConfig = getProjectileType(currentProjectileTypeId);
 
   return (
     <>
@@ -85,6 +90,7 @@ const Scene = () => {
                 setEnemies={setEnemies}
                 setScore={setScore}
                 setEnemiesKilled={setEnemiesKilled}
+                projectileConfig={projectileConfig}
               />
             </>
           )}

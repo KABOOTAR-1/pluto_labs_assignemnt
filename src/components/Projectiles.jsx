@@ -12,7 +12,8 @@ const Projectiles = ({
   enemies,
   setEnemies,
   setScore,
-  setEnemiesKilled
+  setEnemiesKilled,
+  projectileConfig
 }) => {
 
   const handleHit = (projectileId, enemyId, damage) => {
@@ -55,10 +56,17 @@ const Projectiles = ({
     <>
       {projectiles.map(proj => {
         const ProjectileComponent = ProjectileTypes[proj.type] || ProjectileTypes.bullet;
+        
         return (
           <ProjectileComponent
             key={proj.id}
             {...proj}
+            size={projectileConfig.size}
+            color={projectileConfig.color}
+            speed={projectileConfig.speed}
+            damage={projectileConfig.damage}
+            emissiveIntensity={projectileConfig.emissiveIntensity}
+            mass={projectileConfig.mass}
             enemies={enemies}
             onHit={handleHit}
           />

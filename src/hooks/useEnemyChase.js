@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 
 export const useEnemyChase = (api, position, speed, playerPosition, gameState) => {
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (gameState !== "playing") return;
 
     const dirX = playerPosition[0] - position[0];
@@ -12,10 +12,6 @@ export const useEnemyChase = (api, position, speed, playerPosition, gameState) =
 
     const nx = dirX / distance;
     const nz = dirZ / distance;
-
     api.velocity.set(nx * speed, 0, nz * speed);
-
-    position[0] += nx * speed * delta;
-    position[2] += nz * speed * delta;
   });
 };

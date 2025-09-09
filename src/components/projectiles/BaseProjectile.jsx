@@ -47,7 +47,7 @@ export const BaseProjectile = ({
       const dz = position[2] - enemy.position[2];
       const distance = Math.sqrt(dx * dx + dz * dz);
 
-      const collisionRadius = size + (enemy.size || 0.5) * 0.5;
+      const collisionRadius = size + (enemy.size || 0.5) * 2;
       if (distance < collisionRadius) {
         onHit(id, enemy.id, damage);
       }

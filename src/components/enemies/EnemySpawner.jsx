@@ -20,7 +20,7 @@ const EnemySpawner = ({
     difficultyMultiplierStep: 1.2,
   });
 
-  return null; // ✅ purely logic, no rendering
+  return null;
 };
 
 export default EnemySpawner;
