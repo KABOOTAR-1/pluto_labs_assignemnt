@@ -25,10 +25,16 @@ const HUD = ({
 
   return (
     <div className="game-hud">
-      <HealthBar current={playerHealth} max={maxPlayerHealth} />
-      <ScoreDisplay score={score} />
-      <EnemiesKilledDisplay count={enemiesKilled} />
+      {/* Consolidated stats container on the left */}
+      <div className="stats-container">
+        <HealthBar current={playerHealth} max={maxPlayerHealth} />
+        <div className="stats-row">
+          <ScoreDisplay score={score} />
+          <EnemiesKilledDisplay count={enemiesKilled} />
+        </div>
+      </div>
 
+      {/* Settings button on the right */}
       {gameState === 'playing' && (
         <div className="settings-button-container">
           <button className="settings-button" onClick={handleSettings}>

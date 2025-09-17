@@ -49,7 +49,7 @@ export default function Player() {
   // Sync position
   useEffect(() => {
       if(!initialPosition || !initialRotation || !initialVelocity) return;
-      if(gameState == "playing" || gameState== "settings") return;
+      if(gameState === "playing" || gameState === "settings") return;
       console.log("Initial Position:", initialPosition);
       api.position.set(...initialPosition);
       api.rotation.set(...initialRotation);

@@ -108,98 +108,220 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  right: 100px; /* Leave more space for settings button */
+  right: 100px; /* Leave space for settings button */
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
   z-index: 50;
   pointer-events: none;
-  gap: 15px;
+  gap: 25px;
+}
+
+/* Consolidated stats container */
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.stats-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(52, 168, 83, 0.1));
+  border-radius: 15px;
+  z-index: -1;
+}
+
+.stats-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Health Bar */
 .health-container {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #4285F4;
-  min-width: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(52, 168, 83, 0.3);
+  min-width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #34A853, #5cb85c, #2e7d32);
 }
 
 .health-label {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-  margin-bottom: 8px;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-bottom: 4px;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
 }
 
 .health-bar-container {
   width: 100%;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.health-bar-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border-radius: 6px;
 }
 
 .health-bar-fill {
   height: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
-  border-radius: 10px;
+  background: linear-gradient(90deg, #34A853, #5cb85c);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 0 10px rgba(52, 168, 83, 0.5);
+}
+
+.health-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 6px;
 }
 
 .health-value {
-  color: white;
-  font-size: 0.9rem;
+  color: #ffffff;
+  font-size: 0.7rem;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
+  opacity: 0.9;
 }
 
 /* Score Display */
 .score-container {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #34A853;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(52, 168, 83, 0.3);
   text-align: center;
-  min-width: 120px;
+  min-width: 80px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.score-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 168, 83, 0.2);
+}
+
+.score-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #34A853, #5cb85c);
+  border-radius: 10px 10px 0 0;
 }
 
 .score-label {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-  margin-bottom: 5px;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
 }
 
 .score-value {
   color: #34A853;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(52, 168, 83, 0.5);
 }
 
 /* Enemies Killed Display */
 .enemies-killed-container {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #EA4335;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(234, 67, 53, 0.3);
   text-align: center;
-  min-width: 120px;
+  min-width: 80px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.enemies-killed-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(234, 67, 53, 0.2);
+}
+
+.enemies-killed-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #EA4335, #ff6b6b);
+  border-radius: 10px 10px 0 0;
 }
 
 .enemies-killed-label {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-  margin-bottom: 5px;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
 }
 
 .enemies-killed-value {
   color: #EA4335;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(234, 67, 53, 0.5);
 }
 
 /* Settings Button in HUD */
@@ -212,15 +334,16 @@
 }
 
 .settings-button {
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #4285F4;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(66, 133, 244, 0.4);
   color: #4285F4;
   font-size: 1.1rem;
   padding: 6px 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
   min-width: 35px;
   height: 35px;
   text-align: center;
@@ -228,12 +351,34 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.settings-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(52, 168, 83, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .settings-button:hover {
-  background: rgba(66, 133, 244, 0.3);
-  transform: scale(1.05);
-  border-color: #5c9eff;
+  transform: translateY(-2px) scale(1.05);
+  border-color: rgba(66, 133, 244, 0.6);
+  box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+}
+
+.settings-button:hover::before {
+  opacity: 1;
+}
+
+.settings-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Settings Screen Styles */
