@@ -108,7 +108,7 @@ export const resetGameAtom = atom(
   null,
   (get, set) => {
     set(gameStateAtom, 'playing');
-    set(playerHealthAtom, gameConfig.player.health);
+    set(playerHealthAtom, get(playerHealthSettingAtom));
     set(playerPositionAtom, gameConfig.player.initialPosition);
     set(playerRotationAtom, 0);
     set(scoreAtom, gameConfig.rules.initialScore);

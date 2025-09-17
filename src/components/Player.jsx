@@ -11,6 +11,7 @@ import {
   activateProjectile,
   playerSpeedSettingAtom,
   playerFireRateSettingAtom,
+  playerHealthSettingAtom,
 } from "../config/atoms";
 import { getProjectileType, projectileTypes } from "../data/projectileTypes";
 import { gameConfig } from "../config/gameConfig";
@@ -45,6 +46,7 @@ export default function Player() {
   const [, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
   const [playerSpeed] = useAtom(playerSpeedSettingAtom);
   const [playerFireRate] = useAtom(playerFireRateSettingAtom);
+  const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
 
   // Sync position
   useEffect(() => {

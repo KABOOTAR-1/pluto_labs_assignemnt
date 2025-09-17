@@ -1,8 +1,8 @@
-import React from "react";
+import { useAtom } from "jotai";
 import { FastEnemy } from "./enemies/FastEnemy";
 import { TankEnemy } from "./enemies/TankEnemy";
 import { gameConfig } from "../config/gameConfig";
-import { deactivateEnemy } from "../config/atoms";
+import { deactivateEnemy, enemySpeedMultiplierAtom } from "../config/atoms";
 
 const EnemyComponents = {
   fast: FastEnemy,
@@ -17,6 +17,7 @@ const Enemies = ({
   gameState,
   setGameState
 }) => {
+  const [enemySpeedMultiplier] = useAtom(enemySpeedMultiplierAtom);
 
   const removeEnemy = (id) => {
     setEnemies((prev) => deactivateEnemy(prev, id));
@@ -56,6 +57,7 @@ const Enemies = ({
             key={enemy.id}
             {...enemy}
             {...config}
+            speed={config.speed * enemySpeedMultiplier}
             onRemove={removeEnemy}
             playerPosition={playerPosition}
             gameState={gameState}

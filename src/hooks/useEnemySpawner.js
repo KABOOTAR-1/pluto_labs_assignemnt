@@ -13,12 +13,12 @@ export const useEnemySpawner = ({
   spawnRadius,
   difficultyIncreaseInterval = 30,
   difficultyMultiplierStep = 1.2,
-  enemySpeedMultiplier = 1.0,
   enemySpawnRate = 1.0,
+  difficultyMultiplier = 1.0,
 }) => {
   const spawnTimer = useRef(0);
   const difficultyTimer = useRef(0);
-  const difficultyMultiplier = useRef(1);
+  const dynamicDifficultyMultiplier = useRef(1);
 
   const spawnEnemy = () => {
     const activeCount = enemies.filter(e => e.active).length;
@@ -37,7 +37,7 @@ export const useEnemySpawner = ({
       position: [spawnX, 0.5, spawnZ],
       health: enemyConfig.health,
       size: enemyConfig.size,
-      speed: enemyConfig.speed * enemySpeedMultiplier,
+      speed: enemyConfig.speed,
     };
 
     setEnemies((prev) => activateEnemy(prev, enemyData));
@@ -49,14 +49,14 @@ export const useEnemySpawner = ({
     spawnTimer.current += delta;
     difficultyTimer.current += delta;
 
-    if (spawnTimer.current >= (1 / difficultyMultiplier.current) * (1 / enemySpawnRate)) {
+    if (spawnTimer.current >= (1 / dynamicDifficultyMultiplier.current) * (1 / enemySpawnRate) * (1 / difficultyMultiplier)) {
       spawnTimer.current = 0;
       spawnEnemy();
     }
 
     if (difficultyTimer.current >= difficultyIncreaseInterval) {
       difficultyTimer.current = 0;
-      difficultyMultiplier.current *= difficultyMultiplierStep;
+      dynamicDifficultyMultiplier.current *= difficultyMultiplierStep;
     }
   });
 };
