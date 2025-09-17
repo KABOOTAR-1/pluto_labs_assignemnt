@@ -69,6 +69,22 @@ export default function Player() {
     const firstId = projectileTypes[0]?.id;
     setCurrentProjectileType(firstId);
   }, [setCurrentProjectileType]);
+
+  // Update player health when health setting changes
+  useEffect(() => {
+    setPlayerHealth((currentHealth) => {
+      // If current health is less than the new max, increase it
+      if (currentHealth < playerHealthSetting) {
+        return playerHealthSetting;
+      }
+      // If current health exceeds the new max, cap it
+      if (currentHealth > playerHealthSetting) {
+        return playerHealthSetting;
+      }
+      // Otherwise keep current health
+      return currentHealth;
+    });
+  }, [playerHealthSetting, setPlayerHealth]);
   const selectedProjectileType = getProjectileType(projectileTypes[0]?.id);
 
   // Game hooks
