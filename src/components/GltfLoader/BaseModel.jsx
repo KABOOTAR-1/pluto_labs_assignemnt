@@ -1,9 +1,9 @@
 import React from "react";
 import { GLTFModel } from "./GLTFLoader";
 
-export function BaseModel({ url = null, fallbackComponent, size = 1, color = "#00ff00" }) {
+export function BaseModel({ url = null, fallbackComponent, size = 1, color = "#00ff00", rotation = [0, 0, 0], scale = [1, 1, 1] }) {
   if (url) {
-    return <GLTFModel url={url} />;
+    return <GLTFModel url={url} rotation={rotation} scale={scale} />;
   }
 
   if (fallbackComponent) {

@@ -17,31 +17,33 @@ export const gameConfig = {
   },
   // Enemy settings
  enemies: {
-    types: [
-      {
-        id: 'fast',
-        speed: 4,
-        health: 30, 
-        size: 0.6,
-        color: '#FBBC05',
-        damage: 5,
-        points: 15,
-        spawnRate: 1,
-      },
-      {
-        id: 'tank',
-        speed: 1.2,
-        health: 90,
-        size: 1.2,
-        color: '#34A853',
-        damage: 20,
-        points: 25,
-        spawnRate: 0.5,
-      }
-    ],
-    maxOnScreen: 15,
-    spawnRadius: 20,
-  },
+   types: [
+     {
+       id: 'fast',
+       speed: 4,
+       health: 30,
+       size: 0.6,
+       color: '#FBBC05',
+       damage: 5,
+       points: 15,
+       spawnRate: 1,
+       modelUrl: "", // Temporary - will be replaced with enemy-specific models
+     },
+     {
+       id: 'tank',
+       speed: 1.2,
+       health: 90,
+       size: 1.2,
+       color: '#34A853',
+       damage: 20,
+       points: 25,
+       spawnRate: 0.5,
+       modelUrl: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb", // Temporary - will be replaced with enemy-specific models
+     }
+   ],
+   maxOnScreen: 15,
+   spawnRadius: 20,
+ },
 
   world: {
     size: 40, 

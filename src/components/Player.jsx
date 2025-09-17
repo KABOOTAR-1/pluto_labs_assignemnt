@@ -21,7 +21,7 @@ import { usePlayerShooting } from "../hooks/usePlayerShooting";
 import { usePlayerCamera } from "../hooks/usePlayerCamera";
 import { usePlayerHealth } from "../hooks/usePlayerHealth";
 import { BaseModel } from "./GltfLoader/BaseModel";
-import { BasePlayer } from "./player/basePlayer";
+import { BasePlayer } from "./baseModel/BasePlayerModel";
 
 const initialPosition = gameConfig.player.initialPosition;
 const initialRotation = gameConfig.player.initialRotation;
@@ -102,12 +102,14 @@ export default function Player() {
   usePlayerCamera(api, gameState, gameConfig.camera.offset);
   return (
     <group ref={ref}>
-  <BaseModel 
-    url={null} 
-    fallbackComponent={BasePlayer} 
-    size={gameConfig.player.size} 
-    color={gameConfig.player.color} 
-  />
-</group>
+      <BaseModel
+        url={"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb"}
+        fallbackComponent={BasePlayer}
+        size={gameConfig.player.size}
+        color={gameConfig.player.color}
+        rotation={[-Math.PI, -Math.PI/2, Math.PI]}
+        scale={[1, 1, 1]}
+      />
+    </group>
   );
 }

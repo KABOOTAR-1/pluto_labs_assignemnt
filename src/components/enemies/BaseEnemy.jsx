@@ -3,6 +3,8 @@ import { useBox } from "@react-three/cannon";
 import { useEnemyChase } from "../../hooks/useEnemyChase";
 import { useEnemyAttack } from "../../hooks/useEnemyAttack";
 import { useEnemyCleanup } from "../../hooks/useEnemyCleanup";
+import { BaseModel } from "../GltfLoader/BaseModel";
+import { BaseEnemyModel } from "../baseModel/BaseEnemyModel";
 
 
 export const BaseEnemy = ({
@@ -16,6 +18,7 @@ export const BaseEnemy = ({
   playerPosition,
   gameState,
   onPlayerDamage,
+  modelUrl,
 }) => {
   const currentPosition = useRef(position);
   
@@ -43,9 +46,15 @@ export const BaseEnemy = ({
   useEnemyCleanup(currentPosition.current, id, onRemove);
 
   return (
-    <mesh ref={ref} castShadow receiveShadow>
-      <boxGeometry args={[size, size, size]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <group ref={ref}>
+      <BaseModel
+        url={modelUrl}
+        fallbackComponent={BaseEnemyModel}
+        size={size}
+        color={color}
+        rotation={[0, 0, 0]}
+        scale={[1, 1, 1]}
+      />
+    </group>
   );
 };
