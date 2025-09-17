@@ -1,10 +1,12 @@
 import React from 'react';
 import { useAtom } from 'jotai';
 import { gameStateAtom, resetGameAtom } from '../config/atoms';
+import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
 
 const StartScreen = () => {
-  const [gameState, setGameState] = useAtom(gameStateAtom);
+  const [gameState] = useAtom(gameStateAtom);
   const [, resetGame] = useAtom(resetGameAtom);
+  const { goToSettings } = useSettingsNavigation();
   
   if (gameState !== 'menu') return null;
   
@@ -13,9 +15,7 @@ const StartScreen = () => {
   };
 
   const handleSettings = () => {
-    // Store current state before opening settings
-    sessionStorage.setItem('previousGameState', gameState);
-    setGameState('settings');
+    goToSettings();
   };
 
   return (

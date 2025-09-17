@@ -1,6 +1,7 @@
 
 import { useAtom } from "jotai";
-import { gameStateAtom, playerHealthSettingAtom } from "../config/atoms";
+import { playerHealthSettingAtom } from "../config/atoms";
+import { useSettingsNavigation } from "../hooks/useSettingsNavigation";
 
 import HealthBar from "./ui/HealthBar";
 import ScoreDisplay from "./ui/ScoreDisplay";
@@ -10,18 +11,13 @@ const HUD = ({
   playerHealth,
   score,
   enemiesKilled,
-  showHUD
+  showHUD,
+  gameState
 }) => {
-  const [gameState, setGameState] = useAtom(gameStateAtom);
   const [maxPlayerHealth] = useAtom(playerHealthSettingAtom);
+  const { goToSettings } = useSettingsNavigation();
 
   if (!showHUD) return null;
-
-  const handleSettings = () => {
-    // Store current state before opening settings so we can return to it
-    sessionStorage.setItem('previousGameState', gameState);
-    setGameState('settings');
-  };
 
   return (
     <div className="game-hud">
@@ -37,7 +33,7 @@ const HUD = ({
       {/* Settings button on the right */}
       {gameState === 'playing' && (
         <div className="settings-button-container">
-          <button className="settings-button" onClick={handleSettings}>
+          <button className="settings-button" onClick={goToSettings}>
             ⚙️
           </button>
         </div>

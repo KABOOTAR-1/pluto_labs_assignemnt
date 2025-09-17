@@ -109,6 +109,7 @@ const Scene = () => {
       score={score}
       enemiesKilled={enemiesKilled}
       showHUD={showHUD}
+      gameState={gameState}
     />
     </>
   );

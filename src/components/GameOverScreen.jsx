@@ -1,6 +1,7 @@
 import React from "react";
 import { useAtom } from "jotai";
 import { gameStateAtom, resetGameAtom, scoreAtom, enemiesKilledAtom } from "../config/atoms";
+import { useSettingsNavigation } from "../hooks/useSettingsNavigation";
 import ScreenHeader from "./ui/ScreenHeader";
 import StatsPanel from "./ui/StatsPanel";
 
@@ -9,16 +10,12 @@ const GameOverScreen = () => {
   const [, resetGame] = useAtom(resetGameAtom);
   const [score] = useAtom(scoreAtom);
   const [enemiesKilled] = useAtom(enemiesKilledAtom);
+  const { goToSettings } = useSettingsNavigation();
 
   if (gameState !== "gameOver") return null;
 
   const handleRestart = () => resetGame();
   const handleMainMenu = () => setGameState("menu");
-  const handleSettings = () => {
-    // Store current state before opening settings
-    sessionStorage.setItem('previousGameState', gameState);
-    setGameState("settings");
-  };
 
   return (
     <div className="game-screen game-over-screen">
@@ -39,7 +36,7 @@ const GameOverScreen = () => {
           <button className="game-button secondary" onClick={handleMainMenu}>
             MAIN MENU
           </button>
-          <button className="game-button secondary" onClick={handleSettings}>
+          <button className="game-button secondary" onClick={goToSettings}>
             SETTINGS
           </button>
         </div>
