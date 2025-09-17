@@ -2,6 +2,7 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import {
   gameStateAtom,
+  playerHealthAtom,
   playerSpeedSettingAtom,
   playerHealthSettingAtom,
   playerFireRateSettingAtom,
@@ -10,18 +11,18 @@ import {
   difficultyMultiplierAtom,
   maxEnemiesSettingAtom
 } from '../config/atoms';
+import { settingsConfig, getSettingLabel } from '../config/settingsConfig';
 
 const SettingsScreen = () => {
   const [gameState, setGameState] = useAtom(gameStateAtom);
+  const [currentPlayerHealth, setCurrentPlayerHealth] = useAtom(playerHealthAtom);
   const [playerSpeed, setPlayerSpeed] = useAtom(playerSpeedSettingAtom);
-  const [playerHealth, setPlayerHealth] = useAtom(playerHealthSettingAtom);
+  const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
   const [playerFireRate, setPlayerFireRate] = useAtom(playerFireRateSettingAtom);
   const [enemySpeedMultiplier, setEnemySpeedMultiplier] = useAtom(enemySpeedMultiplierAtom);
   const [enemySpawnRate, setEnemySpawnRate] = useAtom(enemySpawnRateAtom);
   const [difficultyMultiplier, setDifficultyMultiplier] = useAtom(difficultyMultiplierAtom);
   const [maxEnemies, setMaxEnemies] = useAtom(maxEnemiesSettingAtom);
-
-  if (gameState !== 'settings') return null;
 
   const handleBack = () => {
     // Restore the previous game state (either 'playing' or 'menu')
@@ -31,7 +32,10 @@ const SettingsScreen = () => {
   };
 
   return (
-    <div className="game-screen settings-screen">
+    <div
+      className="game-screen settings-screen"
+      style={{ display: gameState !== 'settings' ? 'none' : 'flex' }}
+    >
       <div className="screen-content compact">
         <h1>SETTINGS</h1>
 
@@ -40,36 +44,39 @@ const SettingsScreen = () => {
             <h3>Player</h3>
 
             <div className="setting-item compact">
-              <label>Speed: {playerSpeed.toFixed(1)}</label>
+              <label>{getSettingLabel('player', 'speed', playerSpeed)}</label>
               <input
                 type="range"
-                min="1"
-                max="15"
-                step="0.5"
+                min={settingsConfig.player.speed.min}
+                max={settingsConfig.player.speed.max}
+                step={settingsConfig.player.speed.step}
                 value={playerSpeed}
                 onChange={(e) => setPlayerSpeed(parseFloat(e.target.value))}
               />
             </div>
 
             <div className="setting-item compact">
-              <label>Health: {playerHealth}</label>
+              <label>{getSettingLabel('player', 'health', currentPlayerHealth)}/{playerHealthSetting}</label>
               <input
                 type="range"
-                min="50"
-                max="300"
-                step="10"
-                value={playerHealth}
-                onChange={(e) => setPlayerHealth(parseInt(e.target.value))}
+                min={settingsConfig.player.health.min}
+                max={settingsConfig.player.health.max}
+                step={settingsConfig.player.health.step}
+                value={currentPlayerHealth}
+                onChange={(e) => {
+                  const newHealth = parseInt(e.target.value);
+                  setCurrentPlayerHealth(newHealth);
+                }}
               />
             </div>
 
             <div className="setting-item compact">
-              <label>Fire Rate: {playerFireRate.toFixed(1)}/s</label>
+              <label>{getSettingLabel('player', 'fireRate', playerFireRate)}</label>
               <input
                 type="range"
-                min="0.5"
-                max="10"
-                step="0.1"
+                min={settingsConfig.player.fireRate.min}
+                max={settingsConfig.player.fireRate.max}
+                step={settingsConfig.player.fireRate.step}
                 value={playerFireRate}
                 onChange={(e) => setPlayerFireRate(parseFloat(e.target.value))}
               />
@@ -80,36 +87,36 @@ const SettingsScreen = () => {
             <h3>Enemies</h3>
 
             <div className="setting-item compact">
-              <label>Speed: {enemySpeedMultiplier.toFixed(1)}x</label>
+              <label>{getSettingLabel('enemies', 'speedMultiplier', enemySpeedMultiplier)}</label>
               <input
                 type="range"
-                min="0.5"
-                max="3.0"
-                step="0.1"
+                min={settingsConfig.enemies.speedMultiplier.min}
+                max={settingsConfig.enemies.speedMultiplier.max}
+                step={settingsConfig.enemies.speedMultiplier.step}
                 value={enemySpeedMultiplier}
                 onChange={(e) => setEnemySpeedMultiplier(parseFloat(e.target.value))}
               />
             </div>
 
             <div className="setting-item compact">
-              <label>Spawn Rate: {enemySpawnRate.toFixed(1)}x</label>
+              <label>{getSettingLabel('enemies', 'spawnRate', enemySpawnRate)}</label>
               <input
                 type="range"
-                min="0.5"
-                max="3.0"
-                step="0.1"
+                min={settingsConfig.enemies.spawnRate.min}
+                max={settingsConfig.enemies.spawnRate.max}
+                step={settingsConfig.enemies.spawnRate.step}
                 value={enemySpawnRate}
                 onChange={(e) => setEnemySpawnRate(parseFloat(e.target.value))}
               />
             </div>
 
             <div className="setting-item compact">
-              <label>Max Count: {maxEnemies}</label>
+              <label>{getSettingLabel('enemies', 'maxCount', maxEnemies)}</label>
               <input
                 type="range"
-                min="5"
-                max="50"
-                step="1"
+                min={settingsConfig.enemies.maxCount.min}
+                max={settingsConfig.enemies.maxCount.max}
+                step={settingsConfig.enemies.maxCount.step}
                 value={maxEnemies}
                 onChange={(e) => setMaxEnemies(parseInt(e.target.value))}
               />
@@ -120,12 +127,12 @@ const SettingsScreen = () => {
             <h3>Difficulty</h3>
 
             <div className="setting-item compact">
-              <label>Multiplier: {difficultyMultiplier.toFixed(1)}x</label>
+              <label>{getSettingLabel('difficulty', 'multiplier', difficultyMultiplier)}</label>
               <input
                 type="range"
-                min="0.5"
-                max="5.0"
-                step="0.1"
+                min={settingsConfig.difficulty.multiplier.min}
+                max={settingsConfig.difficulty.multiplier.max}
+                step={settingsConfig.difficulty.multiplier.step}
                 value={difficultyMultiplier}
                 onChange={(e) => setDifficultyMultiplier(parseFloat(e.target.value))}
               />
