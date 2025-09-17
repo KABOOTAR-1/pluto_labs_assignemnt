@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { FastEnemy } from "./enemies/FastEnemy";
 import { TankEnemy } from "./enemies/TankEnemy";
-import { gameConfig } from "../config/gameConfig";
+import { useCurrentEnemies } from "../config/gameConfig";
 import { deactivateEnemy, enemySpeedMultiplierAtom } from "../config/atoms";
 
 const EnemyComponents = {
@@ -18,6 +18,7 @@ const Enemies = ({
   setGameState
 }) => {
   const [enemySpeedMultiplier] = useAtom(enemySpeedMultiplierAtom);
+  const currentEnemies = useCurrentEnemies();
 
   const removeEnemy = (id) => {
     setEnemies((prev) => deactivateEnemy(prev, id));
@@ -32,7 +33,7 @@ const Enemies = ({
   };
 
   // Store configs in a map for quick lookup
-  const enemyConfigs = gameConfig.enemies.types.reduce((acc, type) => {
+  const enemyConfigs = currentEnemies.types.reduce((acc, type) => {
     acc[type.id] = type;
     return acc;
   }, {});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { gameConfig } from '../config/gameConfig';
+import { gameConfig, useCurrentEnemies } from '../config/gameConfig';
 import { Bullet } from './projectiles/Bullet';
 import { deactivateProjectile, deactivateEnemy } from '../config/atoms';
 
@@ -16,6 +16,7 @@ const Projectiles = ({
   setEnemiesKilled,
   projectileConfig
 }) => {
+  const currentEnemies = useCurrentEnemies();
 
   const handleHit = (projectileId, enemyId, damage) => {
     setProjectiles(prev => deactivateProjectile(prev, projectileId));
@@ -30,7 +31,7 @@ const Projectiles = ({
       const newHealth = enemy.health - damage;
 
       if (newHealth <= 0) {
-        const enemyType = gameConfig.enemies.types.find(t => t.id === enemy.type);
+        const enemyType = currentEnemies.types.find(t => t.id === enemy.type);
         const points = enemyType ? enemyType.points : 10;
         setScore(s => s + points * gameConfig.rules.scoreMultiplier);
         setEnemiesKilled(k => k + 1);

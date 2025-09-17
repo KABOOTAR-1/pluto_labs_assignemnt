@@ -14,7 +14,7 @@ import {
   playerHealthSettingAtom,
 } from "../config/atoms";
 import { getProjectileType, projectileTypes } from "../data/projectileTypes";
-import { gameConfig } from "../config/gameConfig";
+import { gameConfig, useCurrentPlayerConfig } from "../config/gameConfig";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { usePlayerRotation } from "../hooks/usePlayerRotation";
 import { usePlayerShooting } from "../hooks/usePlayerShooting";
@@ -23,17 +23,17 @@ import { usePlayerHealth } from "../hooks/usePlayerHealth";
 import { BaseModel } from "./GltfLoader/BaseModel";
 import { BasePlayer } from "./baseModel/BasePlayerModel";
 
-const initialPosition = gameConfig.player.initialPosition;
-const initialRotation = gameConfig.player.initialRotation;
-const initialVelocity = gameConfig.player.initialVelocity; 
-
 export default function Player() {
+  const playerConfig = useCurrentPlayerConfig();
 
+  const initialPosition = gameConfig.player.initialPosition;
+  const initialRotation = gameConfig.player.initialRotation;
+  const initialVelocity = gameConfig.player.initialVelocity;
 
   const [ref, api] = useBox(() => ({
     mass: 1,
     type: "Kinematic",
-    args: [gameConfig.player.size, gameConfig.player.size, gameConfig.player.size],
+    args: [playerConfig.size || gameConfig.player.size, playerConfig.size || gameConfig.player.size, playerConfig.size || gameConfig.player.size],
     position: initialPosition,
     name: "player",
   }));
@@ -103,12 +103,12 @@ export default function Player() {
   return (
     <group ref={ref}>
       <BaseModel
-        url={"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb"}
+        url={playerConfig.modelUrl}
         fallbackComponent={BasePlayer}
-        size={gameConfig.player.size}
-        color={gameConfig.player.color}
+        size={playerConfig.size || gameConfig.player.size}
+        color={playerConfig.color || gameConfig.player.color}
         rotation={[-Math.PI, -Math.PI/2, Math.PI]}
-        scale={[1, 1, 1]}
+        scale={playerConfig.scale || [1, 1, 1]}
       />
     </group>
   );

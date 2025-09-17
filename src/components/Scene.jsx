@@ -15,7 +15,7 @@ import {
   showHUDAtom,
   currentProjectileTypeAtom
 } from '../config/atoms';
-import { gameConfig } from '../config/gameConfig';
+import { gameConfig, useCurrentEnvironment } from '../config/gameConfig';
 import { getProjectileType } from '../data/projectileTypes';
 import Player from './Player';
 import Floor from './Floor';
@@ -36,6 +36,7 @@ const Scene = () => {
   const [currentProjectileTypeId] = useAtom(currentProjectileTypeAtom);
 
   const projectileConfig = getProjectileType(currentProjectileTypeId);
+  const currentEnvironment = useCurrentEnvironment();
 
   return (
     <>
@@ -46,8 +47,8 @@ const Scene = () => {
           near: 0.1,
           far: 1000
         }}>
-        <color attach="background" args={[gameConfig.world.backgroundColor]} />
-        <fog attach="fog" args={[gameConfig.world.backgroundColor, 30, 100]} />
+        <color attach="background" args={[currentEnvironment.background?.color || gameConfig.world.backgroundColor]} />
+        <fog attach="fog" args={[currentEnvironment.fog?.color || gameConfig.world.backgroundColor, currentEnvironment.fog?.near || 30, currentEnvironment.fog?.far || 100]} />
 
         <ambientLight intensity={0.5} />
         <directionalLight

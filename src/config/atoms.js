@@ -1,5 +1,8 @@
 import { atom } from 'jotai';
-import { gameConfig } from './gameConfig';
+import { gameConfig, selectedThemeAtom, THEMES } from './gameConfig';
+
+// Re-export for convenience
+export { selectedThemeAtom, THEMES };
 
 export const gameStateAtom = atom('menu');
 
@@ -102,7 +105,7 @@ export const playerFireRateSettingAtom = atom(gameConfig.player.fireRate);
 export const enemySpeedMultiplierAtom = atom(1.0);
 export const enemySpawnRateAtom = atom(1.0);
 export const difficultyMultiplierAtom = atom(1.0);
-export const maxEnemiesSettingAtom = atom(gameConfig.enemies.maxOnScreen);
+export const maxEnemiesSettingAtom = atom(gameConfig.enemySettings.maxOnScreen);
 
 export const resetGameAtom = atom(
   null,

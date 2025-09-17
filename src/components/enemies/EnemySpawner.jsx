@@ -1,5 +1,5 @@
 import { useEnemySpawner } from "../../hooks/useEnemySpawner";
-import { gameConfig } from "../../config/gameConfig";
+import { gameConfig, useCurrentEnemies } from "../../config/gameConfig";
 import { useAtom } from "jotai";
 import {
   enemySpawnRateAtom,
@@ -16,6 +16,7 @@ const EnemySpawner = ({
   const [enemySpawnRate] = useAtom(enemySpawnRateAtom);
   const [maxEnemies] = useAtom(maxEnemiesSettingAtom);
   const [difficultyMultiplier] = useAtom(difficultyMultiplierAtom);
+  const currentEnemies = useCurrentEnemies();
 
   useEnemySpawner({
     enemies,
@@ -23,8 +24,8 @@ const EnemySpawner = ({
     playerPosition,
     gameState,
     maxOnScreen: maxEnemies,
-    enemyTypes: gameConfig.enemies.types,
-    spawnRadius: gameConfig.enemies.spawnRadius,
+    enemyTypes: currentEnemies.types,
+    spawnRadius: gameConfig.enemySettings.spawnRadius,
     difficultyIncreaseInterval: 30,
     difficultyMultiplierStep: 1.2,
     enemySpawnRate,
