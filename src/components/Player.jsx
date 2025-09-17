@@ -23,12 +23,13 @@ import { usePlayerHealth } from "../hooks/usePlayerHealth";
 import { BaseModel } from "./GltfLoader/BaseModel";
 import { BasePlayer } from "./baseModel/BasePlayerModel";
 
-export default function Player() {
-  const playerConfig = useCurrentPlayerConfig();
 
   const initialPosition = gameConfig.player.initialPosition;
   const initialRotation = gameConfig.player.initialRotation;
   const initialVelocity = gameConfig.player.initialVelocity;
+  
+export default function Player() {
+  const playerConfig = useCurrentPlayerConfig();
 
   const [ref, api] = useBox(() => ({
     mass: 1,
@@ -107,6 +108,7 @@ export default function Player() {
         fallbackComponent={BasePlayer}
         size={playerConfig.size || gameConfig.player.size}
         color={playerConfig.color || gameConfig.player.color}
+        fallbackGeometry={playerConfig.fallbackGeometry || 'box'}
         rotation={[-Math.PI, -Math.PI/2, Math.PI]}
         scale={playerConfig.scale || [1, 1, 1]}
       />

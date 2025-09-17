@@ -19,6 +19,7 @@ export const BaseEnemy = ({
   gameState,
   onPlayerDamage,
   modelUrl,
+  fallbackGeometry,
 }) => {
   const currentPosition = useRef(position);
   
@@ -52,6 +53,7 @@ export const BaseEnemy = ({
         fallbackComponent={BaseEnemyModel}
         size={size}
         color={color}
+        fallbackGeometry={fallbackGeometry || 'box'}
         rotation={[0, 0, 0]}
         scale={[1, 1, 1]}
       />
