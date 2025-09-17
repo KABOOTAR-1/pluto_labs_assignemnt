@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { gameConfig } from '../config/gameConfig';
 import { Bullet } from './projectiles/Bullet';
+import { deactivateProjectile, deactivateEnemy } from '../config/atoms';
 
 const ProjectileTypes = {
   bullet: Bullet,
@@ -17,7 +18,7 @@ const Projectiles = ({
 }) => {
 
   const handleHit = (projectileId, enemyId, damage) => {
-    setProjectiles(prev => prev.filter(p => p.id !== projectileId));
+    setProjectiles(prev => deactivateProjectile(prev, projectileId));
 
     if (!enemyId) return;
 
@@ -34,7 +35,7 @@ const Projectiles = ({
         setScore(s => s + points * gameConfig.rules.scoreMultiplier);
         setEnemiesKilled(k => k + 1);
 
-        return prevEnemies.filter(e => e.id !== enemyId);
+        return deactivateEnemy(prevEnemies, enemyId);
       } else {
         return prevEnemies.map(e =>
           e.id === enemyId ? { ...e, health: newHealth } : e
@@ -43,18 +44,11 @@ const Projectiles = ({
     });
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setProjectiles(prev => prev.filter(p => now - p.createdAt < 5000));
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [setProjectiles]);
-  
+  const activeProjectiles = projectiles.filter(p => p.active);
+
   return (
     <>
-      {projectiles.map(proj => {
+      {activeProjectiles.map(proj => {
         const ProjectileComponent = ProjectileTypes[proj.type] || ProjectileTypes.bullet;
         
         return (

@@ -14,6 +14,11 @@ const GameOverScreen = () => {
 
   const handleRestart = () => resetGame();
   const handleMainMenu = () => setGameState("menu");
+  const handleSettings = () => {
+    // Store current state before opening settings
+    sessionStorage.setItem('previousGameState', gameState);
+    setGameState("settings");
+  };
 
   return (
     <div className="game-screen game-over-screen">
@@ -33,6 +38,9 @@ const GameOverScreen = () => {
           </button>
           <button className="game-button secondary" onClick={handleMainMenu}>
             MAIN MENU
+          </button>
+          <button className="game-button secondary" onClick={handleSettings}>
+            SETTINGS
           </button>
         </div>
       </div>

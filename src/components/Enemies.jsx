@@ -1,6 +1,8 @@
 import React from "react";
 import { FastEnemy } from "./enemies/FastEnemy";
 import { TankEnemy } from "./enemies/TankEnemy";
+import { gameConfig } from "../config/gameConfig";
+import { deactivateEnemy } from "../config/atoms";
 
 const EnemyComponents = {
   fast: FastEnemy,
@@ -17,7 +19,7 @@ const Enemies = ({
 }) => {
 
   const removeEnemy = (id) => {
-    setEnemies((prev) => prev.filter((e) => e.id !== id));
+    setEnemies((prev) => deactivateEnemy(prev, id));
   };
 
   const handlePlayerDamage = (damage) => {
@@ -28,14 +30,32 @@ const Enemies = ({
     });
   };
 
+  // Store configs in a map for quick lookup
+  const enemyConfigs = gameConfig.enemies.types.reduce((acc, type) => {
+    acc[type.id] = type;
+    return acc;
+  }, {});
+
+  const activeEnemies = enemies.filter(e => e.active);
+
   return (
     <>
-      {enemies.map((enemy) => {
+      {activeEnemies.map((enemy) => {
         const EnemyComponent = EnemyComponents[enemy.type];
+        if (!EnemyComponent) {
+          console.warn(`No component found for enemy type: ${enemy.type}`);
+          return null;
+        }
+        const config = enemyConfigs[enemy.type];
+        if (!config) {
+          console.warn(`No config found for enemy type: ${enemy.type}`);
+          return null;
+        }
         return (
           <EnemyComponent
             key={enemy.id}
             {...enemy}
+            {...config}
             onRemove={removeEnemy}
             playerPosition={playerPosition}
             gameState={gameState}

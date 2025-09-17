@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/cannon';
 import { useAtom } from 'jotai';
-import { OrbitControls, Sky, Environment } from '@react-three/drei';
+import { Sky, Environment } from '@react-three/drei';
 
 import {
   gameStateAtom,
@@ -39,7 +39,13 @@ const Scene = () => {
 
   return (
     <>
-    <Canvas shadows camera={{ position: [0, 15, 0], rotation: [-Math.PI / 2, 0, 0], fov: 50 }}>
+    <Canvas shadows 
+      camera={{ 
+        position: [0, 15, 15], // Fixed height and behind player
+        fov: 50,
+        near: 0.1,
+        far: 1000 
+      }}>
       <color attach="background" args={[gameConfig.world.backgroundColor]} />
       <fog attach="fog" args={[gameConfig.world.backgroundColor, 30, 100]} />
 
@@ -97,11 +103,6 @@ const Scene = () => {
           <Floor />
         </Physics>
       </Suspense>
-
-      <OrbitControls
-        enabled={false}
-        maxPolarAngle={Math.PI / 2.1}
-      />
     </Canvas>
     <HUD
       playerHealth={playerHealth}

@@ -8,8 +8,13 @@ export const gameConfig = {
     fireRate: 2, 
     projectileSpeed: 15,
     projectileSize: 0.3,
+    initialPosition: [0, 0.5, 0],
+    initialRotation: [0, 0, 0],
+    initialVelocity: [0, 0, 0],
   },
-  
+  camera: {
+    offset: { x: 0, y: 15, z: 15 },
+  },
   // Enemy settings
  enemies: {
     types: [
