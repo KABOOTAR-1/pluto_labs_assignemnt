@@ -17,6 +17,7 @@ import {
 } from '../config/atoms';
 import { gameConfig, useCurrentEnvironment, useWorldBounds } from '../config/gameConfig';
 import { getProjectileType, projectileTypes } from '../data/projectileTypes';
+import { activateProjectile } from '../config/atoms';
 import Player from './Player';
 import Floor from './Floor';
 import Enemies from './Enemies';
@@ -145,6 +146,7 @@ const Scene = () => {
                 setGameState={setGameState}
                 setPlayerHealth={setPlayerHealth}
                 selectedProjectileType={projectileConfig}
+                onShoot={(projectileData) => setProjectiles((prev) => activateProjectile(prev, projectileData))}
               />
             </Suspense>
             {gameState === 'playing' && (

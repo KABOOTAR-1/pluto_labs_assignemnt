@@ -4,8 +4,6 @@ import { useAtom } from "jotai";
 import {
   playerPositionAtom,
   playerRotationAtom,
-  projectilesAtom,
-  activateProjectile,
   playerSpeedSettingAtom,
   playerFireRateSettingAtom,
   playerHealthSettingAtom,
@@ -24,7 +22,7 @@ import { BasePlayer } from "./baseModel/BasePlayerModel";
   const initialRotation = gameConfig.player.initialRotation;
   const initialVelocity = gameConfig.player.initialVelocity;
   
-export default function Player({ worldBounds, playerPosition, playerHealth, gameState, setGameState, setPlayerHealth, selectedProjectileType }) {
+export default function Player({ worldBounds, playerPosition, playerHealth, gameState, setGameState, setPlayerHealth, selectedProjectileType, onShoot }) {
   const playerConfig = useCurrentPlayerConfig();
 
   const [ref, api] = useBox(() => ({
@@ -38,7 +36,6 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
   const [, setPlayerPosition] = useAtom(playerPositionAtom);
   const [playerRotation, setPlayerRotation] = useAtom(playerRotationAtom);
   // playerHealth and gameState are now props
-  const [, setProjectiles] = useAtom(projectilesAtom);
   const [playerSpeed] = useAtom(playerSpeedSettingAtom);
   const [playerFireRate] = useAtom(playerFireRateSettingAtom);
   const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
@@ -83,7 +80,7 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
     playerRotation,
     gameState,
     selectedProjectileType,
-    (projData) => setProjectiles((prev) => activateProjectile(prev, projData)),
+    onShoot,
     playerFireRate
   );
   usePlayerHealth(ref, playerHealth, (h) => setPlayerHealth(h), () => setGameState("gameOver"));
