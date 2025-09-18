@@ -28,6 +28,10 @@ const Projectiles = ({
       if (enemyIndex === -1) return prevEnemies;
 
       const enemy = prevEnemies[enemyIndex];
+
+      // If enemy is already inactive (killed by another projectile), don't process
+      if (!enemy.active) return prevEnemies;
+
       const newHealth = enemy.health - damage;
 
       if (newHealth <= 0) {
