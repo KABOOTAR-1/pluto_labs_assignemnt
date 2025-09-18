@@ -12,10 +12,55 @@ export function useWorldBounds() {
   };
 }
 
+/**
+ * 📏 WORLD SIZE HELPER - Get Overall World Dimensions
+ * ==================================================
+ *
+ * @description Returns the overall world size (radius from center) for calculations
+ * @returns {number} World size in units (typically 40)
+ *
+ * 🎯 USAGE EXAMPLES:
+ * ```javascript
+ * const size = useWorldSize(); // Returns: 40
+ * // Used for fog calculations, spawn zone sizing, boundary validation
+ * ```
+ *
+ * 📊 RELATIONSHIPS:
+ * - World bounds extend from -size to +size on X and Z axes
+ * - Spawn radius is typically size - 5 (35 for size 40)
+ * - Affects fog distance and skybox scaling
+ * - Used in boundary calculations and spawn logic
+ */
 export function useWorldSize() {
   return DEFAULT_CONFIG.world.size;
 }
 
+/**
+ * 🎯 SPAWN RADIUS HELPER - Enemy Spawn Distance from Player
+ * =======================================================
+ *
+ * @description Returns the maximum distance from player where enemies can spawn
+ * @returns {number} Spawn radius in units (typically 35)
+ *
+ * 🎯 USAGE EXAMPLES:
+ * ```javascript
+ * const radius = useSpawnRadius(); // Returns: 35
+ * // Enemies spawn within 35 units of player's current position
+ * ```
+ *
+ * 📐 SPAWN LOGIC:
+ * 1. Calculate random position within radius around player
+ * 2. Check if position is within world boundaries using isWithinBounds()
+ * 3. If outside bounds, recalculate position until valid
+ * 4. Spawn enemy at valid position
+ *
+ * 🎯 SPAWN BEHAVIOR:
+ * - Enemies spawn around player's current position (not world center)
+ * - Maximum distance: 35 units from player
+ * - Creates challenge by spawning enemies at varying distances
+ * - Boundary validation prevents spawning outside playable area
+ * - Dynamic spawning follows player movement
+ */
 export function useSpawnRadius() {
   return DEFAULT_CONFIG.world.spawnRadius || 35;
 }
