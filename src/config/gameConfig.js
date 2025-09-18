@@ -9,7 +9,7 @@ import { loadTheme } from './themeLoader';
 export { THEMES, GAME_STATES };
 
 // Selected theme atom
-export const selectedThemeAtom = atom(THEMES.CLASSIC);
+export const selectedThemeAtom = atom(THEMES.POSTAPOCALYPTIC);
 
 // Main game configuration
 export const gameConfig = {

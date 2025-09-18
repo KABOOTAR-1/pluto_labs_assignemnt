@@ -4,9 +4,9 @@ import { useAtom } from "jotai";
 import {
   playerPositionAtom,
   playerRotationAtom,
-  playerSpeedSettingAtom,
-  playerFireRateSettingAtom,
-  playerHealthSettingAtom,
+  basePlayerSpeedAtom,
+  basePlayerFireRateAtom,
+  basePlayerHealthAtom,
 } from "../config/atoms";
 import { gameConfig, useCurrentPlayerConfig } from "../config/gameConfig";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
@@ -37,9 +37,9 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
   const [, setPlayerPosition] = useAtom(playerPositionAtom);
   const [playerRotation, setPlayerRotation] = useAtom(playerRotationAtom);
   // playerHealth and gameState are now props
-  const [playerSpeed] = useAtom(playerSpeedSettingAtom);
-  const [playerFireRate] = useAtom(playerFireRateSettingAtom);
-  const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
+  const [playerSpeed] = useAtom(basePlayerSpeedAtom);
+  const [playerFireRate] = useAtom(basePlayerFireRateAtom);
+  const [playerHealthSetting] = useAtom(basePlayerHealthAtom);
 
   // Sync position
   useEffect(() => {

@@ -1,5 +1,132 @@
+/**
+ * 🎮 GAME THEME CONFIGURATION SYSTEM - COMPREHENSIVE AI GUIDE
+ * =========================================================
+ *
+ * 🚀 HOW TO CREATE NEW GAMES BY MODIFYING ASSETS
+ * ===============================================
+ *
+ * 🎯 AVAILABLE THEMES TO MODIFY:
+ * ==============================
+ * 1. 'classic' - Uses geometric shapes, modify colors only
+ * 2. 'space' - Full 3D space theme, modify any assets
+ * 3. 'postapocalyptic' - Full 3D wasteland theme, modify any assets
+ * 4. 'custom' - Template for new themes (MODIFY THIS ONE)
+ *
+ * 🎨 ASSET LOADING SYSTEM:
+ * =======================
+ * 🔗 CURRENT: Local paths like '/src/models/space/player.glb'
+ * 🔗 FUTURE: S3 URLs like 'https://bucket.s3.amazonaws.com/models/player.glb'
+ * 🔄 AI will provide S3 URLs to replace local paths
+ *
+ * 📝 QUICK MODIFICATION GUIDE:
+ * ===========================
+ *
+ * 🧑‍🚀 TO CHANGE PLAYER MODEL:
+ * --------------------------
+ * themes[themeName].player.modelUrl = 'YOUR_S3_URL_HERE'
+ *
+ * 👹 TO CHANGE ENEMY MODELS:
+ * -------------------------
+ * themes[themeName].enemies.types[0].modelUrl = 'ENEMY1_S3_URL'
+ * themes[themeName].enemies.types[1].modelUrl = 'ENEMY2_S3_URL'
+ *
+ * 🌌 TO CHANGE SKYBOX:
+ * -------------------
+ * themes[themeName].environment.skybox.texturePath = 'SKYBOX_S3_URL'
+ *
+ * 🏞️  TO CHANGE GROUND TEXTURE:
+ * ----------------------------
+ * themes[themeName].environment.ground.texture = 'GROUND_S3_URL'
+ *
+ * 🎨 TO CHANGE COLORS:
+ * -------------------
+ * themes[themeName].player.color = 0xFF0000  // Hex color
+ * themes[themeName].enemies.types[0].color = 0x00FF00
+ *
+ * 🎮 USING THE CUSTOM THEME:
+ * =========================
+ * When players want a theme we don't have, use the 'custom' theme:
+ * 1. Copy the custom theme object
+ * 2. Replace all empty strings ('') with your S3 asset URLs
+ * 3. Set appropriate colors and properties
+ * 4. The custom theme becomes your new game theme
+ *
+ * 🔧 MODIFYING EXISTING THEMES:
+ * =============================
+ * You can modify ANY theme, not just custom. For example:
+ * - Want space theme but different player? Change only player.modelUrl
+ * - Want postapocalyptic but different skybox? Change only skybox.texturePath
+ * - Mix and match assets from different themes as needed
+ *
+ * 📁 ASSET REQUIREMENTS:
+ * =====================
+ * 🗂️  Models: GLTF/GLB format, properly centered
+ * 🎨 Textures: PNG/JPG, power-of-2 dimensions recommended
+ * ☁️  Skyboxes: HDR/EXR (best quality) OR JPG/PNG (simple skies)
+ *
+ * ⚠️  IMPORTANT NOTES:
+ * ===================
+ * - All S3 URLs must be publicly accessible
+ * - Models should be optimized for web (under 5MB recommended)
+ * - Test fallback colors when models fail to load
+ * - Use CORS-enabled S3 buckets for web access
+ * - Skybox supports both HDR (.exr/.hdr) and standard (.jpg/.png) formats
+ */
+
 import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
 
+/**
+ * 🎨 THEME OBJECT STRUCTURE BREAKDOWN:
+ * ===================================
+ *
+ * Each theme object contains these sections:
+ *
+ * 🎯 THEME BASICS:
+ * name: Display name shown in UI
+ *
+ * 🧑‍🚀 PLAYER SECTION:
+ * modelUrl: S3 URL to player 3D model (GLTF/GLB)
+ * fallbackGeometry: Shape if model fails ('box', 'sphere', 'cylinder')
+ * scale: Size multipliers [width, height, depth]
+ * color: Hex color for fallback geometry
+ * rotation: Rotation in radians [x, y, z]
+ *
+ * 👹 ENEMIES SECTION:
+ * types[]: Array of enemy configurations
+ *   - modelUrl: S3 URL to enemy 3D model
+ *   - speed: Movement speed multiplier
+ *   - health: Hit points
+ *   - color: Fallback color
+ *   - facePlayer: Whether enemy rotates to face player
+ *
+ * 🌍 ENVIRONMENT SECTION:
+ * ground: Floor appearance
+ *   - texture: S3 URL to ground texture (PNG/JPG)
+ *   - color: Fallback ground color
+ *   - material: Material type ('standard', 'lambert')
+ * skybox: Background sky
+ *   - texturePath: S3 URL to skybox texture (HDR/EXR/JPG/PNG)
+ *   - skyType: Time of day ('day', 'night', 'sunset')
+ * lighting: Light setup
+ *   - ambient: Overall scene lighting
+ *   - directional: Main light source (like sun)
+ * fog: Atmospheric effects
+ * particles: Environmental particle effects
+ *
+ * 🚧 OBSTACLES SECTION:
+ * basic: Simple obstacles
+ * barrier: Complex barriers
+ *   - modelUrl: S3 URL to obstacle model
+ *   - fallbackGeometry: Shape if model fails
+ *   - material.color: Obstacle color
+ *
+ * 💎 COLLECTIBLES SECTION:
+ * coin: Collectible coins
+ * gem: Collectible gems
+ *   - modelUrl: S3 URL to collectible model
+ *   - fallbackGeometry: Shape if model fails
+ *   - material.color: Collectible color
+ */
 export const themes = {
   classic: {
     name: 'Classic',
@@ -221,7 +348,7 @@ export const themes = {
         roughness: 0.8
       },
       background: { color: 0x1a1a1a },
-      skybox: { texturePath: '/src/models/skybox/goegap_2k.exr', skyType: 'dusk' },
+      skybox: { texturePath: '/src/models/skybox/goegap_1k.exr', skyType: 'dusk' },
       lighting: {
         ambient: { color: 0x2a2a2a, intensity: 0.3 },
         directional: [

@@ -8,7 +8,7 @@ export const projectileTypes = [
     color: '#ffff00',
     emissiveIntensity: 0.5,
     mass: 0.1,
-    lifetime: 5000, // 5 seconds
+    lifetimeMs: 5000, // Lifetime in milliseconds
     description: 'Standard projectile'
   }
 ];

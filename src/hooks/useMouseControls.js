@@ -14,11 +14,11 @@ export const useMouseControls = () => {
       const x = event.clientX - rect.left - rect.width / 2;
       const y = event.clientY - rect.top - rect.height / 2;
 
-      const scale = 0.02; // Adjust this value to change sensitivity
-      const worldX = x * scale;
-      const worldZ = y * scale;
-      
-      setMousePosition({ x: worldX, y: 0, z: worldZ });
+      const MOUSE_WORLD_SCALE = 0.02; // Adjust this value to change mouse-to-world sensitivity
+      const worldPositionX = x * MOUSE_WORLD_SCALE;
+      const worldPositionZ = y * MOUSE_WORLD_SCALE;
+
+      setMousePosition({ x: worldPositionX, y: 0, z: worldPositionZ });
     };
 
     const handleMouseDown = () => {

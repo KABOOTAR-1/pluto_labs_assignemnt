@@ -1,6 +1,6 @@
 
 import { useAtom } from "jotai";
-import { playerHealthSettingAtom } from "../config/atoms";
+import { basePlayerHealthAtom } from "../config/atoms";
 import { useSettingsNavigation } from "../hooks/useSettingsNavigation";
 
 import HealthBar from "./ui/HealthBar";
@@ -14,7 +14,7 @@ const HUD = ({
   showHUD,
   gameState
 }) => {
-  const [maxPlayerHealth] = useAtom(playerHealthSettingAtom);
+  const [maxPlayerHealth] = useAtom(basePlayerHealthAtom);
   const { goToSettings } = useSettingsNavigation();
 
   if (!showHUD) return null;

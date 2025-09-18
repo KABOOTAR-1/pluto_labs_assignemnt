@@ -8,7 +8,7 @@ import {
   enemiesAtom,
   projectilesAtom,
   playerPositionAtom,
-  playerHealthAtom,
+  activePlayerHealthAtom,
   scoreAtom,
   enemiesKilledAtom,
   showHUDAtom,
@@ -28,13 +28,13 @@ const Scene = () => {
   const [enemies, setEnemies] = useAtom(enemiesAtom);
   const [projectiles, setProjectiles] = useAtom(projectilesAtom);
   const [playerPosition] = useAtom(playerPositionAtom);
-  const [playerHealth, setPlayerHealth] = useAtom(playerHealthAtom);
+  const [playerHealth, setPlayerHealth] = useAtom(activePlayerHealthAtom);
   const [score, setScore] = useAtom(scoreAtom);
   const [enemiesKilled, setEnemiesKilled] = useAtom(enemiesKilledAtom);
   const [showHUD] = useAtom(showHUDAtom);
-  const [currentProjectileTypeId, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
+  const [currentProjectileType, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
 
-  const projectileConfig = getProjectileType(currentProjectileTypeId);
+  const projectileConfig = getProjectileType(currentProjectileType);
   const worldBounds = useWorldBounds();
 
   // Initialize projectile type on mount

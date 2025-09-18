@@ -2,10 +2,10 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import {
   gameStateAtom,
-  playerHealthAtom,
-  playerSpeedSettingAtom,
-  playerHealthSettingAtom,
-  playerFireRateSettingAtom,
+  activePlayerHealthAtom,
+  basePlayerSpeedAtom,
+  basePlayerHealthAtom,
+  basePlayerFireRateAtom,
   enemySpeedMultiplierAtom,
   enemySpawnRateAtom,
   difficultyMultiplierAtom,
@@ -15,10 +15,10 @@ import { settingsConfig, getSettingLabel } from '../config/settingsConfig';
 
 const SettingsScreen = () => {
   const [gameState, setGameState] = useAtom(gameStateAtom);
-  const [currentPlayerHealth, setCurrentPlayerHealth] = useAtom(playerHealthAtom);
-  const [playerSpeed, setPlayerSpeed] = useAtom(playerSpeedSettingAtom);
-  const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
-  const [playerFireRate, setPlayerFireRate] = useAtom(playerFireRateSettingAtom);
+  const [currentPlayerHealth, setCurrentPlayerHealth] = useAtom(activePlayerHealthAtom);
+  const [playerSpeed, setPlayerSpeed] = useAtom(basePlayerSpeedAtom);
+  const [playerHealthSetting] = useAtom(basePlayerHealthAtom);
+  const [playerFireRate, setPlayerFireRate] = useAtom(basePlayerFireRateAtom);
   const [enemySpeedMultiplier, setEnemySpeedMultiplier] = useAtom(enemySpeedMultiplierAtom);
   const [enemySpawnRate, setEnemySpawnRate] = useAtom(enemySpawnRateAtom);
   const [difficultyMultiplier, setDifficultyMultiplier] = useAtom(difficultyMultiplierAtom);
