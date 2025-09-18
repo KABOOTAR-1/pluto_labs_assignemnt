@@ -8,7 +8,6 @@ export const useConditionalTexture = (textureUrl) => {
 
   useEffect(() => {
     if (textureUrl) {
-      console.log('Loading texture from:', textureUrl);
       setLoading(true);
       setError(null);
 
@@ -28,7 +27,6 @@ export const useConditionalTexture = (textureUrl) => {
       loader.load(
         resolvedUrl,
         (loadedTexture) => {
-          console.log('Texture loaded successfully:', loadedTexture);
           // Ensure texture properties are set correctly
           loadedTexture.flipY = false;
           loadedTexture.needsUpdate = true;
@@ -45,7 +43,7 @@ export const useConditionalTexture = (textureUrl) => {
         }
       );
     } else {
-      console.log('No texture URL provided');
+      //console.log('No texture URL provided');
       setTexture(null);
       setLoading(false);
       setError(null);

@@ -52,6 +52,11 @@ export const baseGameConfig = {
       maxY: 50,
     },
     spawnRadius: 35, // Safe spawn area within bounds
+    skybox: {
+      enabled: true,
+      size: 1000, // Skybox cube size
+      texturePath: null, // Will be set per theme
+    },
   },
   rules: {
     initialScore: 0,

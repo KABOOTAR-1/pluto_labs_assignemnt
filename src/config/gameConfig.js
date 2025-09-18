@@ -4,7 +4,6 @@ import { atom, useAtom } from 'jotai'
 // Theme enum
 export const THEMES = {
   CLASSIC: 'classic',
-  MEDIEVAL: 'medieval',
   SPACE: 'space',
   POSTAPOCALYPTIC: 'postapocalyptic',
 };
@@ -62,8 +61,9 @@ export const gameConfig = {
         ],
       },
       environment: {
-        ground: { color: 0x2a2f36, material: 'standard', texture: null },
+        ground: { color: 0x2a2f36, material: 'standard', texture: '' },
         background: { color: 0x87ceeb },
+        skybox: { texturePath: '', skyType: 'day' },
         lighting: {
           ambient: { color: 0x404040, intensity: 0.4 },
           directional: { color: 0xffffff, intensity: 0.8, position: [1, 1, 0.5] },
@@ -95,14 +95,14 @@ export const gameConfig = {
           {
             ...ENEMY_BASES.fast,
             speed: 4,
-            modelUrl: '/src/models/medival/medivalEnemy1.glb',
+            modelUrl: '',
             fallbackGeometry: 'sphere',
             color: 0x654321, // Dark brown for goblin/orc
             facePlayer: true,
           },
           {
             ...ENEMY_BASES.tank,
-            modelUrl: '/src/models/medival/medivalEnemy2.glb',
+            modelUrl: '',
             fallbackGeometry: 'box',
             color: 0x2F4F2F, // Dark green for troll/ogre
             facePlayer: true,
@@ -112,12 +112,13 @@ export const gameConfig = {
       environment: {
         ground: {
           color: 0x8B7355,
-          texture: '/textures/medieval/stone-ground.jpg',
+          texture: '/src/models/textures/medieval-stone-ground.jpg',
           material: 'standard',
           metalness: 0.1,
           roughness: 0.9
         },
         background: { color: 0x87CEEB },
+        skybox: { texturePath: '/src/models/skybox/sky-medieval.jpg', skyType: 'sunset' },
         lighting: {
           ambient: { color: 0xFFF8DC, intensity: 0.4 },
           directional: [
@@ -180,12 +181,13 @@ export const gameConfig = {
       environment: {
         ground: {
           color: 0x1a1a2e,
-          texture: '/textures/space/metal-floor.jpg',
+          texture: '/src/models/ground/3d-rendering-hexagonal-texture-background.jpg',
           material: 'standard',
           metalness: 0.3,
           roughness: 0.7
         },
         background: { color: 0x000022 },
+        skybox: { texturePath: '/src/models/skybox/NightSkyHDRI009_4K-HDR.exr', skyType: 'night' },
         lighting: {
           ambient: { color: 0x001122, intensity: 0.1 },
           directional: [
@@ -218,7 +220,7 @@ export const gameConfig = {
       player: {
         ...PLAYER_BASE,
         modelUrl: '/src/models/post/postPlayer.glb',
-        textureUrl: '/src/models/post/postPlayer.png',
+        //textureUrl: '/src/models/post/postPlayer.png',
         fallbackGeometry: 'box',
         scale: [1, 1, 1],
         color: 0x4A4A4A, // Dark metallic gray for wasteland survivor
@@ -230,7 +232,7 @@ export const gameConfig = {
             ...ENEMY_BASES.fast,
             speed: 5,
             modelUrl: '/src/models/post/postEnemy1.glb',
-            textureUrl: '/src/models/post/postColorMap.png',
+            //textureUrl: '/src/models/post/postColorMap.png',
             fallbackGeometry: 'sphere',
             color: 0x8B0000,
             facePlayer: true,
@@ -248,12 +250,13 @@ export const gameConfig = {
       environment: {
         ground: {
           color: 0x3A3A3A,
-          texture: '/textures/post/wasteland-ground.jpg',
+          texture: '/src/models/ground/sand-ground-textured.jpg',
           material: 'standard',
           metalness: 0.2,
           roughness: 0.8
         },
         background: { color: 0x1a1a1a },
+        skybox: { texturePath: '/src/models/skybox/goegap_2k.exr', skyType: 'dusk' },
         lighting: {
           ambient: { color: 0x2a2a2a, intensity: 0.3 },
           directional: [

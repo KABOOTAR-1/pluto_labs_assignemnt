@@ -27,6 +27,8 @@ import SpaceParticles from './SpaceParticles';
 import CyberpunkParticles from './CyberpunkParticles';
 import MedievalParticles from './MedievalParticles';
 import PostApocalypticParticles from './PostApocalypticParticles';
+import Skybox from './Skybox';
+import SkyType from './SkyType';
 import HUD from './HUD';
 
 const Scene = () => {
@@ -61,8 +63,11 @@ const Scene = () => {
           near: 0.1,
           far: 1000
         }}>
-        <color attach="background" args={[currentEnvironment.background?.color || gameConfig.world.backgroundColor]} />
-        <fog attach="fog" args={[currentEnvironment.fog?.color || gameConfig.world.backgroundColor, currentEnvironment.fog?.near || 30, currentEnvironment.fog?.far || 100]} />
+        {/* Only set background color if no skybox is present */}
+        {/* {currentEnvironment.skybox?.texturePath ? null : (
+          <color attach="background" args={[currentEnvironment.background?.color || gameConfig.world.backgroundColor]} />
+        )} */}
+        {/* <fog attach="fog" args={[currentEnvironment.fog?.color || gameConfig.world.backgroundColor, currentEnvironment.fog?.near || 30, currentEnvironment.fog?.far || 100]} /> */}
 
         {/* Ambient Light */}
         <ambientLight
@@ -122,12 +127,19 @@ const Scene = () => {
         </Suspense>
 
         <Suspense fallback={null}>
-          {/* Only show Environment and Sky for non-space/cyberpunk/medieval/postapocalyptic themes */}
+          {/* Conditionally render Skybox or SkyType based on texture availability */}
+          {currentEnvironment.skybox?.texturePath ? (
+            <Skybox
+              worldBounds={worldBounds}
+              texturePath={currentEnvironment.skybox.texturePath}
+            />
+          ) : (
+            <SkyType skyType={currentEnvironment.skybox?.skyType || 'day'} />
+          )}
+
+          {/* Only show Environment for non-space/cyberpunk/medieval/postapocalyptic themes */}
           {currentEnvironment.name !== 'Deep Space' && currentEnvironment.name !== 'Cyberpunk 2077' && currentEnvironment.name !== 'Medieval Fantasy' && currentEnvironment.name !== 'Post-Apocalyptic' && (
-            <>
-              <Environment preset="city" />
-              <Sky sunPosition={[100, 10, 100]} />
-            </>
+            <Environment preset="city" />
           )}
 
           <Physics
@@ -183,7 +195,7 @@ const Scene = () => {
             <Floor />
           </Physics>
         </Suspense>
-        {/* <OrbitControls /> */}
+        <OrbitControls />
       </Canvas>
       <HUD
         playerHealth={playerHealth}
