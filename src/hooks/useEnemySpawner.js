@@ -48,6 +48,7 @@ export const useEnemySpawner = ({
       position: [spawnX, enemyConfig.size, spawnZ],
       health: enemyConfig.health,
       size: enemyConfig.size,
+      scale: enemyConfig.scale || [1, 1, 1],
       speed: enemyConfig.speed,
     };
 

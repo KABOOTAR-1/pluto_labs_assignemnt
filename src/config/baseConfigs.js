@@ -26,7 +26,7 @@ export const ENEMY_BASES = {
     id: 'tank',
     speed: 1.2,
     health: 90,
-    size: 1.2,
+    size: 0.6,
     damage: 20,
     points: 25,
     spawnRate: 0.5,

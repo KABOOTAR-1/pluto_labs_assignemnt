@@ -25,7 +25,8 @@ import { BasePlayer } from "./baseModel/BasePlayerModel";
 export default function Player({ worldBounds, playerPosition, playerHealth, gameState, setGameState, setPlayerHealth, selectedProjectileType, onShoot }) {
   const playerConfig = useCurrentPlayerConfig();
 
-  const [ref, api] = useBox(() => ({
+  const [ref, api] = 
+  useBox(() => ({
     mass: 1,
     type: "Kinematic",
     args: [playerConfig.size || gameConfig.player.size, playerConfig.size || gameConfig.player.size, playerConfig.size || gameConfig.player.size],

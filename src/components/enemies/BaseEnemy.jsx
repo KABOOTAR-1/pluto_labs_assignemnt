@@ -12,6 +12,7 @@ export const BaseEnemy = ({
   id,
   position,
   size,
+  scale = [1, 1, 1],
   color,
   speed,
   damage,
@@ -63,7 +64,7 @@ export const BaseEnemy = ({
         color={color}
         fallbackGeometry={fallbackGeometry || 'box'}
         rotation={facePlayer ? facingRotation : [0, 0, 0]}
-        scale={[1, 1, 1]}
+        scale={scale}
         centerModel={false}
       />
     </group>
