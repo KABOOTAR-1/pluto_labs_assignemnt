@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Physics } from '@react-three/cannon';
-import { gameConfig, GAME_STATES } from '../config/gameConfig';
+import { gameConfig } from '../config/gameConfig';
+import { GAME_STATES } from '../config/constants';
 import Player from './Player';
 import Floor from './Floor';
 import Enemies from './Enemies';

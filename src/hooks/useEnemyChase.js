@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { GAME_STATES } from "../config/gameConfig";
+import { GAME_STATES } from "../config/constants";
 
 export const useEnemyChase = (api, position, speed, playerPosition, gameState) => {
   useFrame(() => {

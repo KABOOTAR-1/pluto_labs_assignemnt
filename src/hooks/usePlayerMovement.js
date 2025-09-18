@@ -1,5 +1,6 @@
 import { useFrame } from "@react-three/fiber";
-import { gameConfig, GAME_STATES } from "../config/gameConfig";
+import { gameConfig } from "../config/gameConfig";
+import { GAME_STATES } from "../config/constants";
 import { useKeyControls } from "../hooks/useKeyControls";
 
 /**

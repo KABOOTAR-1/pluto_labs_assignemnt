@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Environment } from '@react-three/drei';
 import { useCurrentEnvironment } from '../config/gameConfig';
-import { useWorldBounds } from '../config/gameConfig';
+import { useWorldBounds } from '../config/configHelpers';
 import Skybox from './Skybox';
 import SkyType from './SkyType';
 

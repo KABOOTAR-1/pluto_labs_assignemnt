@@ -2,7 +2,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { activateEnemy } from "../config/atoms";
-import { GAME_STATES } from "../config/gameConfig";
+import { GAME_STATES } from "../config/constants";
 
 export const useEnemySpawner = ({
   enemies,

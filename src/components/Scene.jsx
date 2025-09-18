@@ -14,7 +14,7 @@ import {
   showHUDAtom,
   currentProjectileTypeAtom
 } from '../config/atoms';
-import { useWorldBounds } from '../config/gameConfig';
+import { useWorldBounds } from '../config/configHelpers';
 import { getProjectileType, projectileTypes } from '../data/projectileTypes';
 import { activateProjectile } from '../config/atoms';
 import LightingManager from './LightingManager';

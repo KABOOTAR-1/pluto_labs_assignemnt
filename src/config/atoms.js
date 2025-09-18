@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
-import { gameConfig, selectedThemeAtom, THEMES, GAME_STATES } from './gameConfig';
+import { gameConfig, selectedThemeAtom } from './gameConfig';
+import { THEMES, GAME_STATES } from './constants';
 
 // Re-export for convenience
 export { selectedThemeAtom, THEMES };
