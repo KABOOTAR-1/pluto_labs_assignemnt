@@ -4,16 +4,12 @@ import { useAtom } from "jotai";
 import {
   playerPositionAtom,
   playerRotationAtom,
-  playerHealthAtom,
-  gameStateAtom,
   projectilesAtom,
-  currentProjectileTypeAtom,
   activateProjectile,
   playerSpeedSettingAtom,
   playerFireRateSettingAtom,
   playerHealthSettingAtom,
 } from "../config/atoms";
-import { getProjectileType, projectileTypes } from "../data/projectileTypes";
 import { gameConfig, useCurrentPlayerConfig } from "../config/gameConfig";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { usePlayerRotation } from "../hooks/usePlayerRotation";
@@ -28,7 +24,7 @@ import { BasePlayer } from "./baseModel/BasePlayerModel";
   const initialRotation = gameConfig.player.initialRotation;
   const initialVelocity = gameConfig.player.initialVelocity;
   
-export default function Player() {
+export default function Player({ worldBounds, playerPosition, playerHealth, gameState, setGameState, setPlayerHealth, selectedProjectileType }) {
   const playerConfig = useCurrentPlayerConfig();
 
   const [ref, api] = useBox(() => ({
@@ -39,12 +35,10 @@ export default function Player() {
     name: "player",
   }));
 
-  const [playerPosition, setPlayerPosition] = useAtom(playerPositionAtom);
+  const [, setPlayerPosition] = useAtom(playerPositionAtom);
   const [playerRotation, setPlayerRotation] = useAtom(playerRotationAtom);
-  const [playerHealth, setPlayerHealth] = useAtom(playerHealthAtom);
-  const [gameState, setGameState] = useAtom(gameStateAtom);
+  // playerHealth and gameState are now props
   const [, setProjectiles] = useAtom(projectilesAtom);
-  const [, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
   const [playerSpeed] = useAtom(playerSpeedSettingAtom);
   const [playerFireRate] = useAtom(playerFireRateSettingAtom);
   const [playerHealthSetting] = useAtom(playerHealthSettingAtom);
@@ -65,12 +59,6 @@ export default function Player() {
   }, [api.position, setPlayerPosition]);
 
 
-  // Initialize projectile type
-  useEffect(() => {
-    const firstId = projectileTypes[0]?.id;
-    setCurrentProjectileType(firstId);
-  }, [setCurrentProjectileType]);
-
   // Update player health when health setting changes
   useEffect(() => {
     setPlayerHealth((currentHealth) => {
@@ -86,10 +74,9 @@ export default function Player() {
       return currentHealth;
     });
   }, [playerHealthSetting, setPlayerHealth]);
-  const selectedProjectileType = getProjectileType(projectileTypes[0]?.id);
 
   // Game hooks
-  usePlayerMovement(api, playerPosition, gameState, () => setGameState("gameOver"), playerSpeed);
+  usePlayerMovement(api, playerPosition, gameState, () => setGameState("gameOver"), playerSpeed, worldBounds);
   usePlayerRotation(api, gameState, setPlayerRotation);
   usePlayerShooting(
     playerPosition,
@@ -109,8 +96,9 @@ export default function Player() {
         size={playerConfig.size || gameConfig.player.size}
         color={playerConfig.color || gameConfig.player.color}
         fallbackGeometry={playerConfig.fallbackGeometry || 'box'}
-        rotation={[-Math.PI, -Math.PI/2, Math.PI]}
+        rotation={playerConfig.rotation || [0, -Math.PI, 0]}
         scale={playerConfig.scale || [1, 1, 1]}
+        centerModel={false}
       />
     </group>
   );

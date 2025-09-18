@@ -10,7 +10,7 @@ import { useKeyControls } from "../hooks/useKeyControls";
  * @param {Function} handleGameOver - Called if player goes out of bounds
  * @param {number} playerSpeed - Player movement speed
  */
-export const usePlayerMovement = (api, playerPosition, gameState, handleGameOver, playerSpeed = gameConfig.player.speed) => {
+export const usePlayerMovement = (api, playerPosition, gameState, handleGameOver, playerSpeed = gameConfig.player.speed, worldBounds = gameConfig.world.bounds) => {
   const { forward, backward, left, right } = useKeyControls();
 
   useFrame((_, delta) => {
@@ -26,7 +26,7 @@ export const usePlayerMovement = (api, playerPosition, gameState, handleGameOver
     if (right) x += moveSpeed;
 
     // Boundaries
-    if (Math.abs(x) > 40 || Math.abs(z) > 40) {
+    if (x < worldBounds.minX || x > worldBounds.maxX || z < worldBounds.minZ || z > worldBounds.maxZ) {
       handleGameOver();
     }
     const velX = (x - playerPosition[0]) / delta;

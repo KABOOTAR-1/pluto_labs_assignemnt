@@ -13,6 +13,8 @@ const Floor = () => {
   const currentEnvironment = useCurrentEnvironment();
   const worldSize = gameConfig.world.size;
 
+  const groundConfig = currentEnvironment.ground || {};
+
   return (
     <mesh
       ref={ref}
@@ -20,14 +22,22 @@ const Floor = () => {
       rotation={[-Math.PI / 2, 0, 0]}
     >
       <planeGeometry args={[worldSize * 2, worldSize * 2]} />
-      <MeshReflectorMaterial
-        color={currentEnvironment.ground?.color || gameConfig.world.floorColor}
-        roughness={0.7}
-        blur={[1000, 1000]}
-        mixBlur={30}
-        mixStrength={80}
-        metalness={0.1}
-      />
+      {groundConfig.material === 'reflector' || !groundConfig.material ? (
+        <MeshReflectorMaterial
+          color={groundConfig.color || gameConfig.world.floorColor}
+          roughness={groundConfig.roughness || 0.7}
+          blur={[1000, 1000]}
+          mixBlur={30}
+          mixStrength={80}
+          metalness={groundConfig.metalness || 0.1}
+        />
+      ) : (
+        <meshStandardMaterial
+          color={groundConfig.color || gameConfig.world.floorColor}
+          roughness={groundConfig.roughness || 0.8}
+          metalness={groundConfig.metalness || 0.2}
+        />
+      )}
     </mesh>
   );
 };

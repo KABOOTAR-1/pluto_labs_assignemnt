@@ -11,7 +11,8 @@ const EnemySpawner = ({
   enemies,
   setEnemies,
   playerPosition,
-  gameState
+  gameState,
+  worldBounds
 }) => {
   const [enemySpawnRate] = useAtom(enemySpawnRateAtom);
   const [maxEnemies] = useAtom(maxEnemiesSettingAtom);
@@ -26,6 +27,7 @@ const EnemySpawner = ({
     maxOnScreen: maxEnemies,
     enemyTypes: currentEnemies.types,
     spawnRadius: gameConfig.enemySettings.spawnRadius,
+    worldBounds,
     difficultyIncreaseInterval: 30,
     difficultyMultiplierStep: 1.2,
     enemySpawnRate,

@@ -41,7 +41,18 @@ export const baseGameConfig = {
     near: 0.1,
     far: 1000,
   },
-  world: { size: 40 },
+  world: {
+    size: 40,
+    bounds: {
+      minX: -40,
+      maxX: 40,
+      minZ: -40,
+      maxZ: 40,
+      minY: -10,
+      maxY: 50,
+    },
+    spawnRadius: 35, // Safe spawn area within bounds
+  },
   rules: {
     initialScore: 0,
     scoreMultiplier: 1,

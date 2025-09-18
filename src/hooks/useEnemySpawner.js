@@ -11,6 +11,7 @@ export const useEnemySpawner = ({
   maxOnScreen,
   enemyTypes,
   spawnRadius,
+  worldBounds,
   difficultyIncreaseInterval = 30,
   difficultyMultiplierStep = 1.2,
   enemySpawnRate = 1.0,
@@ -29,12 +30,21 @@ export const useEnemySpawner = ({
     const enemyConfig = randomType;
 
     const angle = Math.random() * Math.PI * 2;
-    const spawnX = playerPosition[0] + Math.sin(angle) * spawnRadius;
-    const spawnZ = playerPosition[2] + Math.cos(angle) * spawnRadius;
+    let spawnX = playerPosition[0] + Math.sin(angle) * spawnRadius;
+    let spawnZ = playerPosition[2] + Math.cos(angle) * spawnRadius;
+
+    // Ensure spawn position is within world bounds - 5 units from edges
+    const safeMinX = worldBounds.minX + 5;
+    const safeMaxX = worldBounds.maxX - 5;
+    const safeMinZ = worldBounds.minZ + 5;
+    const safeMaxZ = worldBounds.maxZ - 5;
+
+    spawnX = Math.max(safeMinX, Math.min(safeMaxX, spawnX));
+    spawnZ = Math.max(safeMinZ, Math.min(safeMaxZ, spawnZ));
 
     const enemyData = {
       type: randomType.id,
-      position: [spawnX, 0.5, spawnZ],
+      position: [spawnX, enemyConfig.size, spawnZ],
       health: enemyConfig.health,
       size: enemyConfig.size,
       speed: enemyConfig.speed,

@@ -15,7 +15,8 @@ const Enemies = ({
   playerPosition,
   setPlayerHealth,
   gameState,
-  setGameState
+  setGameState,
+  worldBounds
 }) => {
   const [enemySpeedMultiplier] = useAtom(enemySpeedMultiplierAtom);
   const currentEnemies = useCurrentEnemies();
@@ -63,6 +64,7 @@ const Enemies = ({
             playerPosition={playerPosition}
             gameState={gameState}
             onPlayerDamage={handlePlayerDamage}
+            worldBounds={worldBounds}
           />
         );
       })}

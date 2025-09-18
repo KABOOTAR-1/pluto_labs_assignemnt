@@ -3,6 +3,7 @@ import { useBox } from "@react-three/cannon";
 import { useEnemyChase } from "../../hooks/useEnemyChase";
 import { useEnemyAttack } from "../../hooks/useEnemyAttack";
 import { useEnemyCleanup } from "../../hooks/useEnemyCleanup";
+import { useEnemyFacing } from "../../hooks/useEnemyFacing";
 import { BaseModel } from "../GltfLoader/BaseModel";
 import { BaseEnemyModel } from "../baseModel/BaseEnemyModel";
 
@@ -19,7 +20,10 @@ export const BaseEnemy = ({
   gameState,
   onPlayerDamage,
   modelUrl,
+  textureUrl,
   fallbackGeometry,
+  facePlayer = false, // New optional prop to enable facing player
+  worldBounds, // World bounds for cleanup
 }) => {
   const currentPosition = useRef(position);
   
@@ -44,18 +48,23 @@ export const BaseEnemy = ({
 
   useEnemyChase(api, currentPosition.current, speed, playerPosition, gameState);
   useEnemyAttack(currentPosition.current, size, damage, playerPosition, gameState, onPlayerDamage);
-  useEnemyCleanup(currentPosition.current, id, onRemove);
+  useEnemyCleanup(currentPosition.current, id, onRemove, worldBounds);
+
+  // Use the facing hook with physics API
+  const facingRotation = useEnemyFacing(facePlayer, playerPosition, currentPosition.current)
 
   return (
     <group ref={ref}>
       <BaseModel
         url={modelUrl}
+        textureUrl={textureUrl}
         fallbackComponent={BaseEnemyModel}
         size={size}
         color={color}
         fallbackGeometry={fallbackGeometry || 'box'}
-        rotation={[0, 0, 0]}
+        rotation={facePlayer ? facingRotation : [0, 0, 0]}
         scale={[1, 1, 1]}
+        centerModel={false}
       />
     </group>
   );
