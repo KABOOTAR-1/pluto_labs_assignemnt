@@ -57,7 +57,7 @@ const Scene = () => {
 
         <LightingManager />
 
-        <ParticleRenderer />
+        {/* <ParticleRenderer /> */}
 
         <EnvironmentSetup />
 

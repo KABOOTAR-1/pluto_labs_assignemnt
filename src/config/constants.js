@@ -3,6 +3,7 @@ export const THEMES = {
   CLASSIC: 'classic',
   SPACE: 'space',
   POSTAPOCALYPTIC: 'postapocalyptic',
+  CUSTOM: 'custom'
 };
 
 // Game state enum

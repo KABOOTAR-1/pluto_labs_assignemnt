@@ -49,15 +49,15 @@ export const themes = {
     },
   },
 
-  medieval: {
-    name: 'Medieval Fantasy',
+  custom: {
+    name: 'custom game template',
     player: {
       ...PLAYER_BASE,
-      modelUrl: '/src/models/medival/medivalPlayer.glb',
+      modelUrl: '',
       fallbackGeometry: 'box',
       scale: [1, 1, 1],
       color: 0x8B4513, // Saddle brown for medieval armor
-      rotation: [0, -Math.PI, 0],
+      rotation: [0, 0, 0],
     },
     enemies: {
       types: [
@@ -81,13 +81,13 @@ export const themes = {
     environment: {
       ground: {
         color: 0x8B7355,
-        texture: '/src/models/textures/medieval-stone-ground.jpg',
+        texture: '',
         material: 'standard',
         metalness: 0.1,
         roughness: 0.9
       },
       background: { color: 0x87CEEB },
-      skybox: { texturePath: '/src/models/skybox/sky-medieval.jpg', skyType: 'sunset' },
+      skybox: { texturePath: '', skyType: 'sunset' },
       lighting: {
         ambient: { color: 0xFFF8DC, intensity: 0.4 },
         directional: [
