@@ -78,16 +78,3 @@ export const resetGameAtom = atom(
 // BACKWARD COMPATIBILITY EXPORTS
 // ============================================================================
 
-// ============================================================================
-// BACKWARD COMPATIBILITY EXPORTS
-// ============================================================================
-
-// Re-export utility functions from gameUtils for existing code
-export {
-  activateProjectile,
-  deactivateProjectile,
-  activateEnemy,
-  deactivateEnemy,
-  resetProjectiles,
-  resetEnemies
-} from '../utils/gameUtils';

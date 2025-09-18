@@ -1,7 +1,7 @@
 import React from 'react';
 import { gameConfig, useCurrentEnemies } from '../config/gameConfig';
 import { Bullet } from './projectiles/Bullet';
-import { deactivateProjectile, deactivateEnemy } from '../config/atoms';
+import { deactivateProjectile, deactivateEnemy } from '../utils/gameUtils';
 
 const ProjectileTypes = {
   bullet: Bullet,

@@ -2,7 +2,8 @@ import { useAtom } from "jotai";
 import { FastEnemy } from "./enemies/FastEnemy";
 import { TankEnemy } from "./enemies/TankEnemy";
 import { useCurrentEnemies } from "../config/gameConfig";
-import { deactivateEnemy, enemySpeedMultiplierAtom } from "../config/atoms";
+import { deactivateEnemy } from "../utils/gameUtils";
+import { enemySpeedMultiplierAtom } from "../config/atoms";
 
 const EnemyComponents = {
   fast: FastEnemy,

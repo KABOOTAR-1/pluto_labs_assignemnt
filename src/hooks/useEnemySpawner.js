@@ -1,7 +1,7 @@
 // hooks/useEnemySpawner.js
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import { activateEnemy } from "../config/atoms";
+import { activateEnemy } from "../utils/gameUtils";
 import { GAME_STATES } from "../config/constants";
 
 export const useEnemySpawner = ({

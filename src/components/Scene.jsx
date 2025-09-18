@@ -16,7 +16,7 @@ import {
 } from '../config/atoms';
 import { useWorldBounds } from '../config/configHelpers';
 import { getProjectileType, projectileTypes } from '../data/projectileTypes';
-import { activateProjectile } from '../config/atoms';
+import { activateProjectile } from '../utils/gameUtils';
 import LightingManager from './LightingManager';
 import ParticleRenderer from './ParticleRenderer';
 import EnvironmentSetup from './EnvironmentSetup';
