@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
+import { GAME_STATES } from "../config/gameConfig";
 
 export const useEnemyChase = (api, position, speed, playerPosition, gameState) => {
   useFrame(() => {
-    if (gameState !== "playing") return;
+    if (gameState !== GAME_STATES.PLAYING) return;
     //console.log("Enemy chasing player:", position, playerPosition);
     const dirX = playerPosition[0] - position[0];
     const dirZ = playerPosition[2] - position[2];

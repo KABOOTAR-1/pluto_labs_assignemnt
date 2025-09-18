@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { gameConfig } from "../config/gameConfig";
+import { gameConfig, GAME_STATES } from "../config/gameConfig";
 import { useKeyControls } from "../hooks/useKeyControls";
 
 export const usePlayerShooting = (playerPosition, playerRotation, gameState, projectileType, onShoot, fireRate = gameConfig.player.fireRate) => {
@@ -9,7 +9,7 @@ export const usePlayerShooting = (playerPosition, playerRotation, gameState, pro
   const lastShot = useRef(0);
 
   useFrame(() => {
-    if (gameState !== "playing" || !space) return;
+    if (gameState !== GAME_STATES.PLAYING || !space) return;
 
     const now = Date.now();
     const fireDelay = 1000 / fireRate;

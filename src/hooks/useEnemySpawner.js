@@ -2,6 +2,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { activateEnemy } from "../config/atoms";
+import { GAME_STATES } from "../config/gameConfig";
 
 export const useEnemySpawner = ({
   enemies,
@@ -54,7 +55,7 @@ export const useEnemySpawner = ({
   };
 
   useFrame((_, delta) => {
-    if (gameState !== "playing") return;
+    if (gameState !== GAME_STATES.PLAYING) return;
 
     spawnTimer.current += delta;
     difficultyTimer.current += delta;

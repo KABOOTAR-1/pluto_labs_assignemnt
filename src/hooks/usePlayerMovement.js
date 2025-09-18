@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { gameConfig } from "../config/gameConfig";
+import { gameConfig, GAME_STATES } from "../config/gameConfig";
 import { useKeyControls } from "../hooks/useKeyControls";
 
 /**
@@ -14,7 +14,7 @@ export const usePlayerMovement = (api, playerPosition, gameState, handleGameOver
   const { forward, backward, left, right } = useKeyControls();
 
   useFrame((_, delta) => {
-    if (gameState !== "playing") return;
+    if (gameState !== GAME_STATES.PLAYING) return;
 
     const moveSpeed = playerSpeed * delta;
     let x = playerPosition[0];

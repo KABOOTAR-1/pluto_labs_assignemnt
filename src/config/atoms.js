@@ -1,10 +1,10 @@
 import { atom } from 'jotai';
-import { gameConfig, selectedThemeAtom, THEMES } from './gameConfig';
+import { gameConfig, selectedThemeAtom, THEMES, GAME_STATES } from './gameConfig';
 
 // Re-export for convenience
 export { selectedThemeAtom, THEMES };
 
-export const gameStateAtom = atom('menu');
+export const gameStateAtom = atom(GAME_STATES.MENU);
 
 export const playerHealthAtom = atom(gameConfig.player.health);
 export const playerPositionAtom = atom([0, 0, 0]);
@@ -110,7 +110,7 @@ export const maxEnemiesSettingAtom = atom(gameConfig.enemySettings.maxOnScreen);
 export const resetGameAtom = atom(
   null,
   (get, set) => {
-    set(gameStateAtom, 'playing');
+    set(gameStateAtom, GAME_STATES.PLAYING);
     set(playerHealthAtom, get(playerHealthSettingAtom));
     set(playerPositionAtom, gameConfig.player.initialPosition);
     set(playerRotationAtom, 0);

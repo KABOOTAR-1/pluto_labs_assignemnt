@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { GAME_STATES } from "../config/gameConfig";
 
 export const useEnemyAttack = (
   position,
@@ -12,7 +13,7 @@ export const useEnemyAttack = (
   const lastAttack = useRef(0);
 
   useFrame(() => {
-    if (gameState !== "playing") return;
+    if (gameState !== GAME_STATES.PLAYING) return;
 
     const dx = playerPosition[0] - position[0];
     const dz = playerPosition[2] - position[2];

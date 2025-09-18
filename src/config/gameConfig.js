@@ -9,6 +9,14 @@ export const THEMES = {
   POSTAPOCALYPTIC: 'postapocalyptic',
 };
 
+// Game state enum
+export const GAME_STATES = {
+  MENU: 'menu',
+  PLAYING: 'playing',
+  GAME_OVER: 'gameOver',
+  SETTINGS: 'settings',
+};
+
 // Selected theme atom
 export const selectedThemeAtom = atom(THEMES.SPACE);
 
