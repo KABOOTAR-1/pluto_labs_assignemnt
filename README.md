@@ -63,8 +63,7 @@ src/
 ├── controllers/            # 🧠 Business Logic Layer
 │   └── ProjectileController.js # Projectile management logic
 ├── data/                   # 📊 Data Layer (External Configurations)
-│   ├── projectileTypes.js  # Projectile type definitions
-│   └── customProjectileConfigs.js # Projectile configurations
+│   └── projectileTypes.js  # Projectile type definitions
 ├── config/                 # ⚙️ Core Configuration
 │   ├── gameConfig.js       # Main game parameters
 │   └── atoms.js            # Jotai state atoms
@@ -121,19 +120,25 @@ export const projectileTypes = [
 ];
 ```
 
-### Step 2: Configure Weapon Loadout
-Add weapon configuration in `src/data/customProjectileConfigs.js`:
+### Step 2: Configure Weapon Properties
+Modify weapon properties directly in `src/data/projectileTypes.js`:
 
 ```javascript
-export const weaponLoadouts = {
-  // ... existing loadouts
-  laser: {
-    name: 'Laser Cannon',
-    projectileType: 'laser',
-    fireRate: 3, // shots per second
-    description: 'Rapid-fire laser weapon'
+export const projectileTypes = [
+  // ... existing types
+  {
+    id: 'laser',
+    name: 'Laser Beam',
+    size: 0.2,
+    speed: 25,        // Adjust speed for weapon type
+    damage: 45,       // Adjust damage for weapon type
+    color: '#ff0000',
+    emissiveIntensity: 0.8,
+    mass: 0.05,
+    lifetimeMs: 3000, // Adjust lifetime for weapon type
+    description: 'High-speed laser projectile'
   }
-};
+];
 ```
 
 ### Step 3: Create Component (Optional)
@@ -426,26 +431,6 @@ export const useCustomBehavior = (api, config) => {
 };
 ```
 
-### Difficulty Scaling System
-The projectile system includes built-in difficulty modifiers:
-
-```javascript
-// src/data/customProjectileConfigs.js
-export const difficultyModifiers = {
-  easy: {
-    damageMultiplier: 1.5,
-    speedMultiplier: 1.2,
-  },
-  normal: {
-    damageMultiplier: 1.0,
-    speedMultiplier: 1.0,
-  },
-  hard: {
-    damageMultiplier: 0.8,
-    speedMultiplier: 0.9,
-  }
-};
-```
 
 ## 🎨 Visual Customization
 
