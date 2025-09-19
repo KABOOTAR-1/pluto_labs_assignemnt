@@ -259,39 +259,6 @@ export const spaceConfig = createCustomConfig({
 });
 ```
 
-### Medieval/Fantasy Configuration
-```javascript
-export const medievalConfig = createCustomConfig({
-  player: {
-    color: '#8B4513',
-    projectileSpeed: 8, // Slower arrows
-    fireRate: 1, // Slower bow
-  },
-  enemies: {
-    types: [
-      {
-        id: 'orc',
-        speed: 2,
-        health: 80,
-        color: '#228B22',
-        damage: 20,
-        points: 15,
-        spawnRate: 1,
-      },
-      {
-        id: 'goblin',
-        speed: 4,
-        health: 30,
-        color: '#8B0000',
-        damage: 10,
-        points: 10,
-        spawnRate: 2,
-      }
-    ]
-  }
-});
-```
-
 ### Zombie Survival Configuration
 ```javascript
 export const zombieConfig = createCustomConfig({

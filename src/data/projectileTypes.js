@@ -14,7 +14,7 @@
  * 2. getProjectileType() retrieves configuration from this array
  * 3. Projectile spawned with these properties (speed, damage, etc.)
  * 4. Visual rendering uses color, size, emissiveIntensity
- * 5. Physics uses mass, speed for movement calculations
+ * 5. Physics uses speed for movement calculations (mass unused for Kinematic type)
  * 6. Combat uses damage for hit calculations
  * 7. Lifetime management uses lifetimeMs for auto-despawn
  *
@@ -30,7 +30,7 @@
  * - All numeric values are in game units (not pixels)
  * - Colors use hex format for Three.js compatibility
  * - Lifetime is in milliseconds (5000 = 5 seconds)
- * - Mass affects physics interactions with other objects
+ * - Mass is required for cannon physics bodies but unused for Kinematic projectiles
  */
 
 export const projectileTypes = [
@@ -56,7 +56,7 @@ export const projectileTypes = [
     // ✨ GLOW INTENSITY - How bright the projectile glows (0-1)
     emissiveIntensity: 0.5,
 
-    // ⚖️ PHYSICS MASS - Affects collision and physics interactions
+    // ⚖️ PHYSICS MASS - Passed to cannon physics body (unused for Kinematic projectiles)
     mass: 0.1,
 
     // ⏰ LIFETIME - Milliseconds before auto-despawn (prevents memory leaks)
