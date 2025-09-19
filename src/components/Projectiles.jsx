@@ -22,7 +22,7 @@
 //
 // 🎨 VISUAL CUSTOMIZATION:
 // ADD NEW:
-// - Add new projectile types with unique appearances (laser, plasma, rockets)
+// - Add new projectile types with unique appearances in projectiles/ folder and add to ProjectileTypes map (laser, plasma, rockets)
 // - Include projectile trail effects and particle systems
 // - Add projectile impact animations and explosion effects
 // - Include different projectile shapes (bullets, beams, orbs, arrows)
@@ -31,7 +31,7 @@
 // MODIFY EXISTING:
 // - Change projectile appearance by updating projectileConfig properties
 // - Modify projectile colors, sizes, and glow effects via projectileConfig
-// - Update projectile models by creating custom projectile components
+// - Update projectile models by creating custom projectile components in projectiles/ folder 
 // - Change collision visual feedback and hit effects
 //
 // 🎮 FUNCTIONAL MODIFICATIONS:

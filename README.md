@@ -1,455 +1,200 @@
-# Three.js Top-Down Shooter Game Template
+# 🎮 Three.js Top-Down Shooter Template
 
-A highly modular, extensible game template built with React Three Fiber, featuring a clean separation of concerns architecture. This template provides a robust foundation for creating top-down shooter games with configurable enemies, projectiles, and gameplay mechanics.
-
-## 🎮 Main Functionalities
-
-### Core Game Features
-- **3D Top-Down Shooter Gameplay**: Player movement, aiming, and shooting mechanics
-- **Dynamic Enemy System**: Multiple enemy types with unique behaviors and AI
-- **Advanced Projectile System**: Multiple projectile types with different properties
-- **Physics-Based Combat**: Realistic collision detection and movement using Cannon-es
-- **Health & Scoring System**: Player health management and score tracking
-- **Game State Management**: Menu, playing, paused, and game over states
-- **Modern UI/UX**: Responsive HUD, start screen, and game over interface
-
-### Technical Features
-- **Modular Architecture**: Clean separation between data, logic, and presentation layers
-- **Configuration-Driven**: Easy customization through external config files
-- **Controller Pattern**: Business logic separated from React components
-- **State Management**: Efficient state handling with Jotai atoms
-- **Performance Optimized**: Object pooling and automatic cleanup systems
+A modular 3D shooter built with React Three Fiber, featuring AI-friendly documentation and theme-based customization.
 
 ## 🚀 Quick Start
-
-1. **Install Dependencies**
    ```bash
-   npm install
-   ```
-
-2. **Run the Game**
-   ```bash
-   npm run dev
-   ```
-
-3. **Controls**
-   - **Movement**: WASD or Arrow Keys
-   - **Aim**: Mouse movement
-   - **Shoot**: Mouse click (hold for continuous fire)
-
-## 📁 Project Architecture
-
-The project follows a three-layer modular architecture:
-
-```
-src/
-├── components/              # 🎨 Presentation Layer (React Components)
-│   ├── Scene.jsx           # Main 3D scene setup
-│   ├── Player.jsx          # Player character rendering
-│   ├── Enemies.jsx         # Enemy rendering coordinator
-│   ├── Projectiles.jsx     # Projectile rendering coordinator
-│   ├── enemies/            # Enemy-specific components
-│   │   ├── BaseEnemy.jsx   # Base enemy component
-│   │   ├── FastEnemy.jsx   # Fast enemy type
-│   │   ├── TankEnemy.jsx   # Tank enemy type
-│   │   └── EnemySpawner.jsx # Enemy spawning logic
-│   ├── projectiles/        # Projectile-specific components
-│   │   ├── BaseProjectile.jsx # Base projectile component
-│   │   └── Bullet.jsx      # Bullet projectile type
-│   └── ui/                 # User interface components
-│       ├── HUD.jsx         # Heads-up display
-│       ├── StartScreen.jsx # Main menu
-│       └── GameOverScreen.jsx # Game over screen
-├── controllers/            # 🧠 Business Logic Layer
-│   └── ProjectileController.js # Projectile management logic
-├── data/                   # 📊 Data Layer (External Configurations)
-│   └── projectileTypes.js  # Projectile type definitions
-├── config/                 # ⚙️ Core Configuration
-│   ├── gameConfig.js       # Main game parameters
-│   └── atoms.js            # Jotai state atoms
-├── hooks/                  # 🎣 Custom React Hooks
-│   ├── useEnemyAttack.js   # Enemy attack behavior
-│   ├── useEnemyChase.js    # Enemy movement AI
-│   ├── useEnemyCleanup.js  # Enemy cleanup logic
-│   └── useEnemySpawner.js  # Enemy spawning system
-└── App.jsx                 # Main application entry point
+npm install && npm run dev
 ```
 
-## 🏗️ Design Decisions
+## 📁 Folder Structure
 
-### Architecture Philosophy
-The project implements a **three-layer modular architecture** inspired by clean architecture principles:
-
-1. **Data Layer** (`src/data/`): External configuration files that define game entities
-2. **Controller Layer** (`src/controllers/`): Business logic classes that manage game mechanics
-3. **Component Layer** (`src/components/`): React components focused purely on rendering
-
-### Key Design Benefits
-- **Separation of Concerns**: Data, logic, and presentation are completely separated
-- **Reusability**: Controllers can be used anywhere without React dependencies
-- **Extensibility**: New entities can be added by simply editing data files
-- **Maintainability**: Single responsibility principle throughout the codebase
-- **Testability**: Business logic can be tested independently of React components
-
-### Technology Choices
-- **React Three Fiber**: Declarative 3D graphics with React patterns
-- **Cannon-es**: Lightweight physics engine perfect for games
-- **Jotai**: Atomic state management for better performance and less boilerplate
-- **Vite**: Fast development server and optimized builds
-
-## 🎯 Adding New Projectiles
-
-### Step 1: Define Projectile Type
-Add your new projectile to `src/data/projectileTypes.js`:
-
-```javascript
-export const projectileTypes = [
-  // ... existing types
-  {
-    id: 'laser',
-    name: 'Laser Beam',
-    size: 0.2,
-    speed: 25,
-    damage: 45,
-    color: '#ff0000',
-    emissiveIntensity: 0.8,
-    mass: 0.05,
-    lifetime: 3000,
-    description: 'High-speed laser projectile'
-  }
-];
+```
+threejsgame/
+├── 🚀 index.html                    # Entry point - HTML container
+├── 🚀 src/main.jsx                  # Entry point - React app initialization
+├── 🚀 src/App.jsx                   # Entry point - Main app component
+├── 📦 package.json                  # Dependencies and scripts
+├── ⚙️ vite.config.js               # Build configuration
+├── 🎨 src/App.css                  # Global styles
+├── 📖 TEMPLATE_GUIDE.md            # Detailed modification guide
+└── src/
+    ├── components/                  # React components
+    │   ├── 🎮 GameRenderer.jsx     # 3D Entity Coordinator - Renders game entities in physics world
+    │   ├── 🌍 Scene.jsx            # MAIN GAME STATE MANAGER - Start here for game logic
+    │   ├── 👤 Player.jsx           # Player character with modular hooks
+    │   ├── 👹 Enemies.jsx          # Enemy management and rendering
+    │   ├── 🚀 Projectiles.jsx      # Projectile system with collision
+    │   ├── 🖥️ StartScreen.jsx      # Main menu interface
+    │   ├── ⚙️ SettingsScreen.jsx   # Game configuration screen
+    │   ├── 💀 GameOverScreen.jsx   # End game screen
+    │   ├── 📊 HUD.jsx              # In-game UI overlay
+    │   ├── baseModel/              # Fallback geometry renderers
+    │   │   ├── BasePlayerModel.jsx # Player fallback geometry
+    │   │   ├── BaseEnemyModel.jsx  # Enemy fallback geometry
+    │   │   └── GeometryRenderer.jsx # Generic shape renderer
+    │   ├── enemies/                # Enemy system
+    │   │   ├── BaseEnemy.jsx       # Core enemy with behavior hooks
+    │   │   ├── FastEnemy.jsx       # Fast enemy type
+    │   │   ├── TankEnemy.jsx       # Tank enemy type
+    │   │   └── EnemySpawner.jsx    # Enemy generation system
+    │   ├── GltfLoader/             # 3D model loading
+    │   │   ├── BaseModel.jsx       # Universal model loader
+    │   │   └── GLTFLoader.jsx      # GLTF processor
+    │   ├── projectiles/            # Projectile system
+    │   │   ├── BaseProjectile.jsx  # Core projectile physics
+    │   │   └── Bullet.jsx          # Basic bullet type
+    │   ├── ui/                     # UI components
+    │   │   ├── HealthBar.jsx       # Health progress bar
+    │   │   ├── ScoreDisplay.jsx    # Score counter
+    │   │   ├── EnemyKilledDisplay.jsx # Kill counter
+    │   │   ├── ScreenHeader.jsx    # Screen titles
+    │   │   └── StatsPanel.jsx      # Statistics display
+    │   └── [environment components...] # Floor, lighting, particles, etc.
+    ├── hooks/                      # 🔧 Custom React hooks - GAME LOGIC HERE
+    │   ├── usePlayerMovement.js        # Player movement with physics
+    │   ├── usePlayerRotation.js        # Mouse-based player rotation
+    │   ├── usePlayerShooting.js        # Weapon and projectile system
+    │   ├── usePlayerCamera.js          # Smooth camera following
+    │   ├── usePlayerHealth.js          # Health management and damage
+    │   ├── useKeyControls.js           # Keyboard input handling
+    │   ├── useMouseControls.js         # Mouse input and aiming
+    │   ├── useEnemySpawner.js          # Dynamic enemy generation
+    │   ├── useEnemyChase.js            # Enemy AI movement
+    │   ├── useEnemyAttack.js           # Enemy combat system
+    │   ├── useEnemyCleanup.js          # Enemy boundary cleanup
+    │   ├── useEnemyFacing.js           # Enemy visual rotation
+    │   ├── useSettingsNavigation.js    # Settings screen navigation
+    │   └── useConditionalTexture.js    # Vite-compatible texture loading
+    ├── config/                     # 📋 Configuration - SETTINGS & STATE
+    │   ├── atoms/                  # Jotai state management
+    │   │   ├── gameStateAtoms.js   # Game flow state
+    │   │   ├── playerAtoms.js      # Player state
+    │   │   ├── entityAtoms.js      # Enemies/projectiles
+    │   │   ├── settingsAtoms.js    # User settings
+    │   │   └── index.js            # Atom exports
+    │   ├── themes/
+    │   │   └── themes.js           # 🎨 VISUAL THEMES - Change appearance here
+    │   ├── gameConfig.js           # 🎯 MAIN SETTINGS - Core game configuration
+    │   ├── baseConfigs.js          # Entity base stats (health, speed, damage)
+    │   ├── settingsConfig.js       # Settings UI configuration
+    │   └── constants.js            # Game constants
+    ├── data/
+    │   └── projectileTypes.js      # 🔫 WEAPON TYPES - Add new weapons here
+    ├── utils/
+    │   └── gameUtils.js            # 🛠️ UTILITIES - Object pooling system
+    └── models/                     # 🎨 3D ASSETS - Add new models here
+        ├── space/                  # Futuristic theme assets
+        ├── post/                   # Post-apocalyptic assets
+        ├── medival/                # Medieval theme assets
+        ├── skybox/                 # Environment backgrounds
+        └── ground/                 # Floor textures
 ```
 
-### Step 2: Configure Weapon Properties
-Modify weapon properties directly in `src/data/projectileTypes.js`:
+## 🎯 AI Navigation Guide
 
-```javascript
-export const projectileTypes = [
-  // ... existing types
-  {
-    id: 'laser',
-    name: 'Laser Beam',
-    size: 0.2,
-    speed: 25,        // Adjust speed for weapon type
-    damage: 45,       // Adjust damage for weapon type
-    color: '#ff0000',
-    emissiveIntensity: 0.8,
-    mass: 0.05,
-    lifetimeMs: 3000, // Adjust lifetime for weapon type
-    description: 'High-speed laser projectile'
-  }
-];
-```
+### **🚀 Entry Points (Start Here)**
+1. **`index.html`** → **`src/main.jsx`** → **`src/App.jsx`** → **`Scene.jsx`**
+2. **Main Game State**: `src/components/Scene.jsx` (manages all atoms and coordinates game)
+3. **Game Logic**: `src/hooks/` (actual game loop via useFrame calls)
+4. **3D Rendering**: `src/components/GameRenderer.jsx` (renders entities in physics world)
+5. **Configuration**: `src/config/gameConfig.js` and `src/config/themes/themes.js`
 
-### Step 3: Create Component (Optional)
-For custom rendering, create `src/components/projectiles/Laser.jsx`:
+### **📍 Go Here For Specific Changes**
+- **🎮 Gameplay Mechanics** → `src/hooks/` (player/enemy hooks)
+- **🎨 Visual Themes** → `src/config/themes/themes.js` + `src/models/`
+- **⚙️ Game Settings** → `src/config/gameConfig.js` + `src/config/settingsConfig.js`
+- **🔫 Weapons/Projectiles** → `src/data/projectileTypes.js` + `src/components/projectiles/`
+- **👹 Enemy Types** → `src/config/baseConfigs.js` + `src/components/enemies/`
+- **🖥️ UI/Screens** → `src/components/` (StartScreen, SettingsScreen, etc.)
+- **🎭 3D Models** → `src/models/` + `src/components/GltfLoader/`
 
-```javascript
-import React from 'react';
-import { BaseProjectile } from './BaseProjectile';
+## 📁 Component Structure
 
-export const Laser = (props) => {
-  return (
-    <BaseProjectile {...props}>
-      {/* Custom laser rendering */}
-      <cylinderGeometry args={[0.1, 0.1, 1]} />
-      <meshBasicMaterial color={props.color} />
-    </BaseProjectile>
-  );
-};
-```
+### **Core Game Components**
+- `Scene.jsx` - Main game state manager with Jotai atoms and Canvas setup
+- `GameRenderer.jsx` - 3D entity coordinator within physics world
+- `Player.jsx` - Player character with modular hook-based systems
+- `Enemies.jsx` - Enemy management, rendering, and collision system
+- `Projectiles.jsx` - Projectile management with collision detection
 
-### Step 4: Register Component
-Add to the component registry in `src/components/Projectiles.jsx`:
+### **UI Screens**
+- `StartScreen.jsx` - Main menu interface
+- `SettingsScreen.jsx` - Real-time game configuration with sliders
+- `GameOverScreen.jsx` - End game statistics and navigation
+- `HUD.jsx` - In-game UI overlay with health/score
 
-```javascript
-import { Laser } from './projectiles/Laser';
+### **UI Components** (`src/components/ui/`)
+- `HealthBar.jsx` - Visual health progress bar with percentage display
+- `ScoreDisplay.jsx` - Real-time score counter with formatting
+- `EnemyKilledDisplay.jsx` - Enemy kill counter with live updates
+- `ScreenHeader.jsx` - Reusable screen title component
+- `StatsPanel.jsx` - Flexible statistics display panel
 
-const ProjectileComponents = {
-  default: BaseProjectile,
-  bullet: Bullet,
-  laser: Laser, // Add your new component
-};
-```
+### **Enemy System** (`src/components/enemies/`)
+- `BaseEnemy.jsx` - Core enemy with behavior hooks (chase, attack, cleanup, facing)
+- `FastEnemy.jsx` - Fast, low-health enemy type wrapper
+- `TankEnemy.jsx` - Slow, high-health enemy type wrapper
+- `EnemySpawner.jsx` - Dynamic enemy generation with difficulty scaling
 
-## 👾 Adding New Enemies
+### **Projectile System** (`src/components/projectiles/`)
+- `BaseProjectile.jsx` - Core projectile with Kinematic physics and collision detection
+- `Bullet.jsx` - Basic bullet type wrapper around BaseProjectile
 
-### Step 1: Define Enemy Type
-Add to `src/config/gameConfig.js`:
+### **3D Model System** (`src/components/GltfLoader/`)
+- `BaseModel.jsx` - Universal model loader with fallback geometry routing
+- `GLTFLoader.jsx` - GLTF processor with auto-scaling, centering, and texture loading
 
-```javascript
-enemies: {
-  types: [
-    // ... existing types
-    {
-      id: 'sniper',
-      speed: 1.0,
-      health: 60,
-      size: 0.7,
-      color: '#9C27B0',
-      damage: 30,
-      points: 40,
-      spawnRate: 0.6,
-    }
-  ]
-}
-```
+### **Fallback Models** (`src/components/baseModel/`)
+- `BasePlayerModel.jsx` - Player fallback geometry with directional indicator
+- `BaseEnemyModel.jsx` - Enemy fallback geometry renderer
+- `GeometryRenderer.jsx` - Generic shape renderer (box, sphere, cylinder, cone)
 
-### Step 2: Create Enemy Component
-Create `src/components/enemies/SniperEnemy.jsx`:
+### **Game Hooks** (`src/hooks/`)
+- **usePlayerMovement.js** - Kinematic physics movement with WASD controls and boundary checking
+- **usePlayerRotation.js** - Mouse-based player rotation with smooth interpolation
+- **usePlayerShooting.js** - Weapon system with projectile spawning and firing mechanics
+- **usePlayerCamera.js** - Smooth third-person camera following with fixed timestep
+- **usePlayerHealth.js** - Health management, damage processing, and game over detection
+- **useKeyControls.js** - Keyboard input handling (WASD/Arrow keys)
+- **useMouseControls.js** - Mouse movement tracking and click detection for aiming/shooting
+- **useEnemySpawner.js** - Dynamic enemy generation with difficulty scaling and object pooling
+- **useEnemyChase.js** - AI pursuit behavior using Kinematic physics velocity
+- **useEnemyAttack.js** - Collision-based combat system with attack cooldown
+- **useEnemyCleanup.js** - World boundary safety system for enemy removal
+- **useEnemyFacing.js** - Visual enemy rotation to face player for better feedback
+- **useSettingsNavigation.js** - Settings screen navigation with state preservation
+- **useConditionalTexture.js** - Vite-compatible texture loading with error handling
 
-```javascript
-import React from 'react';
-import { BaseEnemy } from './BaseEnemy';
+### **Configuration** (`src/config/`)
+- **atoms/** - Jotai state atoms for reactive game state management
+  - `gameStateAtoms.js` - Game flow control (menu, playing, gameOver, settings)
+  - `playerAtoms.js` - Player state (health, position, rotation, settings)
+  - `entityAtoms.js` - Dynamic entities (enemies array, projectiles array)
+  - `settingsAtoms.js` - User preferences (spawn rates, difficulty, speeds)
+- **themes/themes.js** - Complete visual theme system (models, textures, colors, particles)
+- **gameConfig.js** - Core game mechanics (physics, camera, world bounds, rules)
+- **baseConfigs.js** - Entity base stats (PLAYER_BASE, ENEMY_BASES, health/speed/damage)
+- **settingsConfig.js** - Settings UI configuration (sliders, ranges, labels)
+- **constants.js** - Game constants and enums (GAME_STATES, default values)
 
-export const SniperEnemy = (props) => {
-  return (
-    <BaseEnemy {...props}>
-      {/* Custom sniper rendering */}
-      <boxGeometry args={[props.size, props.size * 1.5, props.size]} />
-      <meshStandardMaterial color={props.color} />
-    </BaseEnemy>
-  );
-};
-```
+### **Assets** (`src/models/`)
+- `space/` - Futuristic theme assets
+- `post/` - Post-apocalyptic theme assets
+- `medival/` - Medieval theme assets
 
-### Step 3: Register Enemy Component
-Add to `src/components/Enemies.jsx`:
+## 🎯 Key Features
+- **Kinematic Physics** - Code-controlled movement with collision
+- **Object Pooling** - Performance optimization for entities
+- **Theme System** - Swappable visual themes with 3D models
+- **Modular Hooks** - Separated game logic for easy customization
+- **AI Documentation** - Fragment-system comments in every file
 
-```javascript
-import { SniperEnemy } from './enemies/SniperEnemy';
+## 🔧 Tech Stack
+React Three Fiber, @react-three/cannon, Jotai, Three.js, Vite
 
-const EnemyComponents = {
-  fast: FastEnemy,
-  tank: TankEnemy,
-  sniper: SniperEnemy, // Add your new enemy
-};
-```
+## 🎮 Controls
+WASD/Arrows (move), Mouse (aim/shoot)
 
-## 🎮 Configuring for Different Game Genres
-
-### Space Shooter Configuration
-```javascript
-// Create spaceConfig.js
-import { createCustomConfig } from './src/config/gameConfig';
-
-export const spaceConfig = createCustomConfig({
-  world: {
-    backgroundColor: '#000011',
-    floorColor: '#001122',
-  },
-  player: {
-    color: '#00FFFF',
-    speed: 8,
-    fireRate: 5,
-  },
-  enemies: {
-    types: [
-      {
-        id: 'alien',
-        speed: 3,
-        health: 40,
-        color: '#FF00FF',
-        damage: 15,
-        points: 20,
-        spawnRate: 1.5,
-      }
-    ]
-  }
-});
-```
-
-### Zombie Survival Configuration
-```javascript
-export const zombieConfig = createCustomConfig({
-  world: {
-    backgroundColor: '#2F1B14',
-    floorColor: '#1A1A1A',
-  },
-  player: {
-    health: 150,
-    fireRate: 3,
-  },
-  enemies: {
-    maxOnScreen: 25,
-    types: [
-      {
-        id: 'walker',
-        speed: 1.5,
-        health: 50,
-        color: '#556B2F',
-        damage: 25,
-        points: 5,
-        spawnRate: 3,
-      },
-      {
-        id: 'runner',
-        speed: 5,
-        health: 30,
-        color: '#8B0000',
-        damage: 15,
-        points: 15,
-        spawnRate: 1,
-      }
-    ]
-  }
-});
-```
-
-## ⚙️ Core Configuration
-
-The game uses a layered configuration system:
-
-### Main Game Config (`src/config/gameConfig.js`)
-```javascript
-export const gameConfig = {
-  player: {
-    speed: 5,
-    health: 100,
-    size: 1,
-    color: '#4285F4',
-    fireRate: 2,
-    projectileSpeed: 15,
-    projectileSize: 0.3,
-  },
-  enemies: {
-    types: [
-      {
-        id: 'fast',
-        speed: 4,
-        health: 30,
-        size: 0.6,
-        color: '#FBBC05',
-        damage: 5,
-        points: 15,
-        spawnRate: 1,
-      }
-    ],
-    maxOnScreen: 15,
-    spawnRadius: 20,
-  },
-  world: {
-    size: 40,
-    floorColor: '#222222',
-    backgroundColor: '#000000',
-  },
-  physics: {
-    gravity: [0, -9.81, 0],
-    defaultMass: 1,
-    restitution: 0.2,
-    friction: 0.5,
-  }
-};
-```
-
-### State Management (`src/config/atoms.js`)
-The game uses Jotai for atomic state management:
-
-- `gameStateAtom`: Current game state ('menu', 'playing', 'paused', 'gameOver')
-- `playerHealthAtom`: Player's current health
-- `playerPositionAtom`: Player's 3D position [x, y, z]
-- `scoreAtom`: Current game score
-- `enemiesAtom`: Array of active enemy entities
-- `projectilesAtom`: Array of active projectile entities
-- `currentProjectileTypeAtom`: Currently selected projectile type
-
-## 🔧 Advanced Customization
-
-### Creating Custom Controllers
-Extend the controller pattern for new game mechanics:
-
-```javascript
-// src/controllers/PowerUpController.js
-export class PowerUpController {
-  constructor() {
-    this.powerUps = [];
-    this.activePowerUps = new Map();
-  }
-
-  createPowerUp(type, position) {
-    const powerUp = {
-      id: this.nextId++,
-      type,
-      position: [...position],
-      createdAt: Date.now(),
-      duration: 10000, // 10 seconds
-    };
-    this.powerUps.push(powerUp);
-    return powerUp;
-  }
-
-  updatePowerUps(deltaTime) {
-    // Update logic here
-  }
-}
-```
-
-### Custom Hook Integration
-Create specialized hooks for new behaviors:
-
-```javascript
-// src/hooks/useCustomBehavior.js
-import { useFrame } from '@react-three/fiber';
-
-export const useCustomBehavior = (api, config) => {
-  useFrame((_, delta) => {
-    // Custom behavior logic
-  });
-};
-```
-
-
-## 🎨 Visual Customization
-
-### Material and Lighting
-- Emissive materials for glowing effects
-- Shadow mapping for realistic lighting
-- Fog effects for atmospheric depth
-- Environment mapping with HDR backgrounds
-
-### Camera Configuration
-- Fixed top-down perspective optimized for gameplay
-- Configurable field of view and positioning
-- Smooth camera transitions (can be extended)
-
-## 🚀 Performance Optimization
-
-### Built-in Optimizations
-- **Automatic Cleanup**: Projectiles auto-expire after 5 seconds
-- **Entity Limits**: Maximum enemy count prevents performance degradation
-- **Efficient Collision Detection**: Spatial optimization for collision checks
-- **Object Pooling Ready**: Architecture supports object pooling implementation
-
-### Recommended Enhancements
-- Implement object pooling for frequently created/destroyed entities
-- Add level-of-detail (LOD) for distant objects
-- Use instanced rendering for similar objects
-- Implement frustum culling for off-screen entities
-
-## 📦 Dependencies
-
-```json
-{
-  "dependencies": {
-    "@react-three/cannon": "^6.6.0",
-    "@react-three/drei": "^10.7.4",
-    "@react-three/fiber": "^9.3.0",
-    "jotai": "^2.13.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "three": "^0.180.0",
-    "zustand": "^5.0.8"
-  }
-}
-```
-
-## 🎯 Getting Started with Your Own Game
-
-1. **Clone and Setup**: Fork this repository and install dependencies
-2. **Define Your Theme**: Create a custom config file for your game genre
-3. **Design Entities**: Add your enemy types and projectile types to data files
-4. **Customize Visuals**: Modify colors, materials, and models in components
-5. **Extend Mechanics**: Add new controllers for game-specific features
-6. **Test and Iterate**: Use the modular architecture to rapidly prototype
-
-The modular architecture ensures that your customizations remain maintainable and extensible as your game grows in complexity.
+## 📖 For AI
+Every file includes comprehensive documentation with purpose, integration points, usage examples, and customization guides.
