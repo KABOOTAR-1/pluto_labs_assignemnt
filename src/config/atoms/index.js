@@ -62,7 +62,7 @@ export {
  *
  * 🔄 RESET SEQUENCE:
  * 1. Game State: MENU → PLAYING
- * 2. Player: Full health, center position, facing forward
+ * 2. Player: Full health (resets both playerHealthAtom and activePlayerHealthAtom), center position, facing forward
  * 3. Score: Reset to 0
  * 4. Statistics: Enemies killed reset to 0
  * 5. Entities: All enemies marked inactive
@@ -71,6 +71,7 @@ export {
  *
  * ⚠️ IMPORTANT NOTES:
  * - Uses basePlayerHealthAtom for health (respects user settings)
+ * - Resets both health atoms to ensure gameplay uses correct values
  * - Preserves user preferences and settings
  * - Deactivates entities instead of deleting (performance)
  * - Called automatically on game over → menu transitions
@@ -88,6 +89,7 @@ import { gameConfig } from '../gameConfig';
 import {
   gameStateAtom,
   playerHealthAtom,
+  activePlayerHealthAtom,
   playerPositionAtom,
   playerRotationAtom,
   scoreAtom,
@@ -105,7 +107,9 @@ export const resetGameAtom = atom(
     set(gameStateAtom, GAME_STATES.PLAYING);
 
     // 🧑‍🚀 Reset player to starting condition
-    set(playerHealthAtom, get(basePlayerHealthAtom)); // Use user's preferred health
+    const baseHealth = get(basePlayerHealthAtom); // Get user's preferred health
+    set(playerHealthAtom, baseHealth); // Reset base health atom
+    set(activePlayerHealthAtom, baseHealth); // Reset active health atom (used in gameplay)
     set(playerPositionAtom, gameConfig.player.initialPosition);
     set(playerRotationAtom, 0); // Face forward
 

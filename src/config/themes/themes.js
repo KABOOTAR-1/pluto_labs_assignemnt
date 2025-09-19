@@ -71,6 +71,8 @@
  * - Test fallback colors when models fail to load
  * - Use CORS-enabled S3 buckets for web access
  * - Skybox supports both HDR (.exr/.hdr) and standard (.jpg/.png) formats
+ * - ⚠️ DO NOT CHANGE SCALE VALUES: Keep player.scale and enemies.scale at [1,1,1] always
+ * - Changing scale values will break collision detection and physics
  */
 
 import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
@@ -87,7 +89,7 @@ import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
  * 🧑‍🚀 PLAYER SECTION:
  * modelUrl: S3 URL to player 3D model (GLTF/GLB)
  * fallbackGeometry: Shape if model fails ('box', 'sphere', 'cylinder')
- * scale: Size multipliers [width, height, depth]
+ * scale: Size multipliers [width, height, depth] - DO NOT CHANGE FROM [1,1,1]
  * color: Hex color for fallback geometry
  * rotation: Rotation in radians [x, y, z]
  *
@@ -97,6 +99,7 @@ import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
  *   - speed: Movement speed multiplier
  *   - health: Hit points
  *   - color: Fallback color
+ *   - scale: Size multipliers [width, height, depth] - DO NOT CHANGE FROM [1,1,1]
  *   - facePlayer: Whether enemy rotates to face player
  *
  * 🌍 ENVIRONMENT SECTION:
@@ -144,6 +147,7 @@ export const themes = {
           ...ENEMY_BASES.fast,
           modelUrl: null,
           fallbackGeometry: 'sphere',
+          scale: [1, 1, 1],
           color: 0xFF0000, // Red for fast enemies
           facePlayer: true,
         },
@@ -151,6 +155,7 @@ export const themes = {
           ...ENEMY_BASES.tank,
           modelUrl: null,
           fallbackGeometry: 'box',
+          scale: [1, 1, 1],
           color: 0x00FF00, // Green for tank enemies
           facePlayer: true,
         },
@@ -193,6 +198,7 @@ export const themes = {
           speed: 4,
           modelUrl: '',
           fallbackGeometry: 'sphere',
+          scale: [1, 1, 1],
           color: 0x654321, // Dark brown for goblin/orc
           facePlayer: true,
         },
@@ -200,6 +206,7 @@ export const themes = {
           ...ENEMY_BASES.tank,
           modelUrl: '',
           fallbackGeometry: 'box',
+          scale: [1, 1, 1],
           color: 0x2F4F2F, // Dark green for troll/ogre
           facePlayer: true,
         },
@@ -259,6 +266,7 @@ export const themes = {
           speed: 6,
           modelUrl: '/src/models/space/spaceEnemy1.glb',
           fallbackGeometry: 'sphere',
+          scale: [1, 1, 1],
           color: 0x00FFFF, // Cyan for fast enemies
           facePlayer: true,
         },
@@ -268,6 +276,7 @@ export const themes = {
           health: 150,
           modelUrl: '/src/models/space/spaceEnemy2.glb',
           fallbackGeometry: 'box',
+          scale: [1, 1, 1],
           color: 0xFF00FF, // Magenta for tank enemies
           facePlayer: true,
         },
@@ -327,6 +336,7 @@ export const themes = {
           speed: 5,
           modelUrl: '/src/models/post/postEnemy1.glb',
           fallbackGeometry: 'sphere',
+          scale: [1, 1, 1],
           color: 0x8B0000,
           facePlayer: true,
         },
@@ -334,6 +344,7 @@ export const themes = {
           ...ENEMY_BASES.tank,
           modelUrl: '/src/models/post/postEnemy2.glb',
           fallbackGeometry: 'box',
+          scale: [1, 1, 1],
           color: 0x2F2F2F, // Dark gray for armored mutants
           facePlayer: true,
         },
