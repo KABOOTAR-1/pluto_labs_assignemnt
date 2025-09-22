@@ -24,6 +24,7 @@
 import { useAtom } from "jotai";
 import { basePlayerHealthAtom } from "../config/atoms";
 import { useSettingsNavigation } from "../hooks/useSettingsNavigation";
+import { GAME_STATES } from "../config/constants";
 
 /**
  * ❤️ HEALTH BAR - Visual health indicator component
@@ -72,7 +73,7 @@ const HUD = ({
       </div>
 
       {/* Settings button on the right */}
-      {gameState === 'playing' && (
+      {gameState === GAME_STATES.PLAYING && (
         <div className="settings-button-container">
           <button className="settings-button" onClick={goToSettings}>
             ⚙️
