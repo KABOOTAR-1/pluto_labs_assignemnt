@@ -54,19 +54,6 @@
 // - src/components/enemies/BaseEnemy.jsx: Passes props to BaseModel which uses this component
 // - src/config/themes/themes.js: Defines fallbackGeometry and color for enemy types
 //
-// 🎭 FALLBACK RENDERING PIPELINE:
-// 1. BaseEnemy passes modelUrl=null or GLTF loading fails
-// 2. BaseModel detects no GLTF model available
-// 3. BaseModel creates BaseEnemyModel with fallback props
-// 4. BaseEnemyModel renders geometric mesh with GeometryRenderer
-// 5. GeometryRenderer creates appropriate Three.js geometry
-// 6. meshStandardMaterial applies color and lighting properties
-//
-// 🎨 GEOMETRY TYPES SUPPORTED (via GeometryRenderer):
-// - 'box': Cubic geometry (default) - args: [size, size, size]
-// - 'sphere': Spherical geometry - args: [size/2, 16, 16]
-// - 'cylinder': Cylindrical geometry - args: [size/2, size/2, size, 16]
-// - 'cone': Conical geometry - args: [size/2, size, 16]
 //
 // ⚠️ IMPORTANT NOTES:
 // - BaseEnemyModel is ONLY used as fallback when GLTF models are unavailable
@@ -75,85 +62,6 @@
 // - Shadow casting/receiving is enabled for proper lighting integration
 // - Geometry size is handled by GeometryRenderer component
 // - Material is always meshStandardMaterial for consistent lighting
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD EMISSIVE GLOW EFFECT:
-// ```javascript
-// export const BaseEnemyModel = ({ size, color, geometry = 'box' }) => {
-//   return (
-//     <mesh castShadow receiveShadow>
-//       <GeometryRenderer geometry={geometry} size={size} />
-//       <meshStandardMaterial 
-//         color={color} 
-//         emissive={color}
-//         emissiveIntensity={0.2}
-//       />
-//     </mesh>
-//   );
-// };
-// ```
-//
-// 🎮 ADD WIREFRAME MODE:
-// ```javascript
-// export const BaseEnemyModel = ({ size, color, geometry = 'box', wireframe = false }) => {
-//   return (
-//     <mesh castShadow receiveShadow>
-//       <GeometryRenderer geometry={geometry} size={size} />
-//       <meshStandardMaterial 
-//         color={color} 
-//         wireframe={wireframe}
-//       />
-//     </mesh>
-//   );
-// };
-// ```
-//
-// 🎨 ADD MULTIPLE MATERIALS:
-// ```javascript
-// export const BaseEnemyModel = ({ size, color, geometry = 'box' }) => {
-//   const materials = [
-//     new THREE.MeshStandardMaterial({ color: color }),
-//     new THREE.MeshStandardMaterial({ color: 0x444444 }), // Darker accent
-//   ];
-//   
-//   return (
-//     <mesh castShadow receiveShadow>
-//       <GeometryRenderer geometry={geometry} size={size} />
-//       <primitive object={materials[0]} />
-//     </mesh>
-//   );
-// };
-// ```
-//
-// 📱 ADD PERFORMANCE OPTIMIZATION:
-// ```javascript
-// import { memo } from 'react';
-// 
-// export const BaseEnemyModel = memo(({ size, color, geometry = 'box' }) => {
-//   return (
-//     <mesh castShadow receiveShadow>
-//       <GeometryRenderer geometry={geometry} size={size} />
-//       <meshStandardMaterial color={color} />
-//     </mesh>
-//   );
-// });
-// ```
-//
-// 🔊 DISABLE SHADOWS FOR PERFORMANCE:
-// ```javascript
-// export const BaseEnemyModel = ({ size, color, geometry = 'box', shadows = true }) => {
-//   return (
-//     <mesh castShadow={shadows} receiveShadow={shadows}>
-//       <GeometryRenderer geometry={geometry} size={size} />
-//       <meshStandardMaterial color={color} />
-//     </mesh>
-//   );
-// };
-// ```
-// ============================================================================
-
 import React from "react";
 import { GeometryRenderer } from "./GeometryRenderer";
 
@@ -172,18 +80,6 @@ import { GeometryRenderer } from "./GeometryRenderer";
  * - Create Three.js mesh with shadow casting and receiving
  * - Apply consistent material properties for lighting integration
  * - Delegate geometry creation to GeometryRenderer component
- *
- * 📦 FALLBACK RENDERING ROLE:
- * - Used by BaseModel as fallbackComponent when modelUrl is null or loading fails
- * - Provides visual consistency across all enemy types when 3D models unavailable
- * - Ensures enemies are always visible regardless of model loading status
- * - Maintains proper lighting integration with shadow support
- *
- * 🎨 VISUAL PROPERTIES:
- * - Geometry: Handled by GeometryRenderer (box, sphere, cylinder, cone)
- * - Material: meshStandardMaterial for consistent lighting response
- * - Shadows: Enabled for both casting and receiving shadows
- * - Color: Applied from theme configuration or component props
  *
  * 🚀 USAGE PATTERNS:
  * - Classic Theme: Uses BaseEnemyModel with box/sphere geometry and theme colors

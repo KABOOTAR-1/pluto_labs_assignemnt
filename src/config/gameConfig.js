@@ -44,7 +44,7 @@ import { useWorldBounds, isWithinBounds } from './configHelpers';
  * - Updates environment appearance
  *
  */
-export const selectedThemeAtom = atom(THEMES.CLASSIC);
+export const selectedThemeAtom = atom(THEMES.SPACE);
 
 /**
  * ⚙️ MAIN GAME CONFIGURATION - Complete Game Settings
@@ -57,7 +57,7 @@ export const selectedThemeAtom = atom(THEMES.CLASSIC);
  * ```javascript
  * {
  *   // Core gameplay settings (from baseGameConfig)
- *   player: { speed, health, projectileSpeed, ... },
+ *   player: { speed, health, ... },
  *   enemy: { speed, health, damage, ... },
  *   world: { size, bounds, backgroundColor, ... },
  *
@@ -173,7 +173,6 @@ export function loadCurrentTheme(selectedTheme) {
  * - modelUrl: 3D model file path
  * - speed: Movement speed in units/second
  * - health: Maximum health points
- * - projectileSpeed: Bullet travel speed
  * - color: Player model color
  * - scale: Player model size
  */

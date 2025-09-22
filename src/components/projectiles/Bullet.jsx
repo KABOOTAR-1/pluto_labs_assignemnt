@@ -20,7 +20,7 @@
 // ============================================================================
 //
 // 🎨 VISUAL CUSTOMIZATION:
-// ADD NEW (Create new components based on this pattern):
+// ADD NEW (Create new components based on this pattern below given are examples):
 // - LaserProjectile: Custom geometry, different colors, trail effects
 // - RocketProjectile: Larger size, explosion effects, smoke trails
 // - PlasmaProjectile: Animated materials, energy effects, different physics
@@ -81,18 +81,6 @@
 // - src/hooks/usePlayerShooting.js: Creates bullet data for this component
 // - src/utils/gameUtils.js: Object pooling system for bullet lifecycle
 //
-// 🎨 COMPONENT ARCHITECTURE:
-// - Wrapper Pattern: Simple passthrough to BaseProjectile
-// - No Props Validation: Relies on BaseProjectile for prop handling
-// - No State Management: Pure functional component with no hooks
-// - Extensibility: Easy to add custom logic without breaking base functionality
-//
-// 🔗 PROJECTILE SYSTEM INTEGRATION:
-// - ProjectileTypes['bullet']: Mapped in Projectiles component for rendering
-// - Default Fallback: Used when unknown projectile types are requested
-// - Object Pooling: Managed by parent components via gameUtils functions
-// - Configuration: Properties defined in projectileTypes.js data file
-//
 // ⚠️ IMPORTANT NOTES:
 // - This is a pure wrapper with no custom logic - all behavior from BaseProjectile
 // - Serves as template for creating new projectile types with custom behavior
@@ -100,137 +88,6 @@
 // - Component is stateless and has no side effects or lifecycle management
 // - Used as default/fallback projectile type in the projectile system
 //
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 CREATE LASER PROJECTILE (Copy this file as LaserProjectile.jsx):
-// ```javascript
-// export const LaserProjectile = (props) => {
-//   return (
-//     <BaseProjectile 
-//       {...props}
-//       // Override props for laser-specific behavior
-//       color="#ff0000"
-//       emissiveIntensity={1.0}
-//       speed={props.speed * 2}  // Lasers are faster
-//     />
-//   );
-// };
-// ```
-//
-// 🎮 ADD BULLET SPREAD (Modify this component):
-// ```javascript
-// export const Bullet = (props) => {
-//   // Add random spread to bullet direction
-//   const spreadAmount = 0.1;
-//   const spreadDirection = [
-//     props.direction[0] + (Math.random() - 0.5) * spreadAmount,
-//     props.direction[1],
-//     props.direction[2] + (Math.random() - 0.5) * spreadAmount
-//   ];
-//   
-//   return (
-//     <BaseProjectile 
-//       {...props}
-//       direction={spreadDirection}
-//     />
-//   );
-// };
-// ```
-//
-// 🎨 ADD BULLET TRACER EFFECTS (Extend this component):
-// ```javascript
-// export const Bullet = (props) => {
-//   const [trail, setTrail] = useState([]);
-//   
-//   const handleUpdate = (id, position) => {
-//     setTrail(prev => [...prev.slice(-10), [...position]]);
-//     if (props.onUpdate) props.onUpdate(id, position);
-//   };
-//   
-//   return (
-//     <>
-//       <BaseProjectile {...props} onUpdate={handleUpdate} />
-//       {/* Render trail effect */}
-//       <Trail positions={trail} color={props.color} />
-//     </>
-//   );
-// };
-// ```
-//
-// 📱 ADD CONDITIONAL BULLET BEHAVIOR (Smart wrapper):
-// ```javascript
-// export const Bullet = (props) => {
-//   // Different behavior based on weapon type or game state
-//   const bulletProps = useMemo(() => {
-//     if (props.weaponType === 'sniper') {
-//       return { ...props, damage: props.damage * 2, speed: props.speed * 1.5 };
-//     }
-//     if (props.weaponType === 'shotgun') {
-//       return { ...props, size: props.size * 0.7, damage: props.damage * 0.8 };
-//     }
-//     return props;
-//   }, [props]);
-//   
-//   return <BaseProjectile {...bulletProps} />;
-// };
-// ```
-//
-// ✏️ MODIFICATION EXAMPLES:
-// ============================================================================
-//
-// 💥 ADD BULLET SOUND EFFECTS:
-// ```javascript
-// export const Bullet = (props) => {
-//   useEffect(() => {
-//     playSound('bullet_fire');
-//   }, []);
-//   
-//   const handleHit = (id, enemyId, damage) => {
-//     if (enemyId) playSound('bullet_impact');
-//     props.onHit(id, enemyId, damage);
-//   };
-//   
-//   return <BaseProjectile {...props} onHit={handleHit} />;
-// };
-// ```
-//
-// 🏃‍♂️ ADD BULLET DROP (GRAVITY):
-// ```javascript
-// export const Bullet = (props) => {
-//   const modifiedDirection = useMemo(() => {
-//     // Add slight downward trajectory for bullet drop
-//     return [
-//       props.direction[0],
-//       props.direction[1] - 0.1,  // Gravity effect
-//       props.direction[2]
-//     ];
-//   }, [props.direction]);
-//   
-//   return <BaseProjectile {...props} direction={modifiedDirection} />;
-// };
-// ```
-//
-// 🎯 ADD BULLET PENETRATION:
-// ```javascript
-// export const Bullet = (props) => {
-//   const hitEnemies = useRef(new Set());
-//   
-//   const handleHit = (id, enemyId, damage) => {
-//     if (enemyId && !hitEnemies.current.has(enemyId)) {
-//       hitEnemies.current.add(enemyId);
-//       // Don't destroy bullet on first hit - allow penetration
-//       if (hitEnemies.current.size < 3) {
-//         return; // Continue flying
-//       }
-//     }
-//     props.onHit(id, enemyId, damage);
-//   };
-//   
-//   return <BaseProjectile {...props} onHit={handleHit} />;
-// };
-// ```
-// ============================================================================
 
 import React from 'react';
 import { BaseProjectile } from './BaseProjectile';

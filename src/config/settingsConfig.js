@@ -45,14 +45,14 @@ export const settingsConfig = {
       unit: '',        // No unit needed for health
       description: 'Maximum health points (affects healing and difficulty)'
     },
-    fireRate: {
-      label: 'Fire Rate',
-      default: 2,      // Shots per second
-      min: 0.5,        // Slow fire rate
-      max: 10,         // Very fast fire rate
-      step: 0.1,       // Precise control
-      unit: '/s',      // Shots per second
-      description: 'How many bullets you can fire per second'
+    fireRateMultiplier: {
+      label: 'Fire Rate Multiplier',
+      default: 1.0,    // Normal speed
+      min: 0.5,        // Half speed
+      max: 3.0,        // Triple speed
+      step: 0.1,       // Fine control
+      unit: 'x',       // Multiplier
+      description: 'Multiplier for all projectile fire rates'
     }
   },
 
@@ -87,6 +87,37 @@ export const settingsConfig = {
     }
   },
 
+  // 💎 COLLECTIBLE SETTINGS - Health collectible behavior
+  collectibles: {
+    spawnChance: {
+      label: 'Collectible Spawn Rate',
+      default: 0.15,    // 15% chance per enemy defeat
+      min: 0.0,         // No collectibles
+      max: 1.0,         // Every enemy drops collectible
+      step: 0.05,       // 5% increments
+      unit: '%',        // Percentage
+      description: 'Chance of collectible spawning when enemy is defeated'
+    },
+    maxActive: {
+      label: 'Max Active Collectibles',
+      default: 3,       // Maximum 3 collectibles on screen
+      min: 0,           // No collectibles allowed
+      max: 10,          // Maximum 10 collectibles
+      step: 1,          // Integer values only
+      unit: '',         // No unit needed for count
+      description: 'Maximum number of collectibles that can exist simultaneously'
+    },
+    spawnDelay: {
+      label: 'Collectible Spawn Delay',
+      default: 3.0,     // 3 seconds between spawns
+      min: 0.5,         // Fast spawning
+      max: 10.0,        // Slow spawning
+      step: 0.5,        // 0.5 second increments
+      unit: 's',        // Seconds
+      description: 'Minimum time between collectible spawns'
+    }
+  },
+
   // 🎯 DIFFICULTY SETTINGS - Overall challenge level
   difficulty: {
     multiplier: {
@@ -116,8 +147,8 @@ export const settingsConfig = {
  * const label = getSettingLabel('player', 'speed', 7.5);
  * // Returns: "Movement Speed: 7.5"
  *
- * const fireLabel = getSettingLabel('player', 'fireRate', 3.2);
- * // Returns: "Fire Rate: 3.2/s"
+ * const fireLabel = getSettingLabel('player', 'fireRateMultiplier', 1.5);
+ * // Returns: "Fire Rate Multiplier: 1.5x"
  * ```
  *
  * 🔧 FORMATTING RULES:
@@ -174,7 +205,7 @@ export const getSettingConfig = (category, key) => {
  * 🎯 USAGE EXAMPLES:
  * ```javascript
  * const playerSettings = getCategorySettings('player');
- * // Returns: { speed: {...}, health: {...}, fireRate: {...} }
+ * // Returns: { speed: {...}, health: {...}, fireRateMultiplier: {...} }
  *
  * // Iterate through all player settings
  * Object.entries(playerSettings).forEach(([key, config]) => {

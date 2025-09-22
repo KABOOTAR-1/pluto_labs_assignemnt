@@ -36,18 +36,21 @@ export const useGameMechanic = (dependencies) => {
 ```
 **AI Modification:** Change movement speed, add new movement patterns (diagonal, sprint), or modify boundary behavior
 
-### **usePlayerRotation.js** - MOUSE-BASED ROTATION
-**Purpose:** Rotates player to face mouse cursor with smooth interpolation
+### **usePlayerRotation.js** - MULTI-PLATFORM ROTATION
+**Purpose:** Rotates player to face mouse cursor or mobile joystick with smooth interpolation
 ```javascript
 // Key responsibilities:
-- Mouse position tracking and conversion to world coordinates
-- Smooth rotation interpolation using lerp
-- Player mesh rotation updates
-- Integration with camera position for accurate aiming
+- Manage mouse position state internally (no atom dependency)
+- Receive mobile position from component props
+- Calculate rotation angle from input position
+- Apply smooth rotation interpolation to physics body
+- Call rotation change callback for other components
 
-// Dependencies:  
-- playerRef: React ref to player mesh (required)
-- camera: Three.js camera object (required)
+// Dependencies:
+- api: Cannon.js physics body API (required)
+- gameState: Current game state for rotation gating (required)
+- onRotationChange: Callback to update rotation state (required)
+- mobilePosition: Mobile joystick position from component (required)
 ```
 **AI Modification:** Adjust rotation speed, add rotation constraints, or implement different aiming systems
 
@@ -67,7 +70,7 @@ export const useGameMechanic = (dependencies) => {
 - gameState: Game state for shooting enablement (required)
 - projectileType: Current weapon configuration object (required)
 - onShoot: Callback to spawn projectiles (required)
-- fireRate: Shots per second (optional, defaults to gameConfig.player.fireRate)
+- fireRateMultiplier: Multiplier for projectile fire rate (optional, defaults to 1.0)
 ```
 **AI Modification:** Add mouse click shooting, automatic weapons, charge-up mechanics, or special weapon types
 
@@ -195,11 +198,61 @@ export const useGameMechanic = (dependencies) => {
 
 // Dependencies:
 - enemyRef: React ref to enemy mesh (required)
-- position: Current enemy position array (required)
-- playerPosition: Target position to face (required)
-- facePlayer: Boolean to enable/disable facing (required)
 ```
-**AI Modification:** Add rotation animations, facing constraints, or directional indicators
+
+### **useCollectibleSpawner.js** - COLLECTIBLE GENERATION
+**Purpose:** Manages collectible spawning with type randomization and object pooling
+```javascript
+// Key responsibilities:
+- Time-based collectible spawning with probability checks
+- Random collectible type selection from available types (currently only health)
+- Spawn constraint enforcement (delay, max active, world bounds)
+- Object pool integration for performance
+- Configurable spawn intervals and positioning
+
+// Parameters:
+- collectibles: Current collectible pool array
+- setCollectibles: State setter for collectibles
+- spawnChance: Probability of successful spawn (0-1)
+- spawnDelay: Minimum time between spawns (ms)
+- maxActiveCollectibles: Population limit
+- worldBounds: Spawn area boundaries
+- collectibleType: Base type (can be overridden per spawn)
+
+// Returns: spawnCollectible function
+```
+
+### **useCollectibleCollector.js** - COLLECTION DETECTION
+**Purpose:** Handles collectible collection, effect application, and statistics tracking
+```javascript
+// Key responsibilities:
+- Distance-based collision detection between player and collectibles
+- Collectible effect application via applyCollectibleEffect function
+- Statistics tracking (collection count, health restored)
+- Object pool management (deactivation after collection)
+- Duplicate collection prevention with persistent guards
+
+// TO ADD NEW COLLECTIBLE EFFECTS:
+// 1. Add to collectibleTypes.js array
+// 2. Add case to applyCollectibleEffect switch statement
+// 3. Add required props (state setters) to hook
+// 4. Update CollectibleManager to pass new props
+
+// Parameters:
+- playerPosition: Current player position [x, y, z]
+- activePlayerHealth/setActivePlayerHealth: Health management
+- basePlayerHealth: Maximum health capacity
+- collectibles/setCollectibles: Collectible pool management
+- setCollectiblesCollected: Statistics tracking
+- setTotalHealthRestored: Healing statistics
+
+// Effect Types:
+- HEALTH: Instant healing up to maximum
+- SPEED: Temporary movement speed boost (TODO)
+- DAMAGE: Temporary damage multiplier (TODO)
+- SHIELD: Temporary invincibility (TODO)
+```
+**AI Modification:** Add new collectible effect types, modify collection radius, or enhance visual feedback
 
 ## ⚙️ CONTROL SYSTEM HOOKS
 
@@ -218,36 +271,81 @@ export const useGameMechanic = (dependencies) => {
 **AI Modification:** Add new key bindings, modifier keys, or custom control schemes
 
 ### **useMouseControls.js** - MOUSE INPUT HANDLING  
-**Purpose:** Tracks mouse movement and click detection for aiming (not currently used for shooting)
+**Purpose:** Tracks mouse movement and calls external setter (no atom dependency)
 ```javascript
 // Key responsibilities:
 - Mouse position tracking and conversion to world coordinates
+- Call setMousePosition callback to update external state
 - Click event detection (mousedown/mouseup states)
 - DOM integration using getBoundingClientRect() for positioning
 - Event management with proper cleanup
 
+// Dependencies:
+- setMousePosition: Callback function to update mouse position (required)
+
 // Returns:
-- worldMousePosition: Current mouse coordinates in world space
-- isMouseDown: Boolean for mouse button state
+- {} (empty object, state managed externally)
 ```
 **AI Modification:** Add mouse sensitivity, integrate with shooting system, or add touch controls
+
+### **useMobileControls.js** - MOBILE TOUCH INPUT BRIDGE
+**Purpose:** Bridges mobile UI components with shared input atoms for dual-joystick and button controls
+```javascript
+const { onMove, onStop, onRotate, onShoot } = useMobileControls();
+```
+**What it provides:**
+- Movement joystick handler: Converts touch coordinates to directional input atoms
+- Rotation joystick handler: Converts touch coordinates to rotation input position
+- Shoot button handler: Manages primary action with cooldown prevention
+- Multi-platform integration: Uses same atoms as keyboard/mouse controls
+**Integration points:**
+- MobileGameControls: Uses callbacks for dual joystick and button UI
+- Input atoms: Shares state with keyboard and mouse systems
+- Game logic: Works with existing usePlayerMovement/usePlayerRotation/usePlayerShooting hooks
+**Returns:**
+```javascript
+{
+  onMove,      // Movement joystick callback
+  onStop,      // Movement stop callback  
+  onRotate,    // Rotation joystick callback (maintains rotation when released)
+  onShoot,     // Shoot button callback
+  inputState,  // Current combined input state
+  atoms        // Direct atom access for advanced use
+}
+```
+**AI Modification:** Adjust joystick sensitivity, add haptic feedback, or implement gesture controls
 
 ## 🖥️ UI SYSTEM HOOKS
 
 ### **useSettingsNavigation.js** - SETTINGS SCREEN MANAGEMENT
-**Purpose:** Handles navigation and state management for the settings screen
+**Purpose:** Handles navigation and state management for the settings screen (no atom dependency)
 ```javascript
 // Key responsibilities:
-- Settings screen state management
-- Navigation between settings categories
-- Settings value persistence
-- Integration with settings atoms
+- Navigate to settings from any screen
+- Preserve previous game state in sessionStorage
+- Return to exact previous screen
+- Manage settings screen visibility via props
 
 // Dependencies:
-- gameState: Current game state (required)
-- setGameState: Function to change game state (required)
+- gameState: Current game state from component (required)
+- setGameState: State setter function from component (required)
+
+// Returns:
+- goToSettings: Function to navigate to settings
+- goBackFromSettings: Function to return to previous screen
+- isInSettings: Boolean indicating if currently in settings
+- currentState: Current game state for convenience
+
+// Usage in components:
+const { goToSettings } = useSettingsNavigation(gameState, setGameState);
+
+// Used by:
+- StartScreen.jsx: "SETTINGS" button
+- GameOverScreen.jsx: "SETTINGS" button  
+- SettingsScreen.jsx: "BACK" button
+- HUD.jsx: Settings button during gameplay (requires setGameState prop)
 ```
-**AI Modification:** Add new settings categories, keyboard navigation, or settings validation
+**AI Modification:** Add new settings categories, keyboard navigation, settings validation, or new navigation patterns
 
 ## 🎨 UTILITY HOOKS
 
@@ -284,11 +382,18 @@ function GameComponent() {
 }
 ```
 
-### **Hook → Atom Integration:**
+### **Hook → State Integration:**
 ```javascript
-// Hooks read from and write to Jotai atoms
-const [gameState] = useAtom(gameStateAtom);
-const [playerHealth, setPlayerHealth] = useAtom(playerHealthAtom);
+// Most hooks use direct props and callbacks for state management
+// Only input-related hooks use atoms internally for shared state
+
+// Prop-based hooks (majority):
+usePlayerRotation(api, gameState, onRotationChange, mobilePosition);
+useSettingsNavigation(gameState, setGameState);
+useMouseControls(setMousePosition);
+
+// Atom-based hooks (input system only):
+const [inputState] = useAtom(inputStateAtom);
 const [enemies, setEnemies] = useAtom(enemiesAtom);
 ```
 
@@ -308,9 +413,10 @@ useFrame(() => {
 ### **Adding New Hooks:**
 1. **Follow naming convention:** `use[System][Action].js` (e.g., `useEnemyTeleport.js`)
 2. **Use useFrame for game loop:** All game logic should run at 60fps
-3. **Integrate with atoms:** Read/write game state via Jotai atoms
-4. **Handle dependencies:** Clearly define required parameters
-5. **Add comprehensive documentation:** Explain purpose, dependencies, and modification points
+3. **Prefer props over atoms:** Use props and callbacks for state management when possible
+4. **Use atoms sparingly:** Only for shared state that multiple components need (like input system)
+5. **Handle dependencies:** Clearly define required parameters
+6. **Add comprehensive documentation:** Explain purpose, dependencies, and modification points
 
 ### **Modifying Existing Hooks:**
 1. **Check component dependencies:** See which components use the hook

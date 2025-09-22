@@ -52,19 +52,6 @@
 // - src/config/atoms/gameStateAtoms.js: Defines scoreAtom for state management
 // - src/config/gameConfig.js: Defines score multipliers and point values
 //
-// 🎭 SCORE DISPLAY PIPELINE:
-// 1. Projectiles component detects enemy defeat and calculates points
-// 2. Points multiplied by gameConfig.rules.scoreMultiplier and added to scoreAtom
-// 3. HUD or GameOverScreen reads current score from atom
-// 4. Parent component passes score as prop to ScoreDisplay
-// 5. ScoreDisplay renders score with label and styling
-// 6. CSS classes provide consistent visual appearance
-//
-// 🎨 VISUAL STRUCTURE:
-// - Container: .score-container for layout and positioning
-// - Label: .score-label showing "SCORE" text
-// - Value: .score-value displaying the numerical score
-//
 // ⚠️ IMPORTANT NOTES:
 // - ScoreDisplay is a pure presentational component with no logic
 // - Component requires score prop - will show undefined if not provided
@@ -72,151 +59,6 @@
 // - CSS classes must be defined in parent stylesheets for proper appearance
 // - Score is displayed directly without validation or formatting
 //
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD NUMBER FORMATTING:
-// ```javascript
-// const ScoreDisplay = ({ score }) => {
-//   const formatScore = (score) => {
-//     if (score >= 1000000) return `${(score / 1000000).toFixed(1)}M`;
-//     if (score >= 1000) return `${(score / 1000).toFixed(1)}K`;
-//     return score.toLocaleString(); // Adds thousands separators
-//   };
-//   
-//   return (
-//     <div className="score-container">
-//       <div className="score-label">SCORE</div>
-//       <div className="score-value">{formatScore(score)}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎮 ADD HIGH SCORE COMPARISON:
-// ```javascript
-// const ScoreDisplay = ({ score, highScore = 0 }) => {
-//   const isNewRecord = score > highScore;
-//   
-//   return (
-//     <div className="score-container">
-//       <div className="score-label">
-//         SCORE {isNewRecord && "🏆"}
-//       </div>
-//       <div className={`score-value ${isNewRecord ? 'new-record' : ''}`}>
-//         {score.toLocaleString()}
-//       </div>
-//       {highScore > 0 && (
-//         <div className="high-score">Best: {highScore.toLocaleString()}</div>
-//       )}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎨 ADD ANIMATED SCORE COUNTER:
-// ```javascript
-// import { useState, useEffect } from 'react';
-// 
-// const ScoreDisplay = ({ score }) => {
-//   const [displayScore, setDisplayScore] = useState(0);
-//   
-//   useEffect(() => {
-//     const increment = Math.ceil((score - displayScore) / 20);
-//     if (displayScore < score) {
-//       const timer = setTimeout(() => {
-//         setDisplayScore(prev => Math.min(prev + increment, score));
-//       }, 30);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [score, displayScore]);
-//   
-//   return (
-//     <div className="score-container">
-//       <div className="score-label">SCORE</div>
-//       <div className="score-value">{displayScore.toLocaleString()}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 📱 ADD SCORE TIER INDICATORS:
-// ```javascript
-// const ScoreDisplay = ({ score }) => {
-//   const getScoreTier = (score) => {
-//     if (score >= 10000) return { name: "LEGEND", color: "#FFD700" };
-//     if (score >= 5000) return { name: "EXPERT", color: "#C0C0C0" };
-//     if (score >= 1000) return { name: "SKILLED", color: "#CD7F32" };
-//     return { name: "NOVICE", color: "#FFFFFF" };
-//   };
-//   
-//   const tier = getScoreTier(score);
-//   
-//   return (
-//     <div className="score-container">
-//       <div className="score-label" style={{ color: tier.color }}>
-//         SCORE - {tier.name}
-//       </div>
-//       <div className="score-value" style={{ color: tier.color }}>
-//         {score.toLocaleString()}
-//       </div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🔊 ADD SCORE MULTIPLIER DISPLAY:
-// ```javascript
-// const ScoreDisplay = ({ score, multiplier = 1 }) => {
-//   return (
-//     <div className="score-container">
-//       <div className="score-label">
-//         SCORE {multiplier > 1 && <span className="multiplier">x{multiplier}</span>}
-//       </div>
-//       <div className="score-value">{score.toLocaleString()}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎯 ADD SCORE CHANGE INDICATOR:
-// ```javascript
-// import { useState, useEffect } from 'react';
-// 
-// const ScoreDisplay = ({ score }) => {
-//   const [previousScore, setPreviousScore] = useState(score);
-//   const [scoreChange, setScoreChange] = useState(0);
-//   const [showChange, setShowChange] = useState(false);
-//   
-//   useEffect(() => {
-//     const change = score - previousScore;
-//     if (change > 0) {
-//       setScoreChange(change);
-//       setShowChange(true);
-//       
-//       const timer = setTimeout(() => {
-//         setShowChange(false);
-//         setPreviousScore(score);
-//       }, 1500);
-//       
-//       return () => clearTimeout(timer);
-//     }
-//   }, [score, previousScore]);
-//   
-//   return (
-//     <div className="score-container">
-//       <div className="score-label">SCORE</div>
-//       <div className="score-value">
-//         {score.toLocaleString()}
-//         {showChange && (
-//           <span className="score-change">+{scoreChange}</span>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-// ```
-// ============================================================================
 
 import React from "react";
 
@@ -233,23 +75,6 @@ import React from "react";
  * - Provide consistent visual formatting for statistics
  * - Render immediately based on provided score prop
  * - Apply CSS classes for integration with game UI theme
- *
- * 📊 DISPLAY FORMAT:
- * - Label: "SCORE" text for context identification
- * - Value: Numerical score displayed prominently
- * - Container: Structured layout for consistent positioning
- * - Styling: CSS classes for visual theme integration
- *
- * 🎨 VISUAL STRUCTURE:
- * - .score-container: Main container for layout
- * - .score-label: "SCORE" text styling
- * - .score-value: Score number styling
- *
- * 🚀 USAGE PATTERNS:
- * - HUD Integration: Real-time display during gameplay
- * - GameOver Statistics: Final score in end-game summary
- * - Statistics Panels: Part of comprehensive game statistics
- * - Achievement Systems: Score-based milestone tracking
  */
 const ScoreDisplay = ({ score }) => {
   return (

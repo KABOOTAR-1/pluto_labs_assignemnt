@@ -3,29 +3,49 @@
  * =============================================
  *
  * 🎯 WHAT THIS COMPONENT DOES:
- * ✅ Sets up physics world with gravity and collision materials
- * ✅ Renders player character with all necessary props
+ * ✅ Sets up physics world with gravity and collision materials (mobile optimized)
+ * ✅ Reads game entities (enemies, projectiles) directly from atoms
+ * ✅ Processes projectile type configuration from atoms
+ * ✅ Renders player character with props from Scene
  * ✅ Conditionally renders enemies and projectiles only during PLAYING state
- * ✅ Manages enemy spawning system
+ * ✅ Manages enemy spawning system and projectile lifecycle
  * ✅ Handles projectile-enemy collision detection
  * ✅ Renders static floor/ground geometry
  * ✅ Uses Suspense for async component loading
  *
- * 🔄 GAME STATE MANAGEMENT:
- * - Only renders dynamic entities (enemies/projectiles) when gameState === PLAYING
- * - Player is always rendered but behavior changes based on gameState
- * - Enemy spawner only active during gameplay
- * - Physics world always active for collision detection
+ * 🔄 DATA FLOW:
+ * 1. Receives player state and game control props from Scene
+ * 2. Reads enemies/projectiles arrays directly from atoms
+ * 3. Processes currentProjectileType atom into full configuration
+ * 4. Handles projectile creation and enemy defeat logic
+ * 5. Updates score and statistics through prop callbacks
  *
- * 📊 PROP REQUIREMENTS:
- * Receives 13 props from Scene component for complete game state management
- * All props are required for proper game functionality
+ * 📊 PROP REQUIREMENTS (7 props):
+ * - playerPosition/playerHealth/setPlayerHealth: Player state management
+ * - gameState/setGameState: Game phase control
+ * - worldBounds: Collision boundaries
+ * - setScore/setEnemiesKilled: Statistics tracking
+ * - isMobile: Device optimization flag
+ *
+ * 📊 ATOM DEPENDENCIES:
+ * - enemiesAtom: Game entity array (read/write)
+ * - projectilesAtom: Projectile array (read/write)
+ * - currentProjectileTypeAtom: Weapon selection (read/write)
  */
 
 import React, { Suspense } from 'react';
 import { Physics } from '@react-three/cannon';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { gameConfig } from '../config/gameConfig';
 import { GAME_STATES } from '../config/constants';
+import {
+  enemiesAtom,
+  projectilesAtom,
+  currentProjectileTypeAtom
+} from '../config/atoms';
+import { getProjectileType, projectileTypes } from '../data/projectileTypes';
+import { activateProjectile } from '../utils/gameUtils';
 
 /**
  * 🧍 PLAYER COMPONENT - Main character with movement and combat
@@ -57,31 +77,47 @@ import Projectiles from './Projectiles';
  */
 import EnemySpawner from './enemies/EnemySpawner';
 
+import {CollectibleManager} from './collectibles/CollectibleManager';
+
 const GameRenderer = ({
-  enemies,
-  setEnemies,
-  projectiles,
-  setProjectiles,
   playerPosition,
   playerHealth,
   setPlayerHealth,
   gameState,
   setGameState,
   worldBounds,
-  selectedProjectileType,
-  onShoot,
   setScore,
-  setEnemiesKilled
+  setEnemiesKilled,
+  isMobile=false
 }) => {
+  // 🎮 GAME STATE - Read atoms directly instead of receiving as props
+  const [enemies, setEnemies] = useAtom(enemiesAtom);
+  const [projectiles, setProjectiles] = useAtom(projectilesAtom);
+  const [currentProjectileType, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
+
+  // 🔧 PROJECTILE CONFIGURATION - Process projectile type into full configuration
+  const selectedProjectileType = getProjectileType(currentProjectileType);
+
+  // 🚀 INITIALIZATION - Set default projectile type when component mounts
+  useEffect(() => {
+    const firstId = projectileTypes[0]?.id;
+    if (firstId) {
+      setCurrentProjectileType(firstId);
+    }
+  }, [setCurrentProjectileType]);
+
+  // 🔫 SHOOTING HANDLER - Handle projectile creation internally
+  const handleShoot = (projectileData) => {
+    setProjectiles((prev) => activateProjectile(prev, projectileData));
+  };
   return (
     // ⚙️ PHYSICS WORLD - Cannon-es physics simulation with gravity and materials
-    <Physics
-      gravity={gameConfig.physics.gravity}
-      defaultContactMaterial={{
-        friction: gameConfig.physics.friction,
-        restitution: gameConfig.physics.restitution}
-      }
-    >
+   <Physics
+  gravity={isMobile ? gameConfig.physics.gravity/2 : gameConfig.physics.gravity}
+  iterations={isMobile ? 3 : 10}
+  tolerance={isMobile ? 0.001 : 0.0001}
+  broadphase={isMobile ? 'NaiveBroadphase' : 'SAPBroadphase'}
+>
       {/* 🧍 PLAYER CHARACTER - Always rendered, behavior changes with game state */}
       <Suspense fallback={null}>
         <Player
@@ -92,7 +128,7 @@ const GameRenderer = ({
           setGameState={setGameState}
           setPlayerHealth={setPlayerHealth}
           selectedProjectileType={selectedProjectileType}
-          onShoot={onShoot}
+          onShoot={handleShoot}
         />
       </Suspense>
 
@@ -131,6 +167,8 @@ const GameRenderer = ({
             setEnemiesKilled={setEnemiesKilled}
             projectileConfig={selectedProjectileType}
           />
+
+          <CollectibleManager worldBounds={worldBounds}/>
         </>
       )}
 

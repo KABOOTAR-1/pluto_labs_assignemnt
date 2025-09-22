@@ -52,128 +52,12 @@
 // - src/components/SettingsScreen.jsx: Uses <h1>SETTINGS</h1> directly (could use ScreenHeader for consistency)
 // - src/config/themes/themes.js: Could define theme-specific titles for dynamic headers
 //
-// 🎭 TITLE DISPLAY PIPELINE:
-// 1. Parent screen component determines appropriate title text
-// 2. Parent passes title string as prop to ScreenHeader
-// 3. ScreenHeader renders H1 element with title and CSS class
-// 4. CSS stylesheet provides visual styling for .screen-header class
-// 5. Browser renders title with semantic heading structure
-//
-// 🎨 VISUAL STRUCTURE:
-// - Element: H1 for semantic heading hierarchy
-// - Class: .screen-header for consistent styling
-// - Content: Title text provided by parent component
-//
 // ⚠️ IMPORTANT NOTES:
 // - ScreenHeader is a pure presentational component with no logic
 // - Component requires title prop - will show undefined if not provided
 // - Uses H1 element for proper semantic HTML structure
 // - CSS class must be defined in stylesheets for proper appearance
 // - No validation or formatting applied to title text
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD SUBTITLE SUPPORT:
-// ```javascript
-// const ScreenHeader = ({ title, subtitle }) => {
-//   return (
-//     <div className="screen-header-container">
-//       <h1 className="screen-header">{title}</h1>
-//       {subtitle && <h2 className="screen-subtitle">{subtitle}</h2>}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎮 ADD ICON SUPPORT:
-// ```javascript
-// const ScreenHeader = ({ title, icon }) => {
-//   return (
-//     <h1 className="screen-header">
-//       {icon && <span className="header-icon">{icon}</span>}
-//       {title}
-//     </h1>
-//   );
-// };
-// ```
-//
-// 🎨 ADD ANIMATED TEXT:
-// ```javascript
-// import { useState, useEffect } from 'react';
-// 
-// const ScreenHeader = ({ title, animated = false }) => {
-//   const [displayText, setDisplayText] = useState('');
-//   
-//   useEffect(() => {
-//     if (animated && title) {
-//       let index = 0;
-//       const timer = setInterval(() => {
-//         setDisplayText(title.substring(0, index + 1));
-//         index++;
-//         if (index >= title.length) {
-//           clearInterval(timer);
-//         }
-//       }, 100);
-//       return () => clearInterval(timer);
-//     } else {
-//       setDisplayText(title);
-//     }
-//   }, [title, animated]);
-//   
-//   return <h1 className="screen-header">{displayText}</h1>;
-// };
-// ```
-//
-// 📱 ADD RESPONSIVE STYLING:
-// ```javascript
-// const ScreenHeader = ({ title, size = 'large' }) => {
-//   const getHeaderClass = (size) => {
-//     switch (size) {
-//       case 'small': return 'screen-header screen-header-small';
-//       case 'medium': return 'screen-header screen-header-medium';
-//       case 'large': 
-//       default: return 'screen-header screen-header-large';
-//     }
-//   };
-//   
-//   return <h1 className={getHeaderClass(size)}>{title}</h1>;
-// };
-// ```
-//
-// 🔊 ADD THEME-BASED STYLING:
-// ```javascript
-// import { useCurrentTheme } from '../../config/gameConfig';
-// 
-// const ScreenHeader = ({ title }) => {
-//   const theme = useCurrentTheme();
-//   
-//   return (
-//     <h1 
-//       className="screen-header" 
-//       style={{ color: theme.ui?.headerColor || '#ffffff' }}
-//     >
-//       {title}
-//     </h1>
-//   );
-// };
-// ```
-//
-// 🎯 ADD CONDITIONAL RENDERING:
-// ```javascript
-// const ScreenHeader = ({ title, show = true, level = 1 }) => {
-//   if (!show || !title) return null;
-//   
-//   const HeaderTag = `h${level}`;
-//   
-//   return (
-//     <HeaderTag className="screen-header">
-//       {title}
-//     </HeaderTag>
-//   );
-// };
-// ```
-// ============================================================================
 
 import React from "react";
 

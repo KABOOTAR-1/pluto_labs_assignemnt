@@ -52,128 +52,13 @@
 // - src/components/Projectiles.jsx: Increments enemiesKilled when enemies defeated
 // - src/config/atoms/gameStateAtoms.js: Defines enemiesKilledAtom for state management
 //
-// 🎭 DISPLAY INTEGRATION PIPELINE:
-// 1. Projectiles component detects enemy defeat and increments enemiesKilledAtom
-// 2. HUD or GameOverScreen reads current count from atom
-// 3. Parent component passes count as prop to EnemyKilledDisplay
-// 4. EnemyKilledDisplay renders count with label and styling
-// 5. CSS classes provide consistent visual appearance
-//
-// 🎨 VISUAL STRUCTURE:
-// - Container: .enemies-killed-container for layout and positioning
-// - Label: .enemies-killed-label showing "ENEMIES" text
-// - Value: .enemies-killed-value displaying the numerical count
-//
 // ⚠️ IMPORTANT NOTES:
 // - EnemyKilledDisplay is a pure presentational component with no logic
 // - Component requires count prop - will show undefined if not provided
 // - No internal state or effects - renders immediately based on props
 // - CSS classes must be defined in parent stylesheets for proper appearance
 // - Count is displayed directly without validation or formatting
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD NUMBER FORMATTING:
-// ```javascript
-// const EnemiesKilledDisplay = ({ count }) => {
-//   const formattedCount = count.toLocaleString(); // Adds thousands separators
-//   
-//   return (
-//     <div className="enemies-killed-container">
-//       <div className="enemies-killed-label">ENEMIES</div>
-//       <div className="enemies-killed-value">{formattedCount}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎮 ADD ACHIEVEMENT BADGES:
-// ```javascript
-// const EnemiesKilledDisplay = ({ count }) => {
-//   const getBadge = (count) => {
-//     if (count >= 100) return "🏆"; // Gold
-//     if (count >= 50) return "🥈";  // Silver
-//     if (count >= 10) return "🥉";  // Bronze
-//     return "";
-//   };
-//   
-//   return (
-//     <div className="enemies-killed-container">
-//       <div className="enemies-killed-label">ENEMIES {getBadge(count)}</div>
-//       <div className="enemies-killed-value">{count}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎨 ADD ANIMATED COUNTER:
-// ```javascript
-// import { useState, useEffect } from 'react';
-// 
-// const EnemiesKilledDisplay = ({ count }) => {
-//   const [displayCount, setDisplayCount] = useState(0);
-//   
-//   useEffect(() => {
-//     const increment = Math.ceil((count - displayCount) / 10);
-//     if (displayCount < count) {
-//       const timer = setTimeout(() => {
-//         setDisplayCount(prev => Math.min(prev + increment, count));
-//       }, 50);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [count, displayCount]);
-//   
-//   return (
-//     <div className="enemies-killed-container">
-//       <div className="enemies-killed-label">ENEMIES</div>
-//       <div className="enemies-killed-value">{displayCount}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 📱 ADD CONDITIONAL STYLING:
-// ```javascript
-// const EnemiesKilledDisplay = ({ count }) => {
-//   const getValueClass = (count) => {
-//     if (count >= 50) return "enemies-killed-value high";
-//     if (count >= 20) return "enemies-killed-value medium";
-//     return "enemies-killed-value";
-//   };
-//   
-//   return (
-//     <div className="enemies-killed-container">
-//       <div className="enemies-killed-label">ENEMIES</div>
-//       <div className={getValueClass(count)}>{count}</div>
-//     </div>
-//   );
-// };
-// ```
-//
-// 🔊 ADD MILESTONE NOTIFICATIONS:
-// ```javascript
-// import { useEffect } from 'react';
-// 
-// const EnemiesKilledDisplay = ({ count, onMilestone }) => {
-//   useEffect(() => {
-//     const milestones = [10, 25, 50, 100];
-//     milestones.forEach(milestone => {
-//       if (count === milestone && onMilestone) {
-//         onMilestone(milestone);
-//       }
-//     });
-//   }, [count, onMilestone]);
-//   
-//   return (
-//     <div className="enemies-killed-container">
-//       <div className="enemies-killed-label">ENEMIES</div>
-//       <div className="enemies-killed-value">{count}</div>
-//     </div>
-//   );
-// };
-// ```
-// ============================================================================
+
 
 import React from "react";
 

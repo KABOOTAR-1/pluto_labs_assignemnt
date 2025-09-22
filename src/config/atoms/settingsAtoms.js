@@ -42,7 +42,7 @@ export const showHUDAtom = atom(true);
  * - Settings menu slider: "Movement Speed: Slow/Normal/Fast"
  * - Saved to localStorage for persistent preferences
  * - Affects base player movement before power-ups/debuffs
- * - Can be overridden by activePlayerSpeedAtom during gameplay
+ * - Used directly by Player component for movement speed
  *
  * ⚙️ SETTINGS INTEGRATION:
  * - UI: Slider from 3 (slow) to 8 (fast)
@@ -73,25 +73,25 @@ export const basePlayerSpeedAtom = atom(gameConfig.player.speed);
 export const basePlayerHealthAtom = atom(gameConfig.player.health);
 
 /**
- * 🔫 BASE PLAYER FIRE RATE ATOM - Shooting Speed Preference
- * =======================================================
+ * 🔫 PLAYER FIRE RATE MULTIPLIER ATOM - Shooting Speed Multiplier
+ * ============================================================
  *
- * @description User's preferred shooting speed (saved setting)
- * @type {number} - Shots per second
- * @default gameConfig.player.fireRate (typically 2)
+ * @description User's preferred shooting speed multiplier (saved setting)
+ * @type {number} - Multiplier for projectile fire rates (0.5 = half speed, 2.0 = double)
+ * @default 1.0 (normal speed)
  *
  * 🎯 USAGE EXAMPLES:
  * - Settings menu: "Fire Rate: Slow/Normal/Fast"
- * - Controls automatic weapon firing speed
+ * - Multiplies base fire rate of each projectile type
  * - Saved for player comfort and skill level
  * - Affects gameplay pacing and difficulty
  *
  * ⚙️ SETTINGS INTEGRATION:
- * - UI: Slider from 1 (slow) to 5 (very fast)
- * - Default: 2 shots per second
+ * - UI: Slider from 0.5 (slow) to 3.0 (very fast)
+ * - Default: 1.0 (normal speed)
  * - Affects: Combat difficulty, resource management
  */
-export const basePlayerFireRateAtom = atom(gameConfig.player.fireRate);
+export const playerFireRateMultiplierAtom = atom(1.0);
 
 /**
  * 👹 ENEMY SPEED MULTIPLIER ATOM - Enemy Difficulty Setting
@@ -178,3 +178,73 @@ export const difficultyMultiplierAtom = atom(1.0);
  * - Real-time: Affects future spawns, may gradually reduce existing count
  */
 export const maxEnemiesSettingAtom = atom(gameConfig.enemySettings.maxOnScreen);
+
+// ============================================================================
+// COLLECTIBLE SYSTEM SETTINGS (real-time configuration)
+// ============================================================================
+
+/**
+ * 💎 COLLECTIBLE SPAWN CHANCE ATOM - Health Collectible Frequency
+ * ============================================================
+ *
+ * @description Probability of spawning health collectible when enemy is defeated
+ * @type {number} - Probability value (0.0 = never, 1.0 = always)
+ * @default 0.15 (15% chance per enemy defeat)
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Settings menu: "Collectible Spawn Rate: Rare/Normal/Common"
+ * - Difficulty balancing: More collectibles for easier gameplay
+ * - Accessibility: Higher rates for players needing more healing
+ * - Real-time adjustment during gameplay
+ *
+ * ⚙️ SETTINGS INTEGRATION:
+ * - UI: Slider from 0% (no collectibles) to 100% (every enemy)
+ * - Default: 15% (balanced spawn rate)
+ * - Real-time: Changes apply to next enemy defeats
+ * - Affects: CollectibleManager spawn probability checks
+ */
+export const collectibleSpawnChanceSettingAtom = atom(0.15);
+
+/**
+ * 🔢 MAX ACTIVE COLLECTIBLES ATOM - Screen Population Control
+ * ========================================================
+ *
+ * @description Maximum number of health collectibles that can exist simultaneously
+ * @type {number} - Maximum count of active collectibles
+ * @default 3 (balanced screen presence)
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Performance settings: Reduce for lower-end devices
+ * - Visual clarity: Prevent screen clutter
+ * - Balance: Limit collectible availability
+ * - Affects spawning decisions in CollectibleManager
+ *
+ * ⚙️ SETTINGS INTEGRATION:
+ * - UI: Slider from 1 (minimal) to 10 (maximum)
+ * - Default: 3 collectibles
+ * - Real-time: Prevents new spawns when limit reached
+ * - Performance: Lower values reduce entity count
+ */
+export const maxActiveCollectiblesSettingAtom = atom(3);
+
+/**
+ * ⏱️ COLLECTIBLE SPAWN DELAY ATOM - Timing Control
+ * ===============================================
+ *
+ * @description Minimum time between collectible spawns to prevent spam
+ * @type {number} - Delay in seconds
+ * @default 3.0 (3 seconds between spawns)
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Balance: Prevent rapid collectible generation
+ * - Pacing: Control healing availability timing
+ * - Settings: "Collectible Cooldown: Fast/Normal/Slow"
+ * - Real-time adjustment for difficulty tuning
+ *
+ * ⚙️ SETTINGS INTEGRATION:
+ * - UI: Slider from 0.5s (fast) to 10s (slow)
+ * - Default: 3 seconds
+ * - Real-time: Affects next spawn timing
+ * - Balance: Prevents collectible spam during intense combat
+ */
+export const collectibleSpawnDelaySettingAtom = atom(3.0);

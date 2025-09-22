@@ -69,19 +69,6 @@
 // - src/hooks/useSettingsNavigation.js: Navigation logic
 // - src/components/StartScreen.jsx: Entry point to settings
 //
-// 🎨 STYLING DEPENDENCIES:
-// - .settings-screen: Full-screen overlay positioning
-// - .settings-container.scrollable: Scrollable container for many settings
-// - .setting-group.compact: Category grouping with glassmorphism effect
-// - .setting-item.compact: Individual setting with slider
-// - .screen-content.compact: Compact layout for settings interface
-//
-// 🔗 ATOM DEPENDENCIES:
-// - gameStateAtom: Navigation and visibility control
-// - basePlayer*Atoms: User's preferred player settings (persistent)
-// - enemy*Atoms: Enemy difficulty and behavior settings
-// - activePlayerHealthAtom: Current health during gameplay (temporary)
-//
 // ⚠️ IMPORTANT NOTES:
 // - Settings changes apply IMMEDIATELY (no save button needed)
 // - Uses sessionStorage for navigation state preservation
@@ -89,66 +76,6 @@
 // - Health setting shows current/max format for active gameplay
 // - Back button restores exact previous state (menu/playing/gameOver)
 //
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD NEW SETTING CATEGORY:
-// 1. Add category to settingsConfig.js
-// 2. Create atoms in settingsAtoms.js
-// 3. Import atoms and add UI section here
-//
-// 🎮 ADD PRESET DIFFICULTY BUTTONS:
-// Add buttons that set multiple atoms at once (Easy/Normal/Hard)
-//
-// 🎨 ADD THEME SELECTOR:
-// Import selectedThemeAtom and create dropdown for theme switching
-//
-// 📱 ADD MOBILE-SPECIFIC SETTINGS:
-// Include touch sensitivity, button size, etc.
-//
-// 🔊 ADD AUDIO SETTINGS:
-// Add volume sliders, sound effect toggles, music selection
-//
-// ✏️ MODIFICATION EXAMPLES:
-// ============================================================================
-//
-// 🏷️ CHANGE SETTING LABELS:
-// Replace: <h3>Player</h3> → <h3>Hero</h3> or <h3>Character</h3>
-// Replace: <h3>Enemies</h3> → <h3>Monsters</h3> or <h3>Opponents</h3>
-//
-// 🎯 CHANGE TITLE:
-// Replace: <h1>SETTINGS</h1> → <h1>GAME OPTIONS</h1> or <h1>CONFIGURATION</h1>
-//
-// 🔘 CHANGE BUTTON TEXT:
-// Replace: BACK → RETURN, CLOSE, DONE, EXIT, etc.
-//
-// 📊 MODIFY SETTING RANGES:
-// In settingsConfig.js, change min/max values:
-// speed: { min: 1, max: 15 } → { min: 2, max: 20 } (faster game)
-//
-// 🗑️ REMOVE UNWANTED SETTINGS:
-// Delete entire setting-item div blocks you don't need
-// Example: Remove fire rate by deleting lines 230-241
-//
-// 📋 REORDER SETTINGS:
-// Move setting-item divs up/down within their category
-// Example: Put health setting first by moving it above speed
-//
-// 🎨 CHANGE SLIDER APPEARANCE:
-// In App.css, modify .setting-item input[type="range"] styles
-// Change colors, sizes, thumb appearance
-//
-// 🔧 ADD VALIDATION TO SLIDERS:
-// Modify onChange handlers:
-// onChange={(e) => {
-//   const value = parseFloat(e.target.value);
-//   if (value >= 5) setPlayerSpeed(value); // Minimum speed validation
-// }}
-//
-// 📱 CHANGE LAYOUT:
-// Modify .screen-content.compact class to adjust width/spacing
-// Change .settings-container.scrollable for different scroll behavior
-// ============================================================================
 
 import React from 'react';
 import { useAtom } from 'jotai';
@@ -157,13 +84,17 @@ import {
   activePlayerHealthAtom,
   basePlayerSpeedAtom,
   basePlayerHealthAtom,
-  basePlayerFireRateAtom,
+  playerFireRateMultiplierAtom,
   enemySpeedMultiplierAtom,
   enemySpawnRateAtom,
   difficultyMultiplierAtom,
-  maxEnemiesSettingAtom
+  maxEnemiesSettingAtom,
+  collectibleSpawnChanceSettingAtom,
+  maxActiveCollectiblesSettingAtom,
+  collectibleSpawnDelaySettingAtom
 } from '../config/atoms';
 import { settingsConfig, getSettingLabel } from '../config/settingsConfig';
+import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
 
 /**
  * ⚙️ SETTINGS SCREEN COMPONENT - Game Configuration Interface
@@ -192,7 +123,7 @@ import { settingsConfig, getSettingLabel } from '../config/settingsConfig';
  * - .setting-item.compact: Individual settings with labels and sliders
  * - .screen-content.compact: Compact layout for settings interface
  */
-const SettingsScreen = () => {
+const SettingsScreen = ({ theme = {} }) => {
   // 🎲 NAVIGATION STATE MANAGEMENT
   // Controls settings screen visibility and handles back navigation
   const [gameState, setGameState] = useAtom(gameStateAtom);
@@ -202,7 +133,7 @@ const SettingsScreen = () => {
   const [currentPlayerHealth, setCurrentPlayerHealth] = useAtom(activePlayerHealthAtom);
   const [playerSpeed, setPlayerSpeed] = useAtom(basePlayerSpeedAtom);
   const [playerHealthSetting] = useAtom(basePlayerHealthAtom); // Read-only for display
-  const [playerFireRate, setPlayerFireRate] = useAtom(basePlayerFireRateAtom);
+  const [playerFireRateMultiplier, setPlayerFireRateMultiplier] = useAtom(playerFireRateMultiplierAtom);
   
   // 👹 ENEMY CONFIGURATION ATOMS
   // Difficulty and enemy behavior settings
@@ -213,6 +144,15 @@ const SettingsScreen = () => {
   // 🎯 DIFFICULTY CONFIGURATION ATOMS
   // Overall game difficulty settings
   const [difficultyMultiplier, setDifficultyMultiplier] = useAtom(difficultyMultiplierAtom);
+
+  // 💎 POWER-UP CONFIGURATION ATOMS
+  // Collectible spawn and behavior settings
+  const [collectibleSpawnChance, setCollectibleSpawnChance] = useAtom(collectibleSpawnChanceSettingAtom);
+  const [maxActiveCollectibles, setMaxActiveCollectibles] = useAtom(maxActiveCollectiblesSettingAtom);
+  const [collectibleSpawnDelay, setCollectibleSpawnDelay] = useAtom(collectibleSpawnDelaySettingAtom);
+
+  // 🔙 BACK NAVIGATION - Use settings navigation hook (prop-based, no internal atoms)
+  const { goBackFromSettings } = useSettingsNavigation(gameState, setGameState);
 
   /**
    * 🔙 BACK NAVIGATION HANDLER - Return to Previous State
@@ -231,10 +171,7 @@ const SettingsScreen = () => {
    * - User came from GameOverScreen → returns to 'gameOver'
    */
   const handleBack = () => {
-    // Restore the previous game state (either 'playing' or 'menu')
-    const previousState = sessionStorage.getItem('previousGameState') || 'menu';
-    setGameState(previousState);
-    sessionStorage.removeItem('previousGameState');
+    goBackFromSettings();
   };
 
   // 🎨 RENDER SETTINGS INTERFACE
@@ -246,7 +183,7 @@ const SettingsScreen = () => {
       {/* 📦 CONTENT CONTAINER - Compact layout for settings interface */}
       <div className="screen-content compact">
         {/* 🎯 SETTINGS TITLE - Clear identification of settings screen */}
-        <h1>SETTINGS</h1>
+        <h1>{theme?.titles?.settings || "SETTINGS"}</h1>
 
         {/* 📋 SETTINGS CONTAINER - Scrollable container for all setting categories */}
         <div className="settings-container scrollable">
@@ -284,16 +221,16 @@ const SettingsScreen = () => {
               />
             </div>
 
-            {/* 🔫 FIRE RATE SETTING - How fast player can shoot */}
+            {/* 🔫 FIRE RATE MULTIPLIER SETTING - Global fire rate multiplier */}
             <div className="setting-item compact">
-              <label>{getSettingLabel('player', 'fireRate', playerFireRate)}</label>
+              <label>{getSettingLabel('player', 'fireRateMultiplier', playerFireRateMultiplier)}</label>
               <input
                 type="range"
-                min={settingsConfig.player.fireRate.min}
-                max={settingsConfig.player.fireRate.max}
-                step={settingsConfig.player.fireRate.step}
-                value={playerFireRate}
-                onChange={(e) => setPlayerFireRate(parseFloat(e.target.value))}
+                min={settingsConfig.player.fireRateMultiplier.min}
+                max={settingsConfig.player.fireRateMultiplier.max}
+                step={settingsConfig.player.fireRateMultiplier.step}
+                value={playerFireRateMultiplier}
+                onChange={(e) => setPlayerFireRateMultiplier(parseFloat(e.target.value))}
               />
             </div>
           </div>
@@ -359,9 +296,53 @@ const SettingsScreen = () => {
               />
             </div>
           </div>
+
+          {/* 💎 POWER-UP SETTINGS CATEGORY - Health power-up behavior */}
+          <div className="setting-group compact">
+            <h3>Power-ups</h3>
+
+            {/* 🎲 POWER-UP SPAWN CHANCE - Probability of spawning */}
+            <div className="setting-item compact">
+              <label>{getSettingLabel('collectibles', 'spawnChance', collectibleSpawnChance * 100)}</label>
+              <input
+                type="range"
+                min={settingsConfig.collectibles.spawnChance.min}
+                max={settingsConfig.collectibles.spawnChance.max}
+                step={settingsConfig.collectibles.spawnChance.step}
+                value={collectibleSpawnChance}
+                onChange={(e) => setCollectibleSpawnChance(parseFloat(e.target.value))}
+              />
+            </div>
+
+            {/* 👥 MAX ACTIVE COLLECTIBLES - Screen population control */}
+            <div className="setting-item compact">
+              <label>{getSettingLabel('collectibles', 'maxActive', maxActiveCollectibles)}</label>
+              <input
+                type="range"
+                min={settingsConfig.collectibles.maxActive.min}
+                max={settingsConfig.collectibles.maxActive.max}
+                step={settingsConfig.collectibles.maxActive.step}
+                value={maxActiveCollectibles}
+                onChange={(e) => setMaxActiveCollectibles(parseInt(e.target.value))}
+              />
+            </div>
+
+            {/* ⏱️ COLLECTIBLE SPAWN DELAY - Timing control */}
+            <div className="setting-item compact">
+              <label>{getSettingLabel('collectibles', 'spawnDelay', collectibleSpawnDelay)}</label>
+              <input
+                type="range"
+                min={settingsConfig.collectibles.spawnDelay.min}
+                max={settingsConfig.collectibles.spawnDelay.max}
+                step={settingsConfig.collectibles.spawnDelay.step}
+                value={collectibleSpawnDelay}
+                onChange={(e) => setCollectibleSpawnDelay(parseFloat(e.target.value))}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* 🔙 NAVIGATION CONTROLS - Back button to return to previous state */}
+        {/*  NAVIGATION CONTROLS - Back button to return to previous state */}
         <div className="buttons-container compact">
           <button className="game-button compact" onClick={handleBack}>
             BACK

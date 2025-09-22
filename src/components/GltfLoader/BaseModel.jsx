@@ -63,13 +63,6 @@
 // 2. Custom Fallback Component (fallbackComponent provided) → React.createElement
 // 3. Default Box Geometry (no url, no custom component) → Basic mesh
 //
-// EXTEND FALLBACK SYSTEM:
-// - Add fourth tier: procedural geometry generation
-// - Include fallback model library for common shapes
-// - Add theme-specific fallback components
-// - Implement progressive enhancement (low-res → high-res models)
-// - Add fallback animation system for non-GLTF models
-//
 // 🔄 STATE MANAGEMENT:
 // - url: GLTF model file path (null triggers fallback mode)
 // - textureUrl: Texture file path for model materials
@@ -91,25 +84,6 @@
 // - src/components/baseModel/BaseEnemyModel.jsx: Enemy-specific fallback component
 // - src/components/baseModel/GeometryRenderer.jsx: Dynamic geometry generation
 // - src/config/themes/themes.js: Model URLs and theme configurations
-//
-// 🎨 BASEMODEL'S ACTUAL DEPENDENCIES:
-// - React: For conditional rendering and React.createElement
-// - GLTFModel: Child component that handles GLTF loading (imported from "./GLTFLoader")
-// - No direct use of useGLTF, useConditionalTexture, THREE.Box3, etc. (those are used by GLTFModel)
-//
-// 🎭 FALLBACK COMPONENT DEPENDENCIES:
-// - BasePlayerModel: Player-specific geometry with directional indicator
-// - BaseEnemyModel: Enemy-specific geometry with customizable appearance
-// - GeometryRenderer: Dynamic geometry creation (box, sphere, cylinder, etc.)
-// - React.createElement: Dynamic component instantiation for flexibility
-//
-// ⚠️ IMPORTANT NOTES:
-// - Model loading is asynchronous - component may render fallback while loading
-// - GLTFModel handles model cloning to prevent shared state issues
-// - Texture loading is independent of model loading (can fail separately)
-// - Fallback components receive props: size, color, geometry
-// - Default fallback always renders to prevent invisible entities
-// - Model centering affects physics body alignment in parent components
 //
 // 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
 // ============================================================================
@@ -137,78 +111,11 @@
 // 2. Add variant selection logic in component
 // 3. Update theme configurations with variant options
 // 4. Implement variant switching based on game state
-//
-// ✏️ MODIFICATION EXAMPLES:
-// ============================================================================
-//
-// 💥 ADD MODEL PRELOADING (Should be done in GLTFLoader - it already uses useGLTF):
-// ```javascript
-// // This should go in GLTFLoader.jsx, not BaseModel
-// // GLTFLoader already uses useGLTF, so it should handle preloading
-// // BaseModel just passes URL, GLTFLoader handles all GLTF operations
-// useEffect(() => {
-//   if (url) {
-//     useGLTF.preload(url);  // Add this to GLTFLoader component
-//   }
-// }, [url]);
-// ```
-//
-// 🏃‍♂️ ADD MODEL CACHING (Should be done in GLTFLoader - it uses useGLTF):
-// ```javascript
-// // This should go in GLTFLoader.jsx, not BaseModel
-// // BaseModel just passes URL, GLTFLoader handles caching
-// const modelCache = useMemo(() => new Map(), []);
-// const getCachedModel = (url) => {
-//   if (!modelCache.has(url)) {
-//     modelCache.set(url, useGLTF(url));
-//   }
-//   return modelCache.get(url);
-// };
-// ```
-//
-// 🎯 ADD DAMAGE STATES (BaseModel can do this - URL manipulation):
-// ```javascript
-// export function BaseModel({ url, damageLevel, ...props }) {
-//   const getModelUrl = (baseUrl, damageLevel) => {
-//     if (!baseUrl) return null;
-//     if (damageLevel > 0.7) return baseUrl.replace('.glb', '_damaged.glb');
-//     if (damageLevel > 0.3) return baseUrl.replace('.glb', '_worn.glb');
-//     return baseUrl;
-//   };
-//   
-//   const finalUrl = getModelUrl(url, damageLevel);
-//   // ... rest of component logic with finalUrl
-// }
-// ```
-//
-// 🔊 ADD LOADING FEEDBACK (BaseModel can do this - managing child state):
-// ```javascript
-// const [isLoading, setIsLoading] = useState(!!url);
-// 
-// return (
-//   <>
-//     {isLoading && <LoadingSpinner />}
-//     <GLTFModel onLoad={() => setIsLoading(false)} {...props} />
-//   </>
-// );
-// ```
-//
-// 🎮 ADD MODEL VARIANTS (BaseModel can do this - URL manipulation):
-// ```javascript
-// export function BaseModel({ url, variant = 'default', ...props }) {
-//   const getModelVariant = (baseUrl, variant) => {
-//     if (!baseUrl) return null;
-//     return baseUrl.replace('.glb', `_${variant}.glb`);
-//   };
-//   
-//   const modelUrl = getModelVariant(url, variant);
-//   // ... rest of component logic with modelUrl
-// }
-// ```
-// ============================================================================
+
 
 import React from "react";
 import { GLTFModel } from "./GLTFLoader";
+import { GeometryRenderer } from "../baseModel/GeometryRenderer";
 
 /**
  * 🎭 BASE MODEL COMPONENT - Universal 3D Model Loader with Fallback System
@@ -224,6 +131,7 @@ import { GLTFModel } from "./GLTFLoader";
  * @param {Array<number>} scale - Model scaling factors as [x, y, z] multipliers (default: [1, 1, 1])
  * @param {string} fallbackGeometry - Geometry type for fallback rendering ('box', 'sphere', etc.)
  * @param {boolean} centerModel - Whether to center loaded models at origin (default: true)
+ * @param {number} desiredSize - Maximum dimension for GLTF auto-scaling (default: 1)
  * @returns {JSX.Element} GLTF model, custom fallback component, or default box geometry
  *
  * 🎯 COMPONENT PURPOSE:
@@ -275,7 +183,8 @@ export function BaseModel({
   rotation = [0, 0, 0], 
   scale = [1, 1, 1], 
   fallbackGeometry = 'box', 
-  centerModel = true 
+  centerModel = true,
+  desiredSize = 1  // Maximum dimension for GLTF auto-scaling
 }) {
   // 🎭 TIER 1: GLTF MODEL LOADING
   // If a GLTF model URL is provided, load and render the full 3D model
@@ -287,6 +196,7 @@ export function BaseModel({
         rotation={rotation}          // Model orientation in 3D space
         scale={scale}               // Model scaling factors
         centerModel={centerModel}   // Whether to center model at origin
+        desiredSize={desiredSize}   // Maximum dimension for auto-scaling
       />
     );
   }
@@ -294,25 +204,29 @@ export function BaseModel({
   // 🎨 TIER 2: CUSTOM FALLBACK COMPONENT
   // If a custom fallback component is provided, use it with specified properties
   if (fallbackComponent) {
-    return React.createElement(fallbackComponent, { 
-      size: modelSize,              // Uniform size for fallback geometry
-      color,                        // Color for fallback materials
-      geometry: fallbackGeometry    // Geometry type for fallback rendering
-    });
+    return (
+      <group scale={scale} rotation={rotation}>
+        {React.createElement(fallbackComponent, { 
+          size: modelSize,              // Uniform size for fallback geometry
+          color,                        // Color for fallback materials
+          geometry: fallbackGeometry    // Geometry type for fallback rendering
+        })}
+      </group>
+    );
   }
 
-  // 📦 TIER 3: DEFAULT BOX GEOMETRY FALLBACK
-  // Final fallback: render a simple colored box to ensure entity visibility
+  // 📦 TIER 3: DEFAULT GEOMETRY FALLBACK
+  // Final fallback: render geometry based on fallbackGeometry prop to ensure entity visibility
   return (
-    <>
+    <group scale={scale} rotation={rotation}>
       <mesh castShadow receiveShadow>
-        {/* 📐 DEFAULT GEOMETRY - Simple box with specified dimensions */}
-        <boxGeometry args={[modelSize, modelSize, modelSize]} />
-        
+        {/* 📐 DYNAMIC GEOMETRY - Uses GeometryRenderer for various shapes */}
+        <GeometryRenderer geometry={fallbackGeometry} size={modelSize} />
+
         {/* 🎨 DEFAULT MATERIAL - Standard material with specified color */}
         <meshStandardMaterial color={color} />
       </mesh>
-    </>
+    </group>
   );
 }
 

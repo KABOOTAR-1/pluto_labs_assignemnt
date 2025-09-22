@@ -4,20 +4,23 @@
 //
 // 🎯 HOW AI SHOULD USE THIS HOOK:
 // ✅ This handles player rotation based on mouse cursor position for aiming
-// ✅ Integrates with useMouseControls for real-time mouse position tracking
+// ✅ Manages mouse position state internally and integrates with useMouseControls
 // ✅ Currently used by Player component for character facing direction control
-// ✅ Updates both Kinematic physics body rotation and atom state for other components
+// ✅ Updates both Kinematic physics body rotation and calls callback for other components
 // ✅ Provides smooth mouse-look functionality for top-down shooting games
+// ✅ Requires mobilePosition prop from component (no internal atom dependency)
 //
 // 📊 WHAT USEPLAYERROTATION ACTUALLY DOES:
-// - Mouse tracking: reads world mouse position from useMouseControls hook
-// - Angle calculation: uses Math.atan2 to calculate facing angle toward mouse cursor
+// - Mouse tracking: manages mouse position state and passes setter to useMouseControls
+// - Mobile input: receives mobile position from component props (no atom dependency)
+// - Angle calculation: uses Math.atan2 to calculate facing angle toward input position
 // - Kinematic rotation: applies rotation to cannon.js Kinematic body (code-controlled)
-// - State synchronization: updates rotation atom via callback for other components
+// - State synchronization: calls onRotationChange callback for other components
 // - Game state gating: only processes rotation when game state is 'playing'
 //
 // 📊 WHAT USEPLAYERROTATION DOES NOT DO (happens elsewhere):
-// - Mouse input detection: handled by useMouseControls hook (CURRENTLY USES THIS HOOK)
+// - Mouse input detection: handled by useMouseControls hook (receives setter from this hook)
+// - Mobile input management: handled by component (passes mobilePosition as prop)
 // - Player movement: handled by usePlayerMovement hook (uses keyboard input)
 // - Camera following: handled by usePlayerCamera hook
 // - Shooting direction: uses rotation data from this hook for projectile direction
@@ -44,274 +47,76 @@
 // 🔄 STATE MANAGEMENT:
 // - api: Cannon.js physics body API for rotation control (required)
 // - gameState: Current game state string ('playing', 'menu', etc.) for rotation gating (required)
-// - onRotationChange: Callback function to update rotation atom for other components (required)
+// - onRotationChange: Callback function to update rotation state for other components (required)
+// - mobilePosition: Mobile joystick position from component props (required)
+// - mousePosition: Managed internally via useState (no atom dependency)
 //
 // 🎯 INTEGRATION POINTS:
 // ============================================================================
 //
 // 📂 RELATED FILES TO MODIFY:
-// - src/hooks/useMouseControls.js: Currently USED for mouse position (mousePosition)
-// - src/components/Player.jsx: Currently USES this hook for rotation control
+// - src/hooks/useMouseControls.js: Receives setMousePosition callback from this hook
+// - src/components/Player.jsx: Passes mobilePosition prop and manages rotation state
 // - src/hooks/usePlayerShooting.js: Uses rotation data for projectile direction calculation
 // - src/config/gameConfig.js: Could define mouse sensitivity and rotation settings
 // - src/config/atoms/playerAtoms.js: playerRotationAtom updated via onRotationChange callback
 //
 // 🎭 ROTATION PROCESSING PIPELINE:
-// 1. useMouseControls provides world mouse position { x, y, z }
-// 2. useFrame hook runs every animation frame to process rotation
-// 3. Game state checked - rotation only allowed during GAME_STATES.PLAYING
-// 4. Mouse position checked - rotation only when mouse has moved (not null)
-// 5. Angle calculated using Math.atan2(mousePosition.x, mousePosition.z) for facing direction
-// 6. onRotationChange callback invoked to update rotation atom for other components
-// 7. Kinematic body rotation applied via api.rotation.set(0, angle, 0)
+// 1. Component passes mobilePosition prop and manages mouse position via internal state
+// 2. useMouseControls receives setMousePosition callback to update internal state
+// 3. useFrame hook runs every animation frame to process rotation
+// 4. Game state checked - rotation only allowed during GAME_STATES.PLAYING
+// 5. Input priority: mobilePosition takes precedence over mousePosition
+// 6. Angle calculated using Math.atan2(inputPosition.x, inputPosition.z) for facing direction
+// 7. onRotationChange callback invoked to update rotation state for other components
+// 8. Kinematic body rotation applied via api.rotation.set(0, angle, 0)
 //
 // 🎨 COORDINATE SYSTEM:
 // - Mouse X: Left (-) to Right (+) relative to screen/canvas center
 // - Mouse Z: Forward (-) to Backward (+) relative to screen/canvas center  
 // - Rotation Angle: Calculated in radians using atan2 for proper quadrant handling
 // - Physics Rotation: Applied as Y-axis rotation (0, angle, 0) for top-down view
-//
-// 🔄 CURRENT USAGE IN CODEBASE:
-// ============================================================================
-//
-// ✅ CURRENTLY USED BY: Player component
-// ```javascript
-// // In Player.jsx:
-// usePlayerRotation(
-//   api,                    // Physics body API for Kinematic rotation
-//   gameState,              // Game state for rotation gating
-//   setPlayerRotation       // Callback to update rotation atom
-// );
-// ```
-//
-// ✅ CURRENTLY USES: useMouseControls hook
-// ```javascript
-// // In this hook:
-// const { mousePosition } = useMouseControls();
-// ```
-//
-// ✅ ROTATION DATA USED BY: usePlayerShooting hook
-// ```javascript
-// // In usePlayerShooting.js:
-// direction: [Math.sin(playerRotation), 0, Math.cos(playerRotation)]
-// ```
-//
-// ✅ USES KINEMATIC BODY: Physics rotation applied to Kinematic body
-// ```javascript
-// // In this hook:
-// api.rotation.set(0, angle, 0); // Y-axis rotation for top-down view
-// ```
-//
-// ⚠️ IMPORTANT NOTES:
-// - Hook uses useFrame from @react-three/fiber (runs every animation frame)
-// - Rotation is applied to Kinematic physics body (code-controlled, not physics simulation)
-// - Math.atan2 provides proper angle calculation handling all quadrants correctly
-// - Y-axis rotation used for top-down view (0, angle, 0)
-// - Rotation data shared with other components via atom callback system
-// - Mouse position must not be null for rotation processing to occur
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD ROTATION SMOOTHING:
-// ```javascript
-// import { useRef } from 'react';
-//
-// export const usePlayerRotation = (api, gameState, onRotationChange) => {
-//   const { mousePosition } = useMouseControls();
-//   const currentAngle = useRef(0);
-//   const ROTATION_SPEED = 5; // radians per second
-//
-//   useFrame((_, delta) => {
-//     if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
-//
-//     const targetAngle = Math.atan2(mousePosition.x, mousePosition.z);
-//     const angleDiff = targetAngle - currentAngle.current;
-//     
-//     // Handle angle wrapping (shortest rotation path)
-//     const wrappedDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
-//     
-//     // Smooth interpolation toward target
-//     currentAngle.current += wrappedDiff * ROTATION_SPEED * delta;
-//     
-//     onRotationChange(currentAngle.current);
-//     api.rotation.set(0, currentAngle.current, 0);
-//   });
-// };
-// ```
-//
-// 🎮 ADD MOUSE SENSITIVITY:
-// ```javascript
-// import { useAtom } from 'jotai';
-// import { mouseSensitivityAtom } from '../config/atoms';
-//
-// export const usePlayerRotation = (api, gameState, onRotationChange) => {
-//   const { mousePosition } = useMouseControls();
-//   const [mouseSensitivity] = useAtom(mouseSensitivityAtom);
-//
-//   useFrame(() => {
-//     if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
-//
-//     // Scale mouse position by sensitivity
-//     const scaledX = mousePosition.x * mouseSensitivity;
-//     const scaledZ = mousePosition.z * mouseSensitivity;
-//     
-//     const angle = Math.atan2(scaledX, scaledZ);
-//     onRotationChange(angle);
-//     api.rotation.set(0, angle, 0);
-//   });
-// };
-// ```
-//
-// 🎨 ADD AIM DEADZONE:
-// ```javascript
-// export const usePlayerRotation = (api, gameState, onRotationChange) => {
-//   const { mousePosition } = useMouseControls();
-//   const DEADZONE_RADIUS = 2; // World units
-//
-//   useFrame(() => {
-//     if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
-//
-//     // Calculate distance from center
-//     const distance = Math.sqrt(mousePosition.x ** 2 + mousePosition.z ** 2);
-//     
-//     // Only rotate if outside deadzone
-//     if (distance > DEADZONE_RADIUS) {
-//       const angle = Math.atan2(mousePosition.x, mousePosition.z);
-//       onRotationChange(angle);
-//       api.rotation.set(0, angle, 0);
-//     }
-//   });
-// };
-// ```
-//
-// 📱 ADD TOUCH/MOBILE SUPPORT:
-// ```javascript
-// import { useTouchControls } from './useTouchControls';
-//
-// export const usePlayerRotation = (api, gameState, onRotationChange) => {
-//   const { mousePosition } = useMouseControls();
-//   const { touchPosition } = useTouchControls();
-//   
-//   useFrame(() => {
-//     if (gameState !== GAME_STATES.PLAYING) return;
-//
-//     // Use touch position if available, otherwise mouse
-//     const inputPosition = touchPosition || mousePosition;
-//     if (!inputPosition) return;
-//
-//     const angle = Math.atan2(inputPosition.x, inputPosition.z);
-//     onRotationChange(angle);
-//     api.rotation.set(0, angle, 0);
-//   });
-// };
-// ```
-//
-// 🔊 ADD ROTATION AUDIO:
-// ```javascript
-// import { playSound } from '../utils/audioManager';
-//
-// export const usePlayerRotation = (api, gameState, onRotationChange) => {
-//   const { mousePosition } = useMouseControls();
-//   const lastAngle = useRef(0);
-//
-//   useFrame(() => {
-//     if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
-//
-//     const angle = Math.atan2(mousePosition.x, mousePosition.z);
-//     const angleDiff = Math.abs(angle - lastAngle.current);
-//     
-//     // Play rotation sound for significant turns
-//     if (angleDiff > 0.1) { // ~6 degrees
-//       playSound('playerTurn', { volume: 0.2 });
-//     }
-//     
-//     lastAngle.current = angle;
-//     onRotationChange(angle);
-//     api.rotation.set(0, angle, 0);
-//   });
-// };
-// ```
-//
-// 🎯 ADD SNAP-TO-ENEMY AIMING:
-// ```javascript
-// export const usePlayerRotation = (api, gameState, onRotationChange, enemies = []) => {
-//   const { mousePosition } = useMouseControls();
-//   const SNAP_DISTANCE = 5; // World units
-//
-//   useFrame(() => {
-//     if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
-//
-//     let targetAngle = Math.atan2(mousePosition.x, mousePosition.z);
-//     
-//     // Check for nearby enemies to snap to
-//     const nearbyEnemies = enemies.filter(enemy => {
-//       if (!enemy.position) return false;
-//       const distance = Math.sqrt(enemy.position[0] ** 2 + enemy.position[2] ** 2);
-//       return distance < SNAP_DISTANCE;
-//     });
-//     
-//     if (nearbyEnemies.length > 0) {
-//       // Snap to closest enemy
-//       const closest = nearbyEnemies.reduce((prev, curr) => {
-//         const prevDist = Math.sqrt(prev.position[0] ** 2 + prev.position[2] ** 2);
-//         const currDist = Math.sqrt(curr.position[0] ** 2 + curr.position[2] ** 2);
-//         return currDist < prevDist ? curr : prev;
-//       });
-//       
-//       targetAngle = Math.atan2(closest.position[0], closest.position[2]);
-//     }
-//
-//     onRotationChange(targetAngle);
-//     api.rotation.set(0, targetAngle, 0);
-//   });
-// };
-// ```
-// ============================================================================
 
+
+import { useRef, useState } from 'react';
 import { useFrame } from "@react-three/fiber";
 import { GAME_STATES } from "../config/gameConfig";
 import { useMouseControls } from "../hooks/useMouseControls";
 
 /**
- * 🔄 USE PLAYER ROTATION HOOK - Mouse-Based Player Facing Direction
- * ================================================================
+ * 🔄 USE PLAYER ROTATION HOOK - Multi-Platform Player Facing Direction
+ * ===================================================================
  *
- * @description Handles player rotation based on mouse cursor position for aiming and facing direction
+ * @description Handles player rotation based on mouse cursor or mobile joystick for aiming and facing direction
  * @param {Object} api - Cannon.js physics body API for Kinematic rotation control (required)
  * @param {string} gameState - Current game state ('playing', 'menu', etc.) for rotation gating (required)
  * @param {Function} onRotationChange - Callback function to update rotation atom for other components (required)
+ * @param {Object} mobilePosition - Mobile joystick position { x, y, z } or null (required)
  *
  * 🎯 HOOK RESPONSIBILITIES:
- * - Process mouse position from useMouseControls for rotation calculation
+ * - Process input position from mouse or mobile joystick for rotation calculation
  * - Calculate facing angle using Math.atan2 for proper quadrant handling
+ * - Apply smooth rotation interpolation to prevent jerky movement
  * - Apply rotation to Kinematic physics body (code-controlled, not physics simulation)
  * - Update rotation atom via callback for other components (shooting, etc.)
  * - Gate rotation processing to only occur during active gameplay
  *
  * 🔄 ROTATION MECHANICS:
- * - Input: Mouse cursor position in world coordinates
- * - Calculation: Math.atan2(mouseX, mouseZ) for facing angle
+ * - Input: Mouse cursor position or mobile joystick position in world coordinates
+ * - Priority: Mobile input takes precedence over mouse when available
+ * - Calculation: Math.atan2(inputX, inputZ) for facing angle
+ * - Smoothing: Angle interpolation with shortest path calculation for natural rotation
  * - Physics: Y-axis rotation applied to Kinematic body (0, angle, 0)
  * - Synchronization: Rotation shared with other components via atom callback
- * - No rotation smoothing (instant response to mouse movement)
- *
- * 🚀 CURRENT USAGE:
- * - Player Component: Main character facing direction control
- * - Input Source: useMouseControls hook for mouse world position
- * - Physics Integration: Kinematic body rotation (code-controlled)
- * - State Sharing: Rotation atom updated for shooting direction calculation
- *
- * 🔮 POTENTIAL ENHANCEMENTS:
- * - Rotation smoothing and interpolation
- * - Mouse sensitivity and deadzone support
- * - Aim assist and snap-to-enemy functionality
- * - Touch/mobile input support
- * - Audio feedback for rotation changes
  */
-export const usePlayerRotation = (api, gameState, onRotationChange) => {
-  // 🖱️ MOUSE INPUT - Get current mouse world position from useMouseControls
-  const { mousePosition } = useMouseControls();
+export const usePlayerRotation = (api, gameState, onRotationChange, mobilePosition) => {
+  // 🖱️ MOUSE INPUT - Manage mouse position state and pass setter to useMouseControls
+  const [mousePosition, setMousePosition] = useState(null);
+  useMouseControls(setMousePosition);
+
+  // 🔄 SMOOTH ROTATION - Current angle for interpolation
+  const currentAngle = useRef(0);
+  const lerpFactor = 0.1; // Adjust for rotation smoothness (0.1 = smooth, 1.0 = instant)
 
   /**
    * 🎬 ROTATION FRAME LOOP - Process rotation every animation frame
@@ -325,16 +130,35 @@ export const usePlayerRotation = (api, gameState, onRotationChange) => {
    * - Applies rotation to Kinematic physics body for visual representation
    */
   useFrame(() => {
-    // 🚫 ROTATION GATING - Only process rotation during active gameplay with valid mouse position
-    if (gameState !== GAME_STATES.PLAYING || !mousePosition) return;
+    // 🚫 ROTATION GATING - Only process rotation during active gameplay
+    if (gameState !== GAME_STATES.PLAYING) return;
 
-    // 📐 ANGLE CALCULATION - Calculate facing direction toward mouse cursor
-    const angle = Math.atan2(mousePosition.x, mousePosition.z);
+    // 🎯 INPUT PRIORITY - Use mobile input if available, otherwise use mouse
+    const inputPosition = mobilePosition || mousePosition;
     
+    // Skip if no input available
+    if (!inputPosition) return;
+
+    // 📐 TARGET ANGLE CALCULATION - Calculate desired facing direction toward input position
+    const targetAngle = Math.atan2(inputPosition.x, inputPosition.z);
+
+    // 🔄 ANGLE DIFFERENCE CALCULATION - Find shortest path between angles
+    let angleDiff = targetAngle - currentAngle.current;
+    
+    // Normalize angle difference to [-π, π] for shortest rotation path
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+    // 🔄 SMOOTH INTERPOLATION - Lerp using normalized angle difference
+    currentAngle.current += angleDiff * lerpFactor;
+    
+    // Normalize current angle to [0, 2π] for consistency
+    currentAngle.current = ((currentAngle.current % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+
     // 📡 STATE SYNCHRONIZATION - Update rotation atom for other components (shooting, etc.)
-    onRotationChange(angle);
-    
-    // 🔄 KINEMATIC ROTATION - Apply Y-axis rotation to physics body (code-controlled)
-    api.rotation.set(0, angle, 0); // Y-axis rotation for top-down view
+    onRotationChange(currentAngle.current);
+
+    // 🔄 KINEMATIC ROTATION - Apply smoothed Y-axis rotation to physics body
+    api.rotation.set(0, currentAngle.current, 0); // Y-axis rotation for top-down view
   });
 };

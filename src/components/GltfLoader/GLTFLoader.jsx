@@ -13,7 +13,7 @@
 // - GLTF file loading: uses useGLTF hook from @react-three/drei
 // - Scene cloning: creates safe copies of loaded models with scene.clone()
 // - Model centering: calculates and applies center positioning using THREE.Box3
-// - Smart scaling: computes optimal scale based on model dimensions vs desired size
+// - Smart scaling: computes optimal scale based on model dimensions, then multiplies with provided scale
 // - Texture loading: optional texture override (most GLTF models already have textures)
 // - Material updates: traverses model and applies override textures if provided
 // - Error handling: manages GLTF loading failures by returning null (no fallback)
@@ -30,13 +30,6 @@
 // - Include multiple texture support (diffuse, normal, roughness maps)
 // - Add model variant loading based on URL patterns
 // - Include lighting optimization for different model types
-//
-// MODIFY EXISTING:
-// - Change centering behavior for specific model types (ground-based vs floating)
-// - Update scaling calculations for different sizing strategies
-// - Modify texture application to support more material types
-// - Change shadow settings based on model characteristics
-// - Add error fallback rendering (currently just returns null on error)
 //
 // 🎮 FUNCTIONAL MODIFICATIONS:
 // ADD NEW:
@@ -86,25 +79,6 @@
 // - src/components/GltfLoader/BaseModel.jsx: Parent router that delegates to this component
 // - src/config/themes/themes.js: Model URLs and texture paths for different themes
 //
-// 🎨 GLTF LOADING DEPENDENCIES:
-// - useGLTF: @react-three/drei hook for GLTF file loading and caching
-// - THREE.Box3: Bounding box calculations for model centering and scaling
-// - THREE.Vector3: 3D vector operations for positioning calculations
-// - scene.clone(): Safe model reuse without affecting original GLTF data
-// - scene.traverse(): Walking through model hierarchy for material updates
-//
-// 🔗 TEXTURE LOADING DEPENDENCIES:
-// - useConditionalTexture: Custom hook for texture loading with error handling
-// - THREE.TextureLoader: Asynchronous texture file loading (used by hook)
-// - Vite URL Resolution: Dynamic import.meta.url for development server paths
-// - Material updates: Applying loaded textures to model materials
-//
-// 🎭 REACT HOOKS INTEGRATION:
-// - useState: Managing cloned scene state for safe manipulation
-// - useEffect: Scene cloning and texture application lifecycle
-// - useMemo: Optimized scale calculations that only run when needed
-// - Custom hooks: useGLTF and useConditionalTexture for specialized loading
-//
 // ⚠️ IMPORTANT NOTES:
 // - Scene cloning prevents shared state issues between model instances
 // - Model centering affects physics body alignment in parent components
@@ -113,57 +87,7 @@
 // - Material traversal handles both single materials and material arrays
 // - Error states return null (no fallback rendering - fallback handled by parent BaseModel)
 // - Loading states return null to prevent rendering incomplete models
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD MODEL PRELOADING:
-// ```javascript
-// useEffect(() => {
-//   useGLTF.preload(url);  // Preload model for smoother experience
-// }, [url]);
-// ```
-//
-// 🎮 ADD MODEL ANIMATIONS:
-// ```javascript
-// const { scene, animations } = useGLTF(url);
-// const { actions } = useAnimations(animations, clonedScene);
-// 
-// useEffect(() => {
-//   if (actions.idle) {
-//     actions.idle.play();
-//   }
-// }, [actions]);
-// ```
-//
-// 🎨 ADD MODEL CACHING (Note: useGLTF already provides internal caching):
-// ```javascript
-// // useGLTF automatically caches models by URL, but you can add custom caching:
-// const modelCache = useMemo(() => new Map(), []);
-// // However, this is usually unnecessary since useGLTF handles caching internally
-// ```
-//
-// 📱 ADD MULTIPLE TEXTURES:
-// ```javascript
-// const { texture: diffuseTexture } = useConditionalTexture(textureUrl);
-// const { texture: normalTexture } = useConditionalTexture(normalUrl);
-// 
-// // Apply multiple textures in material update
-// mat.map = diffuseTexture;
-// mat.normalMap = normalTexture;
-// ```
-//
-// 🔊 ADD LOADING FEEDBACK:
-// ```javascript
-// const [loadingProgress, setLoadingProgress] = useState(0);
-// 
-// const { scene, error } = useGLTF(url, true, true, (loader) => {
-//   loader.manager.onProgress = (url, loaded, total) => {
-//     setLoadingProgress((loaded / total) * 100);
-//   };
-// });
-// ```
-// ============================================================================
+
 
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -204,7 +128,7 @@ import { useConditionalTexture } from "../../hooks/useConditionalTexture";
  * 🎨 SMART SCALING SYSTEM:
  * - Measures model bounding box to find largest dimension
  * - Calculates scale factor: desiredSize / maxDimension
- * - Uses provided scale if not [1,1,1], otherwise uses computed scale
+ * - Combines provided scale with computed scale (finalScale = computedScale * providedScale)
  * - Ensures consistent entity sizes regardless of original model dimensions
  * - Maintains model proportions while fitting within desired bounds
  *
@@ -270,7 +194,7 @@ export const GLTFModel = ({
             child.material.needsUpdate = true;
           }
         }
-      });
+    });
     }
   }, [clonedScene, texture]);
 
@@ -294,8 +218,12 @@ export const GLTFModel = ({
     }
   }, [clonedScene, desiredSize]);
 
-  // ⚖️ FINAL SCALE DECISION - Use provided scale or computed scale
-  const finalScale = scale.every(s => s === 1) ? computedScale : scale;
+  // ⚖️ FINAL SCALE DECISION - Combine provided scale with computed scale
+  const finalScale = [
+    computedScale[0] * scale[0],
+    computedScale[1] * scale[1], 
+    computedScale[2] * scale[2]
+  ];
 
   // 🚫 ERROR HANDLING - Return null if GLTF loading failed
   if (error) {

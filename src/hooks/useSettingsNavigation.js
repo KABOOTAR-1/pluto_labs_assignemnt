@@ -8,13 +8,14 @@
 // ✅ Currently used by StartScreen, GameOverScreen, and SettingsScreen components
 // ✅ Provides consistent navigation behavior across all game screens
 // ✅ Eliminates code duplication for settings navigation logic
+// ✅ Requires gameState and setGameState props from component (no internal atom dependency)
 //
 // 📊 WHAT USESETTINGSNAVIGATION ACTUALLY DOES:
 // - State preservation: saves current game state before navigating to settings
 // - Navigation management: provides functions to go to and return from settings
 // - Session storage: uses browser sessionStorage for temporary state storage
 // - State checking: provides utility to check if currently in settings
-// - Game state integration: works with gameStateAtom for state management
+// - Game state integration: works with gameState and setGameState props from component
 //
 // 📊 WHAT USESETTINGSNAVIGATION DOES NOT DO (happens elsewhere):
 // - Settings UI rendering: handled by SettingsScreen component
@@ -23,18 +24,19 @@
 // - Settings persistence: handled by Jotai atom persistence
 //
 // 🔄 STATE MANAGEMENT:
-// - gameStateAtom: Jotai atom for current game state (used internally)
+// - gameState: Current game state prop from component (required)
+// - setGameState: State setter function prop from component (required)
 // - sessionStorage: Browser storage for temporary previous state
 // - Returns: Object with navigation functions and state utilities
 
-import { useAtom } from 'jotai';
-import { gameStateAtom } from '../config/atoms';
 
 /**
  * ⚙️ USE SETTINGS NAVIGATION HOOK - Settings Screen Navigation System
  * ==================================================================
  *
  * @description Handles navigation to and from settings screen with state preservation
+ * @param {string} gameState - Current game state (required)
+ * @param {Function} setGameState - Function to update game state (required)
  * @returns {Object} Object containing navigation functions and utilities
  *
  * 🎯 HOOK RESPONSIBILITIES:
@@ -57,8 +59,7 @@ import { gameStateAtom } from '../config/atoms';
  * - SettingsScreen Component: "BACK" button navigation
  * - Navigation Consistency: Ensures proper state flow across screens
  */
-export const useSettingsNavigation = () => {
-  const [gameState, setGameState] = useAtom(gameStateAtom);
+export const useSettingsNavigation = (gameState, setGameState) => {
 
   /**
    * Navigate to settings screen, storing current game state

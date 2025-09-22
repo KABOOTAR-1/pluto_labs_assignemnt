@@ -52,20 +52,6 @@
 // - src/config/atoms/gameStateAtoms.js: Provides statistics data for display
 // - src/utils/gameUtils.js: Could include statistics calculation utilities
 //
-// 🎭 STATISTICS DISPLAY PIPELINE:
-// 1. Parent component collects relevant game statistics (score, enemies killed, etc.)
-// 2. Parent formats statistics into array of { label, value } objects
-// 3. Parent passes stats array as prop to StatsPanel
-// 4. StatsPanel maps over array to create individual stat displays
-// 5. Each stat rendered with label and value elements
-// 6. CSS classes provide consistent visual styling
-//
-// 🎨 VISUAL STRUCTURE:
-// - Container: .stats-container for overall panel layout
-// - Individual Stats: .stat for each statistic item
-// - Labels: .stat-label for statistic names/descriptions
-// - Values: .stat-value for numerical or text values
-//
 // 📊 STATS ARRAY FORMAT:
 // ```javascript
 // const stats = [
@@ -83,158 +69,7 @@
 // - No validation performed on stats array structure
 // - Component handles any number of statistics dynamically
 //
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD STAT ICONS:
-// ```javascript
-// const StatsPanel = ({ stats }) => {
-//   const getStatIcon = (label) => {
-//     if (label.includes('SCORE')) return '🏆';
-//     if (label.includes('ENEMIES')) return '👹';
-//     if (label.includes('TIME')) return '⏱️';
-//     if (label.includes('ACCURACY')) return '🎯';
-//     return '';
-//   };
-//   
-//   return (
-//     <div className="stats-container">
-//       {stats.map(({ label, value }, index) => (
-//         <div className="stat" key={index}>
-//           <span className="stat-label">
-//             {getStatIcon(label)} {label}
-//           </span>
-//           <span className="stat-value">{value}</span>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎮 ADD GRID LAYOUT:
-// ```javascript
-// const StatsPanel = ({ stats, columns = 2 }) => {
-//   return (
-//     <div 
-//       className="stats-container grid" 
-//       style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
-//     >
-//       {stats.map(({ label, value }, index) => (
-//         <div className="stat" key={index}>
-//           <span className="stat-label">{label}</span>
-//           <span className="stat-value">{value}</span>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎨 ADD CONDITIONAL STYLING:
-// ```javascript
-// const StatsPanel = ({ stats }) => {
-//   const getStatClass = (label, value) => {
-//     let className = 'stat';
-//     if (typeof value === 'number' && value > 1000) className += ' high-value';
-//     if (label.includes('SCORE')) className += ' score-stat';
-//     return className;
-//   };
-//   
-//   return (
-//     <div className="stats-container">
-//       {stats.map(({ label, value }, index) => (
-//         <div className={getStatClass(label, value)} key={index}>
-//           <span className="stat-label">{label}</span>
-//           <span className="stat-value">{value}</span>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-//
-// 📱 ADD PROGRESS BARS:
-// ```javascript
-// const StatsPanel = ({ stats, showProgress = false }) => {
-//   return (
-//     <div className="stats-container">
-//       {stats.map(({ label, value, max }, index) => (
-//         <div className="stat" key={index}>
-//           <span className="stat-label">{label}</span>
-//           <span className="stat-value">{value}</span>
-//           {showProgress && max && (
-//             <div className="stat-progress">
-//               <div 
-//                 className="stat-progress-fill" 
-//                 style={{ width: `${(value / max) * 100}%` }}
-//               />
-//             </div>
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🔊 ADD STAT CATEGORIES:
-// ```javascript
-// const StatsPanel = ({ stats, groupByCategory = false }) => {
-//   if (!groupByCategory) {
-//     return (
-//       <div className="stats-container">
-//         {stats.map(({ label, value }, index) => (
-//           <div className="stat" key={index}>
-//             <span className="stat-label">{label}</span>
-//             <span className="stat-value">{value}</span>
-//           </div>
-//         ))}
-//       </div>
-//     );
-//   }
-//   
-//   const groupedStats = stats.reduce((groups, stat) => {
-//     const category = stat.category || 'General';
-//     if (!groups[category]) groups[category] = [];
-//     groups[category].push(stat);
-//     return groups;
-//   }, {});
-//   
-//   return (
-//     <div className="stats-container grouped">
-//       {Object.entries(groupedStats).map(([category, categoryStats]) => (
-//         <div key={category} className="stat-category">
-//           <h3 className="category-header">{category}</h3>
-//           {categoryStats.map(({ label, value }, index) => (
-//             <div className="stat" key={index}>
-//               <span className="stat-label">{label}</span>
-//               <span className="stat-value">{value}</span>
-//             </div>
-//           ))}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-//
-// 🎯 ADD UNIQUE KEYS:
-// ```javascript
-// const StatsPanel = ({ stats }) => {
-//   return (
-//     <div className="stats-container">
-//       {stats.map(({ label, value, id }, index) => (
-//         <div className="stat" key={id || index}>
-//           <span className="stat-label">{label}</span>
-//           <span className="stat-value">{value}</span>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-// ```
-// ============================================================================
+// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASE
 
 import React from "react";
 
@@ -263,19 +98,6 @@ import React from "react";
  * - .stat: Individual statistic item container
  * - .stat-label: Label/description text for each statistic
  * - .stat-value: Numerical or text value for each statistic
- *
- * 📋 STATS ARRAY FORMAT:
- * Each stat object should have:
- * - label: String description/name of the statistic
- * - value: Number or string value to display
- *
- * Example:
- * ```javascript
- * const stats = [
- *   { label: "SCORE:", value: 1250 },
- *   { label: "ENEMIES DESTROYED:", value: 42 }
- * ];
- * ```
  *
  * 🚀 USAGE PATTERNS:
  * - GameOver Screen: Final game statistics summary

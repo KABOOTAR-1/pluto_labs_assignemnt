@@ -239,7 +239,7 @@ import StatsPanel from "./ui/StatsPanel";
  * - MAIN MENU: Return to start screen without reset
  * - SETTINGS: Configure game options, return to game over after
  */
-const GameOverScreen = () => {
+const GameOverScreen = ({ theme = {} }) => {
   // 🎲 GAME STATE MANAGEMENT
   // Controls game over screen visibility and navigation
   const [gameState, setGameState] = useAtom(gameStateAtom);
@@ -253,9 +253,9 @@ const GameOverScreen = () => {
   const [score] = useAtom(scoreAtom);
   const [enemiesKilled] = useAtom(enemiesKilledAtom);
   
-  // ⚙️ SETTINGS NAVIGATION
+  // ⚙️ SETTINGS NAVIGATION (prop-based, no internal atoms)
   // goToSettings preserves 'gameOver' state and transitions to settings screen
-  const { goToSettings } = useSettingsNavigation();
+  const { goToSettings } = useSettingsNavigation(gameState, setGameState);
 
   // 👁️ CONDITIONAL RENDERING
   // Only show game over screen when game state is 'gameOver'
@@ -305,7 +305,7 @@ const GameOverScreen = () => {
       {/* 📦 CONTENT CONTAINER - Centered content with standard layout */}
       <div className="screen-content">
         {/* 🎯 GAME OVER TITLE - Reusable header component with theme-appropriate title */}
-        <ScreenHeader title="GAME OVER" />
+        <ScreenHeader title={theme?.titles?.gameOver || "GAME OVER"} />
 
         {/* 📊 STATISTICS DISPLAY - Flexible stats component showing final performance */}
         <StatsPanel

@@ -3,62 +3,53 @@
  * ===============================================
  *
  * 🎯 WHAT THIS COMPONENT ACTUALLY DOES:
- * ✅ Manages all game state atoms (enemies, projectiles, player data, score)
- * ✅ Sets up the Three.js Canvas with camera configuration
- * ✅ Passes state data and callbacks to child components
- * ✅ Initializes default projectile type on component mount
+ * ✅ Manages essential game state atoms (gameState, player data, UI state)
+ * ✅ Sets up the Three.js Canvas with camera configuration and mobile optimizations
+ * ✅ Passes player state, game control, and world data to GameRenderer component
  * ✅ Renders the 3D scene and 2D HUD as separate layers
- * ✅ Provides world bounds data to child components
+ * ✅ Provides world bounds and mobile detection to child components
  *
  * 🔄 DATA FLOW:
- * 1. Reads from Jotai atoms for current game state
- * 2. Processes projectile type ID into full configuration
- * 3. Passes processed data to GameRenderer component
- * 4. Renders HUD with current game statistics
- * 5. Updates atoms when child components request changes
+ * 1. Reads essential atoms for UI and player state management
+ * 2. Passes player position/health, game state, and world bounds to GameRenderer
+ * 3. GameRenderer reads game entities (enemies, projectiles) and projectile config from atoms
+ * 4. GameRenderer handles projectile type processing and initialization internally
+ * 5. Renders HUD with current game statistics
+ * 6. Updates atoms when child components request changes
  *
  * 📊 STATE MANAGEMENT:
- * - gameState: Current game phase (menu, playing, gameOver)
- * - enemies/projectiles: Arrays of active game entities
- * - playerPosition/playerHealth: Player character state
- * - score/enemiesKilled: Game progress tracking
- * - currentProjectileType: Selected weapon configuration
+ * - gameState: Current game phase (menu, playing, gameOver) - passed to GameRenderer
+ * - playerPosition/playerHealth: Player character state - passed to GameRenderer
+ * - score/enemiesKilled: Game progress tracking - passed to GameRenderer
+ * - showHUD: UI visibility control - used for HUD rendering
+ * - Game entities (enemies/projectiles) read by GameRenderer from atoms
+ * - Projectile configuration processed by GameRenderer from atoms
  */
 
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { useAtom } from 'jotai';
 
 import {
   gameStateAtom,
-  enemiesAtom,
-  projectilesAtom,
   playerPositionAtom,
   activePlayerHealthAtom,
   scoreAtom,
   enemiesKilledAtom,
-  showHUDAtom,
-  currentProjectileTypeAtom
+  showHUDAtom
 } from '../config/atoms';
 import { useWorldBounds } from '../config/configHelpers';
-import { getProjectileType, projectileTypes } from '../data/projectileTypes';
-import { activateProjectile } from '../utils/gameUtils';
 import LightingManager from './LightingManager';
 import ParticleRenderer from './ParticleRenderer';
 import EnvironmentSetup from './EnvironmentSetup';
 import GameRenderer from './GameRenderer';
 import HUD from './HUD';
+import MobileGameControls from './MobileControls/MobileGameControls';
 
-const Scene = () => {
+const Scene = ({ theme = {} }) => {
   // 🎮 CORE GAME STATE - Read/write access to game phase
   const [gameState, setGameState] = useAtom(gameStateAtom);
-
-  // 👹 ENEMY MANAGEMENT - Array of active enemies and update function
-  const [enemies, setEnemies] = useAtom(enemiesAtom);
-
-  // 🎯 PROJECTILE MANAGEMENT - Array of active projectiles and update function
-  const [projectiles, setProjectiles] = useAtom(projectilesAtom);
 
   // 🧍 PLAYER POSITION - Read-only access to player location
   const [playerPosition] = useAtom(playerPositionAtom);
@@ -75,27 +66,19 @@ const Scene = () => {
   // 👁️ UI VISIBILITY - Whether to show heads-up display
   const [showHUD] = useAtom(showHUDAtom);
 
-  // 🔫 WEAPON SELECTION - Current projectile type ID and setter
-  const [currentProjectileType, setCurrentProjectileType] = useAtom(currentProjectileTypeAtom);
-
-  // 🔧 DATA PROCESSING - Convert projectile type ID to full configuration object
-  const projectileConfig = getProjectileType(currentProjectileType);
-
   // 🌍 WORLD BOUNDARIES - Get collision boundaries and world constraints
   const worldBounds = useWorldBounds();
 
-  // 🚀 INITIALIZATION - Set default projectile type when component mounts
-  useEffect(() => {
-    const firstId = projectileTypes[0]?.id;
-    if (firstId) {
-      setCurrentProjectileType(firstId);
-    }
-  }, [setCurrentProjectileType]);
+  // 📱 MOBILE DETECTION - Detect if user is on mobile device
+  const isMobile = useMemo(() => {
+    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }, []);
+
 
   return (
     <>
       {/* 🎮 3D GAME WORLD - Three.js Canvas with all 3D rendering */}
-      <Canvas shadows
+      <Canvas shadows={!isMobile} // Disable shadows on mobile for performance
         camera={{
           position: [0, 15, 15], // Fixed height and behind player
           fov: 50,
@@ -110,26 +93,20 @@ const Scene = () => {
         {/* <ParticleRenderer /> */}
 
         {/* 🌍 ENVIRONMENT - Skybox, ground, fog, and world boundaries */}
-        <EnvironmentSetup />
+        <EnvironmentSetup theme={theme} />
 
         {/* 🎯 CORE GAME LOGIC - Player, enemies, projectiles, and interactions */}
         <GameRenderer
-          enemies={enemies}
-          setEnemies={setEnemies}
-          projectiles={projectiles}
-          setProjectiles={setProjectiles}
           playerPosition={playerPosition}
           playerHealth={playerHealth}
           setPlayerHealth={setPlayerHealth}
           gameState={gameState}
           setGameState={setGameState}
           worldBounds={worldBounds}
-          selectedProjectileType={projectileConfig}
-          onShoot={(projectileData) => setProjectiles((prev) => activateProjectile(prev, projectileData))}
           setScore={setScore}
           setEnemiesKilled={setEnemiesKilled}
+          isMobile={isMobile}
         />
-
         {/* 🎥 CAMERA CONTROLS - Mouse/touch camera movement */}
         {/* <OrbitControls /> */}
       </Canvas>
@@ -141,7 +118,11 @@ const Scene = () => {
         enemiesKilled={enemiesKilled}
         showHUD={showHUD}
         gameState={gameState}
+        setGameState={setGameState}
       />
+      
+      {/* 📱 MOBILE CONTROLS - Only show on mobile devices */}
+      {isMobile && <MobileGameControls />}
     </>
   );
 };

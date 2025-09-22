@@ -11,12 +11,9 @@ export {
 
 // Player State Atoms
 export {
-  playerHealthAtom,
   playerPositionAtom,
   playerRotationAtom,
   currentProjectileTypeAtom,
-  activePlayerSpeedAtom,
-  activeProjectileSpeedAtom,
   activePlayerHealthAtom
 } from './playerAtoms';
 
@@ -31,12 +28,37 @@ export {
   showHUDAtom,
   basePlayerSpeedAtom,
   basePlayerHealthAtom,
-  basePlayerFireRateAtom,
+  playerFireRateMultiplierAtom,
   enemySpeedMultiplierAtom,
   enemySpawnRateAtom,
   difficultyMultiplierAtom,
-  maxEnemiesSettingAtom
+  maxEnemiesSettingAtom,
+  collectibleSpawnChanceSettingAtom,
+  maxActiveCollectiblesSettingAtom,
+  collectibleSpawnDelaySettingAtom
 } from './settingsAtoms';
+
+// Input State Atoms
+export {
+  forwardInputAtom,
+  backwardInputAtom,
+  leftInputAtom,
+  rightInputAtom,
+  primaryActionAtom,
+  inputPositionAtom,
+  inputStateAtom
+} from './inputAtoms';
+
+// Power-up State Atoms
+export {
+  collectiblesAtom,
+  collectiblesCollectedAtom,
+  totalHealthRestoredAtom,
+  collectibleSpawnChanceAtom,
+  collectibleSpawnDelayAtom,
+  maxActiveCollectiblesAtom,
+  lastCollectibleSpawnTimeAtom
+} from './collectibleAtoms';
 
 // ============================================================================
 // UTILITY EXPORTS
@@ -62,7 +84,7 @@ export {
  *
  * 🔄 RESET SEQUENCE:
  * 1. Game State: MENU → PLAYING
- * 2. Player: Full health (resets both playerHealthAtom and activePlayerHealthAtom), center position, facing forward
+ * 2. Player: Full health (resets activePlayerHealthAtom), center position, facing forward
  * 3. Score: Reset to 0
  * 4. Statistics: Enemies killed reset to 0
  * 5. Entities: All enemies marked inactive
@@ -88,7 +110,6 @@ import { GAME_STATES } from '../constants';
 import { gameConfig } from '../gameConfig';
 import {
   gameStateAtom,
-  playerHealthAtom,
   activePlayerHealthAtom,
   playerPositionAtom,
   playerRotationAtom,
@@ -108,8 +129,7 @@ export const resetGameAtom = atom(
 
     // 🧑‍🚀 Reset player to starting condition
     const baseHealth = get(basePlayerHealthAtom); // Get user's preferred health
-    set(playerHealthAtom, baseHealth); // Reset base health atom
-    set(activePlayerHealthAtom, baseHealth); // Reset active health atom (used in gameplay)
+    set(activePlayerHealthAtom, baseHealth); // Reset health atom
     set(playerPositionAtom, gameConfig.player.initialPosition);
     set(playerRotationAtom, 0); // Face forward
 
@@ -136,9 +156,17 @@ export const resetGameAtom = atom(
 All atoms are exported with their original names above for backward compatibility.
 Existing imports from '../config/atoms' will continue to work without changes.
 
-The atoms are now organized into logical groups:
+The atoms are now organized into logical groups following "Settings vs Runtime" pattern:
 - gameStateAtoms.js: Core game state (gameState, score, enemiesKilled)
-- playerAtoms.js: Player-related state (health, position, current values)
+- playerAtoms.js: Runtime player state (current health, position, rotation, weapon)
 - entityAtoms.js: Game entities (enemies, projectiles)
-- settingsAtoms.js: User preferences and configuration
+- settingsAtoms.js: Persistent user preferences (base health, speed, difficulty settings)
+- inputAtoms.js: Multi-platform input state (movement, actions, combined state)
+
+ARCHITECTURE PATTERN:
+- base*Atom: User preferences (persistent, saved to localStorage)
+- active*Atom: Current gameplay state (volatile, reset each game)
+- *InputAtom: Real-time input state (updated by keyboard/touch/gamepad events)
+- resetGameAtom: Applies base settings to active state on game restart
+- inputStateAtom: Combined input state for backward compatibility
 */

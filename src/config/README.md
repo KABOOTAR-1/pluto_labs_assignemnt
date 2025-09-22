@@ -19,6 +19,8 @@ src/config/
 │   ├── gameStateAtoms.js # 🎯 Core game state
 │   ├── playerAtoms.js    # 🧑‍🚀 Player-related state
 │   ├── entityAtoms.js    # 👹 Game entities state
+│   ├── collectibleAtoms.js # 💎 Collectible system state
+│   ├── inputAtoms.js     # 🎮 Input system state
 │   └── settingsAtoms.js  # ⚙️ Settings state
 └── themes/               # 🎨 Theme system
     └── themes.js         # 🎭 Theme definitions
@@ -89,8 +91,7 @@ export const themes = {
       rotation: [0, 0, 0],              // Initial rotation
       speed: 6,                         // Movement speed (faster than classic)
       health: 120,                      // Health points (tougher)
-      projectileSpeed: 20,              // Bullet speed (faster projectiles)
-      fireRate: 3                       // Shots per second (rapid fire)
+      // projectileSpeed removed - now per-projectile in projectileTypes.js
     },
 
     // 👹 ENEMY CONFIGURATION
@@ -106,7 +107,7 @@ export const themes = {
           health: 60,                   // Less health (easier to kill)
           damage: 15,                   // Moderate damage
           facePlayer: true,             // Always faces player
-          scale: [0.8, 0.8, 0.8]       // Smaller size
+          scale: [0.8, 0.8, 0.8]       // Smaller visual and collision size
         },
         {
           // 🛡️ HEAVY CYBER ENEMY
@@ -118,7 +119,7 @@ export const themes = {
           health: 200,                  // High health
           damage: 25,                   // High damage
           facePlayer: true,
-          scale: [1.5, 1.5, 1.5]       // Larger size
+          scale: [1.5, 1.5, 1.5]       // Larger visual and collision size
         }
       ]
     },
@@ -227,16 +228,31 @@ export const themes = {
 
     // 💎 COLLECTIBLE CONFIGURATION
     collectibles: {
-      coin: {
-        modelUrl: '/src/models/cyberpunk/dataChip.glb',
-        fallbackGeometry: 'box',
-        material: { color: 0xFFFF00, emissive: 0x444400 }
+      health: {
+        modelUrl: '/src/models/cyberpunk/healthPack.glb',
+        fallbackGeometry: 'octahedron',
+        material: { color: 0x76FF03, emissive: 0x76FF03, emissiveIntensity: 0.6 }
       },
-      gem: {
-        modelUrl: '/src/models/cyberpunk/energyCore.glb',
+      speed: {
+        modelUrl: '/src/models/cyberpunk/speedBooster.glb',
         fallbackGeometry: 'sphere',
-        material: { color: 0xFF00FF, emissive: 0x440044 }
+        material: { color: 0x03A9F4, emissive: 0x03A9F4, emissiveIntensity: 0.4 }
+      },
+      damage: {
+        modelUrl: '/src/models/cyberpunk/damageAmp.glb',
+        fallbackGeometry: 'box',
+        material: { color: 0xFF5722, emissive: 0xFF5722, emissiveIntensity: 0.5 }
+      },
+      shield: {
+        modelUrl: '/src/models/cyberpunk/shieldGen.glb',
+        fallbackGeometry: 'cylinder',
+        material: { color: 0x9C27B0, emissive: 0x9C27B0, emissiveIntensity: 0.3 }
       }
+    },
+
+    // 🎯 WEAPON CONFIGURATION (if applicable)
+    weapons: {
+      // Weapon-specific configurations can go here
     }
   }
 };
@@ -317,8 +333,7 @@ export const themes = {
     name: 'Medieval Fantasy',
     player: {
       health: 150,        // More health
-      speed: 6,          // Faster movement
-      fireRate: 3        // Faster shooting
+      speed: 6           // Faster movement
     },
     enemies: {
       types: [
@@ -338,13 +353,11 @@ export const themes = {
 ### **🧑‍🚀 Player Properties**
 - `modelUrl`: Path to 3D model file
 - `fallbackGeometry`: Shape if model fails ('box', 'sphere', 'cylinder')
-- `scale`: Size multiplier [x, y, z]
+- `scale`: Visual size multiplier [x, y, z] - Automatically sets collision size to Math.max(...scale)
 - `color`: Hex color for fallback geometry
 - `rotation`: Initial rotation [x, y, z] in radians
 - `speed`: Movement speed (units/second)
 - `health`: Maximum health points
-- `projectileSpeed`: Bullet travel speed
-- `fireRate`: Shots per second
 
 ### **👹 Enemy Properties**
 - `name`: Display name for enemy type
@@ -353,7 +366,7 @@ export const themes = {
 - `health`: Hit points
 - `damage`: Damage dealt to player
 - `facePlayer`: Whether enemy rotates to face player
-- `scale`: Size multiplier
+- `scale`: Visual size multiplier [x, y, z] - Automatically sets collision size to Math.max(...scale)
 - `color`: Fallback color
 
 ### **🌍 Environment Properties**
@@ -516,8 +529,7 @@ This theme system provides **unlimited customization possibilities** while maint
 export const PLAYER_BASE = {
   speed: 5,           // Movement speed (units/second)
   health: 100,        // Starting health points
-  projectileSpeed: 15, // Bullet travel speed
-  fireRate: 2,        // Shots per second
+  // projectileSpeed moved to projectileTypes.js (per-projectile)
   // ... more properties
 };
 
@@ -658,13 +670,14 @@ export const enemiesKilledAtom = atom(0);
 ```
 **AI Usage:** Use these for managing global game state and progress tracking.
 
-#### **playerAtoms.js - Player State**
+#### **playerAtoms.js - Player Runtime State**
 ```javascript
-export const playerHealthAtom = atom(gameConfig.player.health);
+export const activePlayerHealthAtom = atom(gameConfig.player.health);
 export const playerPositionAtom = atom([0, 0, 0]);
 export const playerRotationAtom = atom(0);
+export const currentProjectileTypeAtom = atom('default');
 ```
-**AI Usage:** Track and modify player-related state across components.
+**AI Usage:** Track and modify player's current state during gameplay. These values change during active gameplay and are reset between games.
 
 #### **entityAtoms.js - Game Entities**
 ```javascript
@@ -673,12 +686,133 @@ export const projectilesAtom = atom(createProjectilePool());
 ```
 **AI Usage:** Manage collections of enemies and projectiles.
 
-#### **settingsAtoms.js - User Settings**
+#### **collectibleAtoms.js - Collectible System**
+```javascript
+export const collectiblesAtom = atom(createCollectiblePool(20));
+export const collectiblesCollectedAtom = atom(0);
+export const totalHealthRestoredAtom = atom(0);
+export const collectibleSpawnChanceSettingAtom = atom(0.3);
+export const maxActiveCollectiblesSettingAtom = atom(5);
+export const collectibleSpawnDelaySettingAtom = atom(3);
+```
+**AI Usage:** Manage collectible spawning, collection tracking, and statistics. Includes user-configurable settings for spawn behavior.
+
+**To Add New Collectibles:**
+1. **collectibleTypes.js** - Add new type with id, effect, value, duration
+2. **useCollectibleCollector.js** - Add case to applyCollectibleEffect switch
+3. **CollectibleManager.jsx** - Pass required state setters as props
+4. **themes.js** - Add visual configuration for new type
+
+#### **inputAtoms.js - Input System**
+```javascript
+export const keyPressedAtom = atom({});
+export const mousePositionAtom = atom({ x: 0, y: 0 });
+export const mouseClickedAtom = atom(false);
+export const mobileControlsAtom = atom({ movement: { x: 0, y: 0 }, rotation: { x: 0, y: 0 } });
+```
+**AI Usage:** Track keyboard, mouse, and mobile touch input states for cross-platform control handling.
+
+#### **settingsAtoms.js - User Preferences & Settings**
 ```javascript
 export const basePlayerSpeedAtom = atom(gameConfig.player.speed);
+export const basePlayerHealthAtom = atom(gameConfig.player.health);
+export const playerFireRateMultiplierAtom = atom(1.0);
 export const showHUDAtom = atom(true);
+export const enemySpeedMultiplierAtom = atom(1.0);
+export const difficultyMultiplierAtom = atom(1.0);
 ```
-**AI Usage:** Store user preferences and runtime settings.
+**AI Usage:** Store persistent user preferences that survive across game sessions. These are the user's preferred settings, not current gameplay values.
+
+#### **inputAtoms.js - Multi-Platform Input State**
+```javascript
+export const forwardInputAtom = atom(false);
+export const backwardInputAtom = atom(false);
+export const leftInputAtom = atom(false);
+export const rightInputAtom = atom(false);
+export const primaryActionAtom = atom(false);
+export const inputStateAtom = atom((get) => ({ /* combined state */ }));
+```
+**AI Usage:** Track real-time input state globally across all platforms (keyboard, mobile touch, future gamepad). Multiple components can subscribe to these for reactive input handling, UI indicators, input recording, or cross-platform control schemes.
+
+### 🎯 **Atom Architecture Pattern**
+
+The atoms follow a **"Settings vs Runtime"** pattern for better organization:
+
+#### **Settings Atoms (Persistent User Preferences):**
+- **Purpose**: User's preferred configuration values
+- **Lifecycle**: Persist across game sessions (saved to localStorage)
+- **Examples**: `basePlayerSpeedAtom`, `basePlayerHealthAtom`
+- **Usage**: Settings screen, game initialization
+- **Naming**: `base*Atom` prefix
+
+#### **Runtime Atoms (Current Gameplay State):**
+- **Purpose**: Current state during active gameplay
+- **Lifecycle**: Reset every game session or updated continuously
+- **Examples**: `activePlayerHealthAtom`, `playerPositionAtom`, `forwardInputAtom`
+- **Usage**: Gameplay mechanics, real-time updates, input handling
+- **Naming**: `active*Atom`, `*InputAtom`, or descriptive names
+
+#### **Key Relationships:**
+```javascript
+// Game Reset Pattern:
+const userPreferredHealth = get(basePlayerHealthAtom);  // User's setting
+set(activePlayerHealthAtom, userPreferredHealth);       // Apply to runtime
+
+// This ensures user preferences are always respected on game restart
+```
+
+### 📱 **Multi-Platform Input Architecture**
+
+The input system is designed to support multiple input methods seamlessly:
+
+#### **Current Implementation:**
+- **Keyboard**: WASD + Arrow keys + Spacebar (via `useKeyControls` hook)
+- **Mouse**: Mouse movement for rotation/aiming (via `useMouseControls` hook)
+- **Mobile**: Dual joystick touch controls (via `useMobileControls` hook)
+- **State Management**: Input-agnostic atoms that work with any input source
+
+#### **Mobile Touch Controls (Implemented):**
+```javascript
+// useMobileControls.js - Dual joystick system
+const useMobileControls = () => {
+  const [, setForward] = useAtom(forwardInputAtom);
+  const [, setInputPosition] = useAtom(inputPositionAtom);
+  
+  // Movement joystick handler
+  const handleMove = (evt) => {
+    const threshold = 0.3;
+    setForward(evt.y > threshold);
+    setBackward(evt.y < -threshold);
+    // ... other directions
+  };
+  
+  // Rotation joystick handler  
+  const handleRotate = (evt) => {
+    const worldX = evt.x * 4;
+    const worldZ = -evt.y * 4;
+    setInputPosition({ x: worldX, y: 0, z: worldZ });
+  };
+  
+  return { onMove: handleMove, onRotate: handleRotate, ... };
+};
+
+// Multi-platform rotation system
+const usePlayerRotation = (api, gameState, onRotationChange) => {
+  const { mousePosition } = useMouseControls();
+  const [mobilePosition] = useAtom(inputPositionAtom);
+  
+  // Mobile takes priority, fallback to mouse
+  const inputPosition = mobilePosition || mousePosition;
+};
+```
+
+#### **Cross-Platform Benefits:**
+- **Unified API**: Same input atoms work with keyboard, mouse, touch, or gamepad
+- **Input Priority**: Mobile input takes precedence when active, graceful fallback
+- **No Logic Changes**: Movement/rotation/shooting systems work with any input method  
+- **Smooth Integration**: Dual joystick controls with advanced rotation interpolation
+- **Easy Testing**: Can simulate any input by setting atoms directly
+- **Future-Proof**: Adding gamepad support requires no atom architecture changes
 
 ## 🔧 Modification Guidelines for AI
 

@@ -114,6 +114,33 @@ export const GAME_STATES = {
 };
 
 // ============================================================================
+// 💎 COLLECTIBLE TYPES - Available collectible effect types
+// ============================================================================
+//
+// 🎯 HOW AI SHOULD USE THIS:
+// ✅ These define the different types of collectible effects available
+// ✅ Used by collectibleTypes.js to specify effect types
+// ✅ Prevents typos and ensures consistency across the codebase
+// ✅ Easy to extend with new collectible types
+//
+// 📊 COLLECTIBLE EFFECTS:
+// ============================================================================
+
+export const COLLECTIBLE_TYPES = {
+  // ❤️ HEALTH - Restores player health points
+  HEALTH: 'health',
+
+  // 🏃‍♂️ SPEED - Temporary movement speed boost
+  SPEED: 'speed',
+
+  // 💥 DAMAGE - Temporary damage boost
+  DAMAGE: 'damage',
+
+  // 🛡️ SHIELD - Temporary damage immunity
+  SHIELD: 'shield',
+};
+
+// ============================================================================
 // ⚙️ DEFAULT GAME CONFIGURATION - Override Base Settings
 // ============================================================================
 //

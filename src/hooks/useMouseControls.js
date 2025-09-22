@@ -5,19 +5,22 @@
 // 🎯 HOW AI SHOULD USE THIS HOOK:
 // ✅ This provides real-time mouse position tracking and click state for player controls
 // ✅ Converts screen coordinates to world coordinates for 3D positioning
-// ✅ Currently used by usePlayerRotation for player facing direction
+// ✅ Currently used by usePlayerRotation which passes a setMousePosition callback
 // ✅ Tracks both mouse movement and click states for game interactions
 // ✅ Integrates with @react-three/fiber for Three.js coordinate conversion
+// ✅ Requires setMousePosition callback prop (no internal atom dependency)
 //
 // 📊 WHAT USEMOUSECONTROLS ACTUALLY DOES:
 // - Mouse tracking: captures mousemove events and converts to world coordinates
 // - Coordinate conversion: transforms screen pixels to 3D world positions
+// - State management: calls setMousePosition callback to update external state
 // - Click detection: tracks mousedown/mouseup states for interaction
 // - DOM integration: uses event.target.getBoundingClientRect() for positioning (not Three.js canvas bounds)
 // - Event management: attaches global mouse listeners with proper cleanup
 //
 // 📊 WHAT USEMOUSECONTROLS DOES NOT DO (happens elsewhere):
-// - Player rotation logic: handled by usePlayerRotation hook (CURRENTLY USES THIS HOOK)
+// - Player rotation logic: handled by usePlayerRotation hook (PASSES CALLBACK TO THIS HOOK)
+// - Mouse position storage: handled by consuming hook via setMousePosition callback
 // - Shooting logic: handled by usePlayerShooting hook (currently uses keyboard space)
 // - Camera movement: not implemented (OrbitControls commented out in Scene.jsx)
 // - UI interactions: handled by React event handlers on UI elements
@@ -41,186 +44,24 @@
 // - Implement double-click detection for special abilities
 //
 // 🔄 STATE MANAGEMENT:
-// - mousePosition: Object with world coordinates { x, y, z } or null
+// - setMousePosition: Callback function to update mouse position in consuming hook
+//   - Receives object with world coordinates { x, y, z }
 //   - x: Horizontal world position (left/right movement)
 //   - y: Vertical world position (always 0 for top-down view)
 //   - z: Depth world position (forward/backward movement)
-// - isMouseDown: Boolean indicating if mouse button is currently pressed
+// - isMouseDown: Boolean indicating if mouse button is currently pressed (future use)
 //
 // 🎯 INTEGRATION POINTS:
 // ============================================================================
 //
 // 📂 RELATED FILES TO MODIFY:
-// - src/hooks/usePlayerRotation.js: Currently USES mousePosition from this hook
+// - src/hooks/usePlayerRotation.js: Passes setMousePosition callback to this hook
 // - src/hooks/usePlayerShooting.js: Currently uses keyboard space (could use mouse clicks)
-// - src/components/Player.jsx: Integrates usePlayerRotation which uses this hook
+// - src/components/Player.jsx: Integrates usePlayerRotation which manages mouse state
 // - src/components/Scene.jsx: Contains commented OrbitControls (could use mouse input)
 // - src/config/gameConfig.js: Could define mouse sensitivity and control settings
-//
-// 🎭 MOUSE INPUT PROCESSING PIPELINE:
-// 1. Browser fires mousemove/mousedown/mouseup events on window
-// 2. useMouseControls captures events via global event listeners
-// 3. Screen coordinates converted to canvas-relative coordinates
-// 4. Canvas coordinates scaled to world coordinates using MOUSE_WORLD_SCALE
-// 5. World position stored in React state as { x, y, z } object
-// 6. usePlayerRotation hook reads mousePosition to calculate player facing angle
-// 7. Player rotation applied via physics API in usePlayerRotation
-//
-// 🎨 COORDINATE SYSTEM:
-// - Screen Origin: Top-left corner of browser window
-// - Canvas Origin: Center of Three.js canvas (rect.width/2, rect.height/2)
-// - World Origin: Center of 3D world (0, 0, 0)
-// - Mouse Scaling: MOUSE_WORLD_SCALE = 0.02 (screen pixels to world units)
-//
-// 🖱️ CURRENT USAGE IN CODEBASE:
-// ============================================================================
-//
-// ✅ CURRENTLY USED BY: usePlayerRotation hook
-// ```javascript
-// // In usePlayerRotation.js:
-// const { mousePosition } = useMouseControls();
-// const angle = Math.atan2(mousePosition.x, mousePosition.z);
-// onRotationChange(angle);
-// api.rotation.set(0, angle, 0);
-// ```
-//
-// ❌ NOT CURRENTLY USED BY: usePlayerShooting (uses keyboard space instead)
-// ❌ NOT CURRENTLY USED BY: Camera controls (OrbitControls commented out)
-// ❌ NOT CURRENTLY USED BY: UI interactions (uses React event handlers)
-//
-// ⚠️ IMPORTANT NOTES:
-// - Hook uses window-level event listeners (global mouse capture)
-// - Requires @react-three/fiber context (useThree) to access canvas properties
-// - Event listeners are cleaned up on component unmount to prevent memory leaks
-// - Mouse position is null initially until first mouse movement
-// - Coordinate conversion assumes top-down camera view (Y=0 for world coordinates)
-// - Click state (isMouseDown) is currently not used by any consuming hooks
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADJUST MOUSE SENSITIVITY:
-// ```javascript
-// const MOUSE_WORLD_SCALE = 0.01; // More precise (lower sensitivity)
-// // or
-// const MOUSE_WORLD_SCALE = 0.05; // More responsive (higher sensitivity)
-// ```
-//
-// 🎮 ADD MOUSE SHOOTING:
-// ```javascript
-// // Modify usePlayerShooting to use mouse clicks instead of keyboard
-// // In usePlayerShooting.js:
-// import { useMouseControls } from './useMouseControls';
-// 
-// export const usePlayerShooting = (...) => {
-//   const { isMouseDown } = useMouseControls();
-//   // Use isMouseDown instead of space key for shooting
-// };
-// ```
-//
-// 🎨 ADD RIGHT-CLICK SUPPORT:
-// ```javascript
-// const [isRightMouseDown, setIsRightMouseDown] = useState(false);
-//
-// const handleMouseDown = (event) => {
-//   if (event.button === 0) setIsMouseDown(true);      // Left click
-//   if (event.button === 2) setIsRightMouseDown(true); // Right click
-// };
-//
-// const handleMouseUp = (event) => {
-//   if (event.button === 0) setIsMouseDown(false);
-//   if (event.button === 2) setIsRightMouseDown(false);
-// };
-//
-// // Prevent context menu on right-click
-// const handleContextMenu = (event) => event.preventDefault();
-//
-// useEffect(() => {
-//   window.addEventListener('contextmenu', handleContextMenu);
-//   return () => window.removeEventListener('contextmenu', handleContextMenu);
-// }, []);
-//
-// return { mousePosition, isMouseDown, isRightMouseDown };
-// ```
-//
-// 🔄 ADD MOUSE WHEEL SUPPORT:
-// ```javascript
-// const [wheelDelta, setWheelDelta] = useState(0);
-//
-// const handleWheel = (event) => {
-//   setWheelDelta(event.deltaY);
-//   // Reset wheel delta after short delay
-//   setTimeout(() => setWheelDelta(0), 100);
-// };
-//
-// useEffect(() => {
-//   window.addEventListener('wheel', handleWheel);
-//   return () => window.removeEventListener('wheel', handleWheel);
-// }, []);
-//
-// return { mousePosition, isMouseDown, wheelDelta };
-// ```
-//
-// 📱 ADD TOUCH SUPPORT:
-// ```javascript
-// const handleTouchMove = (event) => {
-//   if (event.touches.length > 0) {
-//     const touch = event.touches[0];
-//     const rect = event.target.getBoundingClientRect();
-//     const x = touch.clientX - rect.left - rect.width / 2;
-//     const y = touch.clientY - rect.top - rect.height / 2;
-//     
-//     const worldPositionX = x * MOUSE_WORLD_SCALE;
-//     const worldPositionZ = y * MOUSE_WORLD_SCALE;
-//     
-//     setMousePosition({ x: worldPositionX, y: 0, z: worldPositionZ });
-//   }
-// };
-//
-// useEffect(() => {
-//   window.addEventListener('touchmove', handleTouchMove);
-//   return () => window.removeEventListener('touchmove', handleTouchMove);
-// }, []);
-// ```
-//
-// 🎯 ADD DEAD ZONE:
-// ```javascript
-// const handleMouseMove = (event) => {
-//   const rect = event.target.getBoundingClientRect();
-//   const x = event.clientX - rect.left - rect.width / 2;
-//   const y = event.clientY - rect.top - rect.height / 2;
-//
-//   // Dead zone radius (pixels)
-//   const DEAD_ZONE = 50;
-//   const distance = Math.sqrt(x * x + y * y);
-//   
-//   if (distance < DEAD_ZONE) {
-//     // Inside dead zone - no movement
-//     setMousePosition({ x: 0, y: 0, z: 0 });
-//     return;
-//   }
-//
-//   // Outside dead zone - normal scaling
-//   const MOUSE_WORLD_SCALE = 0.02;
-//   const worldPositionX = x * MOUSE_WORLD_SCALE;
-//   const worldPositionZ = y * MOUSE_WORLD_SCALE;
-//
-//   setMousePosition({ x: worldPositionX, y: 0, z: worldPositionZ });
-// };
-// ```
-//
-// 🔊 ADD CLICK AUDIO FEEDBACK:
-// ```javascript
-// import { playSound } from '../utils/audioManager';
-//
-// const handleMouseDown = () => {
-//   setIsMouseDown(true);
-//   playSound('mouseClick', { volume: 0.2 });
-// };
-// ```
-// ============================================================================
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -229,6 +70,7 @@ import * as THREE from 'three';
  * =====================================================================
  *
  * @description Manages real-time mouse position tracking and click state for player controls
+ * @param {Function} setMousePosition - Function to update mouse position state (required)
  * @returns {Object} Object containing mouse world position and click state
  *
  * 🎯 HOOK RESPONSIBILITIES:
@@ -250,25 +92,14 @@ import * as THREE from 'three';
  * - Canvas coordinates scaled to world coordinates using MOUSE_WORLD_SCALE (0.02)
  * - Canvas center becomes world origin (0, 0, 0)
  * - Mouse sensitivity controlled by MOUSE_WORLD_SCALE constant
- *
- * 🚀 CURRENT USAGE:
- * - usePlayerRotation: Uses mousePosition to calculate player facing direction
- * - Player rotation: Mouse position determines which direction player faces
- * - Click state: Currently tracked but not used by any consuming hooks
- *
- * 🔮 POTENTIAL USAGE:
- * - Mouse shooting: Could replace keyboard space bar for firing
- * - Camera controls: Could implement mouse-look or orbit controls
- * - UI interactions: Could handle 3D object selection and manipulation
+
  */
-export const useMouseControls = () => {
-  // 🖱️ MOUSE STATE - Position and click tracking
-  const [mousePosition, setMousePosition] = useState(null); // World coordinates { x, y, z } or null
-  const [isMouseDown, setIsMouseDown] = useState(false);    // Left mouse button state
+export const useMouseControls = (setMousePosition) => {
+  // 🖱️ MOUSE STATE - Position tracking via prop callback
   const { camera, size } = useThree();                     // Three.js canvas context
 
   /**
-   * 🎧 MOUSE EVENT HANDLERS SETUP - Global mouse input capture
+z   * 🎧 MOUSE EVENT HANDLERS SETUP - Global mouse input capture
    * =========================================================
    * 
    * @description Sets up window-level event listeners for mouse input
@@ -311,31 +142,23 @@ export const useMouseControls = () => {
     };
 
     /**
-     * 🔽 MOUSE DOWN HANDLER - Click state activation
-     * ==============================================
-     * 
-     * @description Handles mouse button press events
-     * @effects:
-     * - Sets isMouseDown to true for left mouse button
-     * - Triggers re-render in consuming components
-     * - Used for click-and-hold interactions
+     * 🔽 MOUSE DOWN HANDLER - Placeholder for future click handling
+     * ===========================================================
+     *
+     * @description Currently unused, but kept for potential future click-based features
      */
     const handleMouseDown = () => {
-      setIsMouseDown(true);
+      // Future: Handle mouse click events if needed
     };
 
     /**
-     * 🔼 MOUSE UP HANDLER - Click state deactivation
-     * ==============================================
-     * 
-     * @description Handles mouse button release events
-     * @effects:
-     * - Sets isMouseDown to false for left mouse button
-     * - Triggers re-render in consuming components
-     * - Completes click interaction cycle
+     * 🔼 MOUSE UP HANDLER - Placeholder for future click handling
+     * =========================================================
+     *
+     * @description Currently unused, but kept for potential future click-based features
      */
     const handleMouseUp = () => {
-      setIsMouseDown(false);
+      // Future: Handle mouse release events if needed
     };
 
     // 🎯 GLOBAL EVENT ATTACHMENT - Capture mouse events at window level
@@ -349,8 +172,8 @@ export const useMouseControls = () => {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [camera, size]); // Re-run when Three.js context changes
+  }, [camera, setMousePosition, size]); // Re-run when Three.js context changes
 
-  // 🎯 RETURN MOUSE STATE - Provide current position and click state to consuming components
-  return { mousePosition, isMouseDown };
+  // 🎯 RETURN EMPTY OBJECT - Mouse position is now managed externally
+  return {};
 };

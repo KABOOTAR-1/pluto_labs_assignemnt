@@ -36,11 +36,11 @@
 //
 // 🎮 FUNCTIONAL MODIFICATIONS:
 // ADD NEW:
-// - Add piercing projectiles that can hit multiple enemies
-// - Implement homing projectiles that track nearest enemies
-// - Add explosive projectiles with area-of-effect damage
-// - Include ricochet projectiles that bounce off walls
-// - Add special ammo types (poison, freeze, electric)
+// - Add piercing projectiles(for example) that can hit multiple enemies
+// - Implement homing projectiles(for example) that track nearest enemies
+// - Add explosive projectiles(for example) with area-of-effect damage
+// - Include ricochet projectiles(for example) that bounce off walls
+// - Add special ammo types (for example) (poison, freeze, electric)
 // - Complete weapon switching UI and inventory management system
 // - Add weapon upgrades and power-up systems
 //

@@ -86,22 +86,6 @@
 // - src/hooks/usePlayerShooting.js: Creates projectile data for BaseProjectile
 // - src/utils/gameUtils.js: Object pooling system for projectile lifecycle
 //
-// 🎨 PHYSICS DEPENDENCIES (from @react-three/cannon):
-// - useSphere: Creates spherical physics body with collision detection
-// - Physics body type: 'Kinematic' (controlled by code, not physics simulation)
-// - Physics body args: [size] radius for collision sphere
-// - api.position.set(): Updates physics body position every frame
-//
-// 🔗 ANIMATION DEPENDENCIES (from @react-three/fiber):
-// - useFrame: Game loop hook that runs every frame for movement and collision
-// - delta: Time since last frame for frame-rate independent movement
-// - mesh ref: Connection between React component and Three.js object
-//
-// 🎭 RENDERING DEPENDENCIES (Three.js):
-// - sphereGeometry: 3D sphere shape for projectile visual representation
-// - meshStandardMaterial: PBR material with color, emissive, and lighting support
-// - castShadow: Enables projectile to cast shadows on other objects
-//
 // ⚠️ IMPORTANT NOTES:
 // - Physics body uses 'Kinematic' type so mass parameter is unused by physics engine
 // - Collision detection is manual using distance calculation, not physics events
@@ -109,66 +93,6 @@
 // - Projectile automatically cleans up after 5 seconds to prevent memory leaks
 // - Only checks collision with enemies, not with environment or other projectiles
 // - Movement is linear and constant speed (no acceleration or physics forces)
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 CREATE LASER PROJECTILE:
-// 1. Change geometry: <cylinderGeometry args={[0.05, 0.05, size*4, 8]} />
-// 2. Update material: color='#ff0000', emissiveIntensity={1.0}
-// 3. Modify rotation: rotation={[Math.PI/2, 0, Math.atan2(direction[0], direction[2])]}
-//
-// 🎮 ADD PIERCING PROJECTILES:
-// 1. Add piercing prop: piercing = false
-// 2. Modify collision: if (!piercing) onHit(id, enemy.id, damage);
-// 3. Track hit enemies: const hitEnemies = useRef(new Set());
-//
-// 🎨 ADD PARTICLE TRAILS:
-// 1. Import Trail from @react-three/drei
-// 2. Wrap mesh: <Trail width={0.1} color={color} length={10}>
-// 3. Add trail configuration based on projectile speed
-//
-// 📱 ADD BOUNDARY CLEANUP:
-// 1. Add worldBounds prop from parent component
-// 2. Check bounds in useFrame: if (position[0] < bounds.minX) onHit(id, null, 0)
-// 3. Clean up projectiles that leave playable area
-//
-// ✏️ MODIFICATION EXAMPLES:
-// ============================================================================
-//
-// 💥 CHANGE PROJECTILE SHAPE:
-// Replace sphereGeometry with:
-// <boxGeometry args={[size, size, size*2]} /> // Bullet shape
-// <cylinderGeometry args={[size/2, size, size*3]} /> // Rocket shape
-//
-// 🏃‍♂️ ADD ACCELERATION:
-// const currentSpeed = useRef(speed);
-// useFrame(() => {
-//   currentSpeed.current += acceleration * delta;
-//   // Use currentSpeed.current instead of speed
-// });
-//
-// 🎯 ADD HOMING BEHAVIOR:
-// const targetEnemy = enemies.find(e => e.active);
-// if (targetEnemy) {
-//   const targetDir = normalize([
-//     targetEnemy.position[0] - position[0],
-//     0,
-//     targetEnemy.position[2] - position[2]
-//   ]);
-//   // Blend targetDir with current direction
-// }
-//
-// 🔊 ADD SOUND EFFECTS:
-// useEffect(() => {
-//   playSound('projectile_fire');
-//   return () => playSound('projectile_impact');
-// }, []);
-//
-// 🎮 ADD PHYSICS-BASED MOVEMENT:
-// Change type to 'Dynamic' and use:
-// api.applyForce([direction[0]*force, 0, direction[2]*force], [0,0,0]);
-// ============================================================================
 
 import React, { useEffect } from 'react';
 import { useSphere } from '@react-three/cannon';
@@ -200,14 +124,6 @@ import { useFrame } from '@react-three/fiber';
  * - Automatically clean up after 5 seconds using setTimeout
  * - Render glowing sphere with Three.js mesh and materials
  * - Sync physics body position with visual representation
- *
- * 🔄 PROJECTILE LIFECYCLE:
- * 1. Created by parent component (Projectiles.jsx) with initial properties
- * 2. Physics body created with useSphere hook (Kinematic type)
- * 3. useFrame loop starts: movement, collision detection, position updates
- * 4. Collision detected: onHit callback called with enemy information
- * 5. Timeout reached (5s): onHit callback called with null enemy (cleanup)
- * 6. Component unmounts: physics body and timeout automatically cleaned up
  *
  * 🎨 PHYSICS INTEGRATION:
  * - useSphere creates collision-enabled physics body with specified mass and size

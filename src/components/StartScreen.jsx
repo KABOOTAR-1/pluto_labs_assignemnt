@@ -118,7 +118,7 @@ import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
  * - .game-button: Primary action button styling
  * - .game-button.secondary: Secondary action button styling
  */
-const StartScreen = () => {
+const StartScreen = ({ theme = {} }) => {
   // 🎲 GAME STATE MANAGEMENT
   // gameState determines which screen is currently visible
   // Only render this component when in 'menu' state
@@ -129,9 +129,10 @@ const StartScreen = () => {
   // This includes: player health, position, score, enemies, projectiles
   const [, resetGame] = useAtom(resetGameAtom);
   
-  // ⚙️ SETTINGS NAVIGATION
+  // ⚙️ SETTINGS NAVIGATION (prop-based, no internal atoms)
   // goToSettings preserves current state and transitions to settings screen
-  const { goToSettings } = useSettingsNavigation();
+  const [, setGameState] = useAtom(gameStateAtom);
+  const { goToSettings } = useSettingsNavigation(gameState, setGameState);
   
   // 👁️ CONDITIONAL RENDERING
   // Only show start screen when game state is 'menu'
@@ -174,7 +175,7 @@ const StartScreen = () => {
       {/* 📦 CONTENT CONTAINER - Centered content with max-width constraint */}
       <div className="screen-content">
         {/* 🎯 GAME TITLE - Main branding and identification */}
-        <h1>TOP-DOWN SHOOTER</h1>
+        <h1>{theme?.name || 'TOP-DOWN SHOOTER'}</h1>
         
         {/* 📝 INSTRUCTIONS - Basic control information for new players */}
         <p>Use WASD or arrow keys to move. Aim and shoot with mouse.</p>

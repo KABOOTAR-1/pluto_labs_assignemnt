@@ -92,25 +92,6 @@
 // - src/components/GltfLoader/BaseModel.jsx: GLTF model loading and rendering
 // - src/config/themes/themes.js: Enemy configurations and visual properties
 //
-// 🎭 PHYSICS INTEGRATION:
-// - useBox: @react-three/cannon hook for physics body creation
-// - Kinematic type: Code-controlled movement (not physics simulation)
-// - Position subscription: Real-time position tracking for AI behaviors
-// - Collision detection: Manual distance-based collision with player
-// - Linear damping: Physics property (unused for Kinematic bodies)
-//
-// 🤖 AI BEHAVIOR HOOKS:
-// - useEnemyChase: Moves enemy toward player using normalized direction vectors
-// - useEnemyAttack: Detects collision with player and deals damage with cooldown
-// - useEnemyCleanup: Safety mechanism to remove enemy if it somehow gets outside world boundaries
-// - useEnemyFacing: Calculates rotation to make enemy face player (optional)
-//
-// 🎨 RENDERING DEPENDENCIES:
-// - BaseModel: Universal model loader supporting GLTF models and fallback geometry
-// - BaseEnemyModel: Fallback component that renders geometric shapes with materials
-// - GeometryRenderer: Utility for rendering different geometric shapes (box, sphere, etc.)
-// - Theme system: Dynamic model URLs, textures, and colors based on selected theme
-//
 // ⚠️ IMPORTANT NOTES:
 // - Physics body uses Kinematic type - movement is code-controlled, not physics-based
 // - Position tracking uses useRef for performance - avoids re-renders on every frame
@@ -119,71 +100,6 @@
 // - Facing rotation is optional and calculated every frame when enabled
 // - All AI behaviors are paused when gameState is not 'playing'
 // - Enemy configuration comes from theme system, not hardcoded values
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ENEMY HEALTH SYSTEM (Already implemented in Projectiles.jsx):
-// ```javascript
-// // Health is managed in Projectiles component when projectiles hit enemies:
-// const newHealth = enemy.health - damage;
-// if (newHealth <= 0) {
-//   return deactivateEnemy(prevEnemies, enemyId); // Remove defeated enemy
-// } else {
-//   return prevEnemies.map(e => e.id === enemyId ? { ...e, health: newHealth } : e);
-// }
-// ```
-//
-// 🎮 ADD RANGED ATTACK:
-// ```javascript
-// const useEnemyRangedAttack = (position, playerPosition, gameState, onSpawnProjectile) => {
-//   const lastShot = useRef(0);
-//   useFrame(() => {
-//     if (gameState !== 'playing') return;
-//     const distance = calculateDistance(position, playerPosition);
-//     if (distance < 10 && Date.now() - lastShot.current > 2000) {
-//       lastShot.current = Date.now();
-//       onSpawnProjectile(position, playerPosition);
-//     }
-//   });
-// };
-// ```
-//
-// 🎨 ADD DAMAGE VISUAL FEEDBACK:
-// ```javascript
-// const [damageFlash, setDamageFlash] = useState(false);
-// const flashColor = damageFlash ? '#ff0000' : color;
-// 
-// const takeDamage = () => {
-//   setDamageFlash(true);
-//   setTimeout(() => setDamageFlash(false), 200);
-// };
-// ```
-//
-// 📱 ADD DIFFERENT AI STATES:
-// ```javascript
-// const [aiState, setAiState] = useState('patrol'); // patrol, chase, attack, flee
-// 
-// // Use different hooks based on AI state
-// if (aiState === 'chase') {
-//   useEnemyChase(api, currentPosition.current, speed, playerPosition, gameState);
-// } else if (aiState === 'patrol') {
-//   useEnemyPatrol(api, currentPosition.current, speed, patrolPoints, gameState);
-// }
-// ```
-//
-// 🔊 ADD PHYSICS-BASED KNOCKBACK:
-// ```javascript
-// const applyKnockback = (force, direction) => {
-//   const knockbackVel = [
-//     direction[0] * force,
-//     0,
-//     direction[2] * force
-//   ];
-//   api.velocity.set(...knockbackVel);
-// };
-// ```
-// ============================================================================
 
 import React, { useEffect, useRef } from "react";
 import { useBox } from "@react-three/cannon";
@@ -201,8 +117,8 @@ import { BaseEnemyModel } from "../baseModel/BaseEnemyModel";
  * @description Core enemy component providing physics, AI behaviors, and rendering for all enemy types
  * @param {string} id - Unique enemy identifier for tracking and removal
  * @param {Array<number>} position - Initial spawn position as [x, y, z]
- * @param {number} size - Enemy collision box size and attack radius
- * @param {Array<number>} scale - Model scaling as [x, y, z] (default: [1, 1, 1])
+ * @param {number} size - Enemy collision box size and attack radius (optional - calculated from scale if not provided)
+ * @param {Array<number>} scale - Model scaling as [x, y, z] (default: [1, 1, 1]) - Also determines collision size
  * @param {string|number} color - Enemy color for fallback geometry rendering
  * @param {number} speed - Movement speed multiplier for chase behavior
  * @param {number} damage - Damage dealt to player on collision
@@ -219,34 +135,13 @@ import { BaseEnemyModel } from "../baseModel/BaseEnemyModel";
  *
  * 🎯 COMPONENT RESPONSIBILITIES:
  * - Create physics body using @react-three/cannon for collision detection
- * - Track real-time position via physics subscription for AI behavior hooks
+ * - Calculate dynamic collision size from scale maximum (Math.max(...scale))
+ * - Track real-time position via physics subscription for custom chasing behavior hooks
  * - Integrate 4 specialized AI behavior hooks (chase, attack, cleanup, facing)
  * - Handle player collision detection and damage dealing with attack cooldown
  * - Provide automatic cleanup when enemy moves outside world boundaries
  * - Render enemy using BaseModel with GLTF support and fallback geometry
  * - Calculate and apply player-facing rotation when facePlayer is enabled
- *
- * 🔄 AI BEHAVIOR PIPELINE:
- * 1. Physics Creation: useBox creates Kinematic physics body with collision detection
- * 2. Position Tracking: Physics position subscription updates currentPosition ref
- * 3. Chase Behavior: useEnemyChase moves enemy toward player using velocity
- * 4. Attack Behavior: useEnemyAttack detects collision and damages player with cooldown
- * 5. Cleanup Behavior: useEnemyCleanup safety mechanism removes enemy if outside world bounds
- * 6. Facing Behavior: useEnemyFacing calculates rotation to face player (optional)
- * 7. Visual Rendering: BaseModel renders GLTF model or fallback geometry
- *
- * 🎨 PHYSICS INTEGRATION:
- * - Uses Kinematic physics body type for code-controlled movement
- * - Position subscription provides real-time coordinates for AI calculations
- * - Linear damping (0.9) provides smooth movement deceleration
- * - Manual collision detection using distance calculations (not physics events)
- * - Velocity-based movement controlled by AI hooks, not physics simulation
- *
- * 🚀 USAGE PATTERNS:
- * - FastEnemy: BaseEnemy with high speed, low health, sphere geometry
- * - TankEnemy: BaseEnemy with low speed, high health, box geometry
- * - RangedEnemy: BaseEnemy with custom attack hook for projectile spawning
- * - BossEnemy: BaseEnemy with multiple AI state hooks and special abilities
  */
 export const BaseEnemy = ({
   id,
@@ -266,6 +161,11 @@ export const BaseEnemy = ({
   facePlayer = false, // New optional prop to enable facing player
   worldBounds, // World bounds for cleanup
 }) => {
+  // 📏 DYNAMIC SIZE CALCULATION - Calculate collision size from scale maximum
+  const dynamicSize = Math.max(...scale);
+
+  const actualSize = size || dynamicSize; // Use provided size or calculate from scale
+  
   // 📍 POSITION TRACKING - UseRef for performance, avoids re-renders on position updates
   const currentPosition = useRef(position);
   
@@ -273,7 +173,7 @@ export const BaseEnemy = ({
   const [ref, api] = useBox(() => ({
     mass: 1,                    // Physics mass (unused for Kinematic bodies)
     position,                   // Initial spawn position [x, y, z]
-    args: [size, size, size],   // Collision box dimensions (cubic)
+    args: [actualSize, actualSize, actualSize], // Collision box dimensions (matches visual scale)
     linearDamping: 0.9,         // Physics damping (unused for Kinematic bodies)
     type: "Kinematic",          // Code-controlled movement (not physics simulation)
     name: `enemy-${id}`,        // Unique identifier for physics debugging
@@ -292,7 +192,7 @@ export const BaseEnemy = ({
 
   // 🤖 AI BEHAVIOR INTEGRATION - Modular hook-based enemy behaviors
   useEnemyChase(api, currentPosition.current, speed, playerPosition, gameState);
-  useEnemyAttack(currentPosition.current, size, damage, playerPosition, gameState, onPlayerDamage);
+  useEnemyAttack(currentPosition.current, actualSize, damage, playerPosition, gameState, onPlayerDamage);
   useEnemyCleanup(currentPosition.current, id, onRemove, worldBounds);
 
   // 🎯 PLAYER-FACING ROTATION - Optional behavior to make enemy face player
@@ -305,7 +205,7 @@ export const BaseEnemy = ({
         url={modelUrl}                                    // GLTF model URL (optional)
         textureUrl={textureUrl}                          // Texture override URL (optional)
         fallbackComponent={BaseEnemyModel}               // Fallback component for geometry rendering
-        size={size}                                      // Size for fallback geometry
+        size={actualSize}                                // Size for fallback geometry (matches collision box)
         color={color}                                    // Color for fallback materials
         fallbackGeometry={fallbackGeometry || 'box'}    // Geometry type (box, sphere, etc.)
         rotation={facePlayer ? facingRotation : [0, 0, 0]} // Apply facing rotation if enabled

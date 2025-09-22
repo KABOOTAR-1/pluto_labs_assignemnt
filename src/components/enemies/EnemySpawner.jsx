@@ -97,17 +97,6 @@
 // - activateEnemy: Object pooling function for efficient enemy creation
 // - gameConfig.enemySettings: Base spawn configuration (radius, timing)
 // - GAME_STATES: Game state constants that control when spawning occurs (only during 'playing' state, paused during 'menu', 'gameOver', 'settings')
-//
-// 🎨 SETTINGS INTEGRATION:
-// - enemySpawnRateAtom: User setting for spawn frequency (0.1x to 3.0x)
-// - maxEnemiesSettingAtom: User setting for maximum enemy count (5 to 50)
-// - difficultyMultiplierAtom: User setting for difficulty scaling (0.5x to 2.0x)
-// - Theme system: Dynamic enemy types and visual properties per theme
-//
-// 🔗 OBJECT POOLING SYSTEM:
-// - activateEnemy(): Reuses inactive enemy objects for performance
-// - deactivateEnemy(): Returns enemies to pool when defeated or cleaned up
-// - Enemy lifecycle: spawn → activate → update → deactivate → reuse
 // - Memory efficiency: Fixed pool size prevents garbage collection during gameplay
 //
 // ⚠️ IMPORTANT NOTES:
@@ -118,101 +107,7 @@
 // - Enemy types are selected randomly from current theme's available types
 // - Spawning only occurs during 'playing' game state to prevent menu spawning
 // - Object pooling prevents memory leaks and improves performance during long play sessions
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD WAVE-BASED SPAWNING:
-// ```javascript
-// const [currentWave, setCurrentWave] = useState(1);
-// const [waveEnemies, setWaveEnemies] = useState(0);
-// 
-// // Spawn specific number of enemies per wave
-// const waveSpawnLogic = () => {
-//   const enemiesPerWave = 5 + (currentWave * 2);
-//   if (waveEnemies < enemiesPerWave) {
-//     spawnEnemy();
-//     setWaveEnemies(prev => prev + 1);
-//   } else {
-//     // Wait for all enemies defeated, then start next wave
-//     if (activeEnemies.length === 0) {
-//       setCurrentWave(prev => prev + 1);
-//       setWaveEnemies(0);
-//     }
-//   }
-// };
-// ```
-//
-// 🎮 ADD BOSS SPAWNING:
-// ```javascript
-// const [bossSpawned, setBossSpawned] = useState(false);
-// const [enemiesKilled] = useAtom(enemiesKilledAtom);
-// 
-// // Spawn boss every 50 kills
-// useEffect(() => {
-//   if (enemiesKilled > 0 && enemiesKilled % 50 === 0 && !bossSpawned) {
-//     const bossData = {
-//       type: 'boss',
-//       health: 200,
-//       size: 1.5,
-//       damage: 30,
-//       speed: 1.0,
-//       points: 100
-//     };
-//     setEnemies(prev => activateEnemy(prev, bossData));
-//     setBossSpawned(true);
-//   }
-// }, [enemiesKilled, bossSpawned]);
-// ```
-//
-// 🎨 ADD SPAWN ZONES:
-// ```javascript
-// const spawnZones = [
-//   { center: [-20, 0, -20], radius: 10, types: ['fast'] },
-//   { center: [20, 0, 20], radius: 10, types: ['tank'] },
-//   { center: [0, 0, 30], radius: 15, types: ['fast', 'tank'] }
-// ];
-// 
-// const getRandomSpawnZone = () => {
-//   return spawnZones[Math.floor(Math.random() * spawnZones.length)];
-// };
-// ```
-//
-// 📱 ADD PERFORMANCE MONITORING:
-// ```javascript
-// const [frameRate, setFrameRate] = useState(60);
-// const [performanceSpawnRate, setPerformanceSpawnRate] = useState(1.0);
-// 
-// // Reduce spawn rate if performance drops
-// useEffect(() => {
-//   if (frameRate < 30) {
-//     setPerformanceSpawnRate(0.5); // Half spawn rate
-//   } else if (frameRate < 45) {
-//     setPerformanceSpawnRate(0.75); // Reduce spawn rate
-//   } else {
-//     setPerformanceSpawnRate(1.0); // Normal spawn rate
-//   }
-// }, [frameRate]);
-// ```
-//
-// 🔊 ADD ADAPTIVE DIFFICULTY:
-// ```javascript
-// const [playerHealth] = useAtom(playerHealthAtom);
-// const [adaptiveSpawnRate, setAdaptiveSpawnRate] = useState(1.0);
-// 
-// // Reduce spawning when player health is low
-// useEffect(() => {
-//   const healthPercentage = playerHealth / 100;
-//   if (healthPercentage < 0.3) {
-//     setAdaptiveSpawnRate(0.6); // Reduce spawn rate when low health
-//   } else if (healthPercentage < 0.6) {
-//     setAdaptiveSpawnRate(0.8); // Slightly reduce spawn rate
-//   } else {
-//     setAdaptiveSpawnRate(1.0); // Normal spawn rate
-//   }
-// }, [playerHealth]);
-// ```
-// ============================================================================
+
 
 import { useEnemySpawner } from "../../hooks/useEnemySpawner";
 import { gameConfig, useCurrentEnemies } from "../../config/gameConfig";
@@ -241,25 +136,7 @@ import {
  * - Delegate actual spawning logic to useEnemySpawner hook for modularity
  * - Provide clean interface between game state and spawning mechanics
  * - Bridge settings atoms with spawning parameters for real-time updates
- *
- * 🔄 SPAWNING PIPELINE:
- * 1. Settings Integration: Read spawn settings from atoms (default values used if user hasn't configured)
- * 2. Theme Integration: Get current theme's enemy types and configurations
- * 3. Parameter Assembly: Combine settings, theme data, and game state
- * 4. Hook Delegation: Pass parameters to useEnemySpawner for actual spawning
- * 5. State Management: Enemy array updates handled by useEnemySpawner hook
- *
- * 🎨 SETTINGS INTEGRATION:
- * - enemySpawnRate: User-configurable spawn frequency multiplier (0.1x - 3.0x)
- * - maxEnemies: User-configurable maximum enemy count (5 - 50 enemies)
- * - difficultyMultiplier: User-configurable difficulty scaling (0.5x - 2.0x)
- * - Theme system: Dynamic enemy types and properties based on selected theme
- *
- * 🚀 USAGE PATTERNS:
- * - Standard Game: EnemySpawner with default settings for balanced gameplay
- * - Hard Mode: EnemySpawner with increased spawn rate and difficulty multiplier
- * - Performance Mode: EnemySpawner with reduced max enemies for lower-end devices
- * - Custom Modes: EnemySpawner with modified parameters for special game modes
+
  */
 const EnemySpawner = ({
   enemies,

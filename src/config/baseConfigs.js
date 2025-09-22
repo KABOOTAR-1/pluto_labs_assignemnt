@@ -9,6 +9,12 @@
 // ✅ Individual themes can override any property in themes.js
 //
 // 📊 BASE PLAYER PROPERTIES (inherited by all themes):
+// Note: projectileSpeed and fireRate moved to projectileTypes.js (per-projectile)
+// 
+// 🔧 COLLISION SIZE SYSTEM:
+// - Collision size is ALWAYS calculated as Math.max(...scale) from theme scale
+// - The 'size' property below is only a fallback if scale calculation fails
+// - Visual scale and collision size are automatically synchronized
 // ============================================================================
 
 export const PLAYER_BASE = {
@@ -18,14 +24,8 @@ export const PLAYER_BASE = {
   // ❤️ HEALTH - Starting health points (themes can override)
   health: 100,
 
-  // 📏 VISUAL SIZE - Model scale multiplier (themes can override)
+  // 📏 COLLISION SIZE - Fallback collision size (automatically calculated from Math.max(...scale))
   size: 1,
-
-  // 🔫 FIRE RATE - Shots per second (themes can override)
-  fireRate: 2,
-
-  // 🚀 PROJECTILE SPEED - Bullet travel speed (themes can override)
-  projectileSpeed: 15,
 
   // 📏 PROJECTILE SIZE - Bullet visual size (themes can override)
   projectileSize: 0.3,
@@ -52,6 +52,11 @@ export const PLAYER_BASE = {
 // ✅ Individual themes can customize enemy behavior in themes.js
 //
 // 📊 ENEMY TEMPLATE TYPES:
+//
+// 🔧 COLLISION SIZE SYSTEM:
+// - Collision size is ALWAYS calculated as Math.max(...scale) from theme scale
+// - The 'size' property below is only a fallback if scale calculation fails
+// - Visual scale and collision size are automatically synchronized
 // ============================================================================
 
 export const ENEMY_BASES = {
@@ -66,7 +71,7 @@ export const ENEMY_BASES = {
     // ❤️ HEALTH POINTS - How much damage enemy can take
     health: 30,
 
-    // 📏 VISUAL SIZE - Scale multiplier for enemy model
+    // 📏 COLLISION SIZE - Fallback collision size (automatically calculated from Math.max(...scale))
     size: 0.6,
 
     // 💥 ATTACK DAMAGE - How much health player loses on contact
@@ -90,7 +95,7 @@ export const ENEMY_BASES = {
     // ❤️ HEALTH POINTS - Much more durable
     health: 90,
 
-    // 📏 VISUAL SIZE - Same size as fast enemy
+    // 📏 COLLISION SIZE - Fallback collision size (automatically calculated from Math.max(...scale))
     size: 0.6,
 
     // 💥 ATTACK DAMAGE - Much more dangerous

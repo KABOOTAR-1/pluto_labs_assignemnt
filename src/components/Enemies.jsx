@@ -175,55 +175,6 @@
 // - Only active enemies are rendered (active: true)
 // - Enemy speed is multiplied by user's speed multiplier setting
 //
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD NEW ENEMY TYPE:
-// 1. Create new enemy component (e.g., RangedEnemy.jsx)
-// 2. Add to EnemyComponents map: ranged: RangedEnemy
-// 3. Add enemy type to theme configurations in themes.js and in ENEMY_BASES in baseConfigs.js
-// 4. Enemy spawner will automatically use new type
-//
-// 🎮 CHANGE ENEMY BEHAVIOR:
-// Modify the hooks used in BaseEnemy component:
-// - Movement: Update useEnemyChase hook
-// - Attacks: Update useEnemyAttack hook
-// - Cleanup: Update useEnemyCleanup hook
-//
-// 🎨 CHANGE ENEMY APPEARANCE:
-// Update theme configurations:
-// themes.space.enemies.types[0].modelUrl = 'new-enemy-model.glb'
-// themes.space.enemies.types[0].color = 0xFF0000 (red)
-//
-// 📱 ADD BOSS ENEMIES:
-// 1. Create BossEnemy component with special behaviors
-// 2. Add boss: BossEnemy to EnemyComponents
-// 3. Add boss type to theme with higher health/damage
-// 4. Modify spawner to spawn bosses under special conditions
-//
-// ✏️ MODIFICATION EXAMPLES:
-// ============================================================================
-//
-// 🏃‍♂️ CHANGE ENEMY SPEED:
-// Modify enemySpeedMultiplierAtom or update theme configurations
-//
-// 💥 CHANGE ENEMY DAMAGE:
-// Update damage property in theme enemy type configurations
-//
-// ❤️ CHANGE ENEMY HEALTH:
-// Update health property in theme enemy type configurations
-//
-// 🎯 ADD ENEMY PROJECTILES:
-// 1. Create shooting behavior hook
-// 2. Add to BaseEnemy or create RangedEnemy component
-// 3. Integrate with projectile system
-//
-// 🎨 ADD ENEMY VISUAL EFFECTS:
-// Modify BaseEnemy to include particle effects or animations
-//
-// 🤖 ADD ENEMY AI STATES:
-// Create state management in BaseEnemy for different behaviors
-// ============================================================================
 
 import { useAtom } from "jotai";
 import { FastEnemy } from "./enemies/FastEnemy";

@@ -71,8 +71,8 @@
  * - Test fallback colors when models fail to load
  * - Use CORS-enabled S3 buckets for web access
  * - Skybox supports both HDR (.exr/.hdr) and standard (.jpg/.png) formats
- * - ⚠️ DO NOT CHANGE SCALE VALUES: Keep player.scale and enemies.scale at [1,1,1] always
- * - Changing scale values will break collision detection and physics
+ * - ✅ SCALE VALUES: Freely adjust player.scale and enemies.scale for visual sizing
+ * - Collision detection automatically matches visual scale (calculated from Math.max(...scale))
  */
 
 import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
@@ -89,7 +89,7 @@ import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
  * 🧑‍🚀 PLAYER SECTION:
  * modelUrl: S3 URL to player 3D model (GLTF/GLB)
  * fallbackGeometry: Shape if model fails ('box', 'sphere', 'cylinder')
- * scale: Size multipliers [width, height, depth] - DO NOT CHANGE FROM [1,1,1]
+ * scale: Size multipliers [width, height, depth] - Automatically sets collision size
  * color: Hex color for fallback geometry
  * rotation: Rotation in radians [x, y, z]
  *
@@ -99,7 +99,7 @@ import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
  *   - speed: Movement speed multiplier
  *   - health: Hit points
  *   - color: Fallback color
- *   - scale: Size multipliers [width, height, depth] - DO NOT CHANGE FROM [1,1,1]
+ *   - scale: Size multipliers [width, height, depth] - Automatically sets collision size
  *   - facePlayer: Whether enemy rotates to face player
  *
  * 🌍 ENVIRONMENT SECTION:
@@ -124,8 +124,10 @@ import { PLAYER_BASE, ENEMY_BASES } from '../baseConfigs';
  *   - material.color: Obstacle color
  *
  * 💎 COLLECTIBLES SECTION:
- * coin: Collectible coins
- * gem: Collectible gems
+ * health: Health restoration collectibles
+ * speed: Movement speed boost collectibles  
+ * damage: Attack damage boost collectibles
+ * shield: Damage immunity collectibles
  *   - modelUrl: S3 URL to collectible model
  *   - fallbackGeometry: Shape if model fails
  *   - material.color: Collectible color
@@ -139,7 +141,7 @@ export const themes = {
       fallbackGeometry: 'box',
       scale: [1, 1, 1],
       color: 0x4285f4, // Blue color
-      rotation: [0, -Math.PI, 0],
+      rotation: [0, 0, 0],
     },
     enemies: {
       types: [
@@ -147,7 +149,7 @@ export const themes = {
           ...ENEMY_BASES.fast,
           modelUrl: null,
           fallbackGeometry: 'sphere',
-          scale: [1, 1, 1],
+          scale: [0.4, 0.4, 0.4],
           color: 0xFF0000, // Red for fast enemies
           facePlayer: true,
         },
@@ -155,7 +157,7 @@ export const themes = {
           ...ENEMY_BASES.tank,
           modelUrl: null,
           fallbackGeometry: 'box',
-          scale: [1, 1, 1],
+          scale: [1.5, 1.5, 1.5], 
           color: 0x00FF00, // Green for tank enemies
           facePlayer: true,
         },
@@ -176,8 +178,7 @@ export const themes = {
       barrier: { modelUrl: null, fallbackGeometry: 'box', material: { color: 0xffff44 } },
     },
     collectibles: {
-      coin: { modelUrl: null, fallbackGeometry: 'cylinder', material: { color: 0xffd700 } },
-      gem: { modelUrl: null, fallbackGeometry: 'sphere', material: { color: 0x00ffff } },
+      health: { modelUrl: null, fallbackGeometry: 'octahedron', material: { color: 0x76FF03, emissive: 0x76FF03, emissiveIntensity: 0.6 } },
     },
   },
 
@@ -244,8 +245,7 @@ export const themes = {
       barrier: { modelUrl: '/models/medieval/tree.glb', fallbackGeometry: 'cylinder', material: { color: 0x8B4513 } },
     },
     collectibles: {
-      coin: { modelUrl: '/models/medieval/gold-coin.glb', fallbackGeometry: 'cylinder', material: { color: 0xFFD700 } },
-      gem: { modelUrl: '/models/medieval/magic-crystal.glb', fallbackGeometry: 'octahedron', material: { color: 0x9370DB } },
+      health: { modelUrl: '', fallbackGeometry: 'octahedron', material: { color: 0x76FF03, emissive: 0x76FF03, emissiveIntensity: 0.6 } },
     },
   },
 
@@ -276,7 +276,7 @@ export const themes = {
           health: 150,
           modelUrl: '/src/models/space/spaceEnemy2.glb',
           fallbackGeometry: 'box',
-          scale: [1, 1, 1],
+          scale: [1.5, 1.5, 1.5],
           color: 0xFF00FF, // Magenta for tank enemies
           facePlayer: true,
         },
@@ -291,7 +291,7 @@ export const themes = {
         roughness: 0.7
       },
       background: { color: 0x000022 },
-      skybox: { texturePath: '/src/models/skybox/NightSkyHDRI009_4K-HDR.exr', skyType: 'night' },
+      skybox: { texturePath: '/src/models/skybox/NightSkyHDRI009_1K-HDR.exr', skyType: 'night' },
       lighting: {
         ambient: { color: 0x001122, intensity: 0.1 },
         directional: [
@@ -314,8 +314,7 @@ export const themes = {
       barrier: { modelUrl: '/models/space/force-field.glb', fallbackGeometry: 'box', material: { color: 0x8800ff } },
     },
     collectibles: {
-      coin: { modelUrl: '/models/space/cosmic-coin.glb', fallbackGeometry: 'cylinder', material: { color: 0xffd700 } },
-      gem: { modelUrl: '/models/space/nebula-crystal.glb', fallbackGeometry: 'sphere', material: { color: 0xff69b4 } },
+      health: { modelUrl: '/models/space/health-crystal.glb', fallbackGeometry: 'octahedron', material: { color: 0x76FF03, emissive: 0x76FF03, emissiveIntensity: 0.8 } },
     },
   },
 
@@ -383,8 +382,7 @@ export const themes = {
       barrier: { modelUrl: '/models/post/wreckage.glb', fallbackGeometry: 'cylinder', material: { color: 0x2F2F2F } },
     },
     collectibles: {
-      coin: { modelUrl: '/models/post/scrap-metal.glb', fallbackGeometry: 'cylinder', material: { color: 0xFFD700 } },
-      gem: { modelUrl: '/models/post/energy-cell.glb', fallbackGeometry: 'octahedron', material: { color: 0x00FF7F } },
+      health: { modelUrl: '/models/post/med-kit.glb', fallbackGeometry: 'octahedron', material: { color: 0x76FF03, emissive: 0x76FF03, emissiveIntensity: 0.4 } },
     },
   },
 };

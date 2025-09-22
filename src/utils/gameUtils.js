@@ -65,10 +65,10 @@ export const createProjectilePool = (size = 15) => {
 };
 
 /**
- * 🎯 ACTIVATE PROJECTILE - Pool Object Activation
- * ===============================================
+ * 🎯 ACTIVATE PROJECTILE - Dynamic Pool Object Activation
+ * =======================================================
  *
- * @description Finds an inactive projectile in the pool and activates it with custom data
+ * @description Finds an inactive projectile in the pool and activates it with custom data, or creates a new one if pool is exhausted
  * @param {Array<Object>} projectiles - The projectile pool array
  * @param {Object} projectileData - Configuration data to apply to the projectile
  * @returns {Array<Object>} Updated projectiles array with activated projectile
@@ -78,17 +78,18 @@ export const createProjectilePool = (size = 15) => {
  * - Enemy attacks: activateProjectile(projectiles, { damage: 15, speed: 12 })
  * - Power-ups: activateProjectile(projectiles, { size: 0.3, color: '#ff0000' })
  *
- * 🔄 ACTIVATION PROCESS:
- * 1. Find first inactive projectile in pool
- * 2. Merge projectileData with base projectile properties
- * 3. Generate unique ID with timestamp
- * 4. Set active: true and createdAt timestamp
- * 5. Return updated array (immutable)
+ * 🔄 ACTIVATION STRATEGY:
+ * 1. First tries to reuse inactive projectile from pool (performance optimization)
+ * 2. If no inactive projectiles available, creates new projectile and adds to array (dynamic expansion)
+ * 3. Generates unique ID with timestamp for tracking
+ * 4. Sets active: true and createdAt timestamp for lifecycle management
+ * 5. Returns updated array (immutable for React state compatibility)
  *
- * ⚠️ ERROR HANDLING:
- * - Returns original array if no inactive projectiles available
- * - Prevents crashes when pool is exhausted
- * - Maintains game stability during high projectile volume
+ * ⚡ DYNAMIC POOL EXPANSION:
+ * - Pool grows automatically when exhausted, preventing gameplay interruption
+ * - Maintains performance through object reuse when possible
+ * - Creates new projectiles only when absolutely necessary
+ * - No artificial limits on simultaneous projectiles
  *
  * 📊 PROJECTILE DATA PROPERTIES:
  * - position: [x, y, z] starting coordinates
@@ -100,18 +101,31 @@ export const createProjectilePool = (size = 15) => {
  */
 export const activateProjectile = (projectiles, projectileData) => {
   const inactiveIndex = projectiles.findIndex(p => !p.active);
-  if (inactiveIndex === -1) return projectiles; // No available projectiles
-
-  const now = Date.now();
-  const updatedProjectiles = [...projectiles];
-  updatedProjectiles[inactiveIndex] = {
-    ...updatedProjectiles[inactiveIndex],
-    ...projectileData,
-    id: `proj-${inactiveIndex}-${now}`,
-    createdAt: now,
-    active: true,
-  };
-  return updatedProjectiles;
+  if (inactiveIndex !== -1) {
+    // Reuse inactive projectile from pool
+    const now = Date.now();
+    const updatedProjectiles = [...projectiles];
+    updatedProjectiles[inactiveIndex] = {
+      ...updatedProjectiles[inactiveIndex],
+      ...projectileData,
+      id: `proj-${inactiveIndex}-${now}`,
+      createdAt: now,
+      active: true,
+    };
+    return updatedProjectiles;
+  } else {
+    // Create new projectile when pool is exhausted
+    const now = Date.now();
+    return [
+      ...projectiles,
+      {
+        ...projectileData,
+        id: `proj-${projectiles.length}-${now}`,
+        createdAt: now,
+        active: true,
+      },
+    ];
+  }
 };
 
 /**
@@ -422,4 +436,154 @@ export const findEnemyById = (enemies, id) => {
  */
 export const findProjectileById = (projectiles, id) => {
   return projectiles.find(p => p.id === id);
+};
+
+
+/**
+ * 💎 CREATE COLLECTIBLE POOL - Health Collectible Object Pooling
+ * =============================================================
+ *
+ * @description Creates a pre-allocated pool of inactive collectible objects for performance
+ * @param {number} size - Number of collectibles to pre-allocate (default: 10)
+ * @returns {Array<Object>} Array of inactive collectible objects ready for pooling
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Game initialization: createCollectiblePool(15) for larger games
+ * - Memory optimization: Smaller pools for mobile devices
+ * - Dynamic scaling: Adjust based on game difficulty
+ *
+ * 📊 OBJECT STRUCTURE:
+ * Each collectible contains: id, position, rotation, healAmount, spawnTime, lifetime, active
+ *
+ * ⚡ PERFORMANCE BENEFITS:
+ * - No memory allocation during gameplay
+ * - Predictable memory footprint
+ * - Fast activation/deactivation
+ * - Prevents garbage collection pauses
+ */
+export const createCollectiblePool = (size = 10) => {
+  const pool = [];
+  for (let i = 0; i < size; i++) {
+    pool.push({
+      id: `collectible-${i}`,
+      position: [0, 0, 0],
+      rotation: 0,
+      healAmount: 25,
+      spawnTime: 0,
+      lifetime: 15000, // 15 seconds
+      active: false,
+    });
+  }
+  return pool;
+};
+
+/**
+ * 💊 ACTIVATE COLLECTIBLE - Pool Object Activation
+ * ===============================================
+ *
+ * @description Finds an inactive collectible in the pool and activates it with custom data
+ * @param {Array<Object>} collectibles - The collectible pool array
+ * @param {Object} collectibleData - Configuration data to apply to the collectible
+ * @returns {Array<Object>} Updated collectibles array with activated collectible
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Enemy defeat spawn: activateCollectible(collectibles, { position: enemyPos, healAmount: 30 })
+ * - Random spawn: activateCollectible(collectibles, { position: randomPos, healAmount: 25 })
+ * - Boss defeat: activateCollectible(collectibles, { position: bossPos, healAmount: 50 })
+ *
+ * 🔄 ACTIVATION PROCESS:
+ * 1. Find first inactive collectible in pool
+ * 2. Merge collectibleData with base collectible properties
+ * 3. Generate unique ID with timestamp
+ * 4. Set active: true and spawnTime timestamp
+ * 5. Return updated array (immutable)
+ *
+ * ⚠️ ERROR HANDLING:
+ * - Returns original array if no inactive collectibles available
+ * - Prevents crashes when pool is exhausted
+ * - Maintains game stability during high collectible volume
+ */
+export const activateCollectible = (collectibles, collectibleData) => {
+  const inactiveIndex = collectibles.findIndex(c => !c.active);
+  if (inactiveIndex === -1) return collectibles; // No available collectibles
+
+  const now = Date.now();
+  const updatedCollectibles = [...collectibles];
+  updatedCollectibles[inactiveIndex] = {
+    ...updatedCollectibles[inactiveIndex],
+    ...collectibleData,
+    id: `collectible-${inactiveIndex}-${now}`,
+    spawnTime: now,
+    active: true,
+  };
+  return updatedCollectibles;
+};
+
+/**
+ * 🗑️ DEACTIVATE COLLECTIBLE - Return to Pool
+ * ==========================================
+ *
+ * @description Deactivates a collectible and returns it to the pool for reuse
+ * @param {Array<Object>} collectibles - The collectible pool array
+ * @param {string} id - Unique identifier of the collectible to deactivate
+ * @returns {Array<Object>} Updated collectibles array with deactivated collectible
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Collectible collected: deactivateCollectible(collectibles, collectibleId)
+ * - Collectible expires: deactivateCollectible(collectibles, collectibleId)
+ * - Game reset: deactivateCollectible(collectibles, collectibleId)
+ *
+ * 🔄 DEACTIVATION PROCESS:
+ * 1. Find collectible by ID in the array
+ * 2. Set active: false to return to pool
+ * 3. Preserve all other properties for reuse
+ * 4. Return updated array (immutable)
+ */
+export const deactivateCollectible = (collectibles, id) => {
+  return collectibles.map(c => c.id === id ? { ...c, active: false } : c);
+};
+
+/**
+ * 🔄 RESET COLLECTIBLES - Game State Reset
+ * =======================================
+ *
+ * @description Deactivates all collectibles in preparation for game restart
+ * @param {Array<Object>} collectibles - The collectibles array to reset
+ * @returns {Array<Object>} Updated collectibles array with all entities deactivated
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Game over: resetCollectibles(collectibles) // Clear all active collectibles
+ * - Game restart: resetCollectibles(collectibles) // Reset to initial state
+ */
+export const resetCollectibles = (collectibles) => {
+  return collectibles.map(c => ({ ...c, active: false }));
+};
+
+/**
+ * 📊 GET ACTIVE COLLECTIBLES COUNT - Game State Monitoring
+ * =======================================================
+ *
+ * @description Counts how many collectibles are currently active in the game world
+ * @param {Array<Object>} collectibles - The collectibles array to analyze
+ * @returns {number} Number of collectibles with active: true
+ *
+ * 🎯 USAGE EXAMPLES:
+ * - Spawn control: getActiveCollectiblesCount(collectibles) // Check spawn limits
+ * - UI display: getActiveCollectiblesCount(collectibles) // Show collectible count
+ */
+export const getActiveCollectiblesCount = (collectibles) => {
+  return collectibles.filter(c => c.active).length;
+};
+
+/**
+ * 🔍 FIND COLLECTIBLE BY ID - Entity Lookup
+ * ========================================
+ *
+ * @description Finds a specific collectible in the collectibles array by its unique ID
+ * @param {Array<Object>} collectibles - The collectibles array to search
+ * @param {string} id - The unique identifier of the collectible to find
+ * @returns {Object|null} The collectible object if found, null if not found
+ */
+export const findCollectibleById = (collectibles, id) => {
+  return collectibles.find(c => c.id === id);
 };

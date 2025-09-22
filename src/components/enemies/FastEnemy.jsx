@@ -53,26 +53,6 @@
 // - src/hooks/useEnemySpawner.js: Spawning logic that creates FastEnemy instances
 // - src/utils/gameUtils.js: Object pooling system for enemy lifecycle management
 //
-// 🎭 ENEMY TYPE ARCHITECTURE:
-// - FastEnemy: Pure wrapper component with no custom logic
-// - BaseEnemy: Handles all physics, AI, rendering, and lifecycle management
-// - Theme system: Provides visual assets (models, textures, colors) per theme
-// - Base configuration: ENEMY_BASES.fast defines core gameplay properties
-// - Spawning system: Creates and manages FastEnemy instances via object pooling
-//
-// 🎨 FAST ENEMY PROPERTIES (from ENEMY_BASES.fast):
-// - speed: 4 (fast movement toward player)
-// - health: 30 (low durability, easy to kill)
-// - damage: 5 (low damage per attack)
-// - points: 15 (moderate score reward)
-// - spawnRate: 1.0 (normal spawn frequency)
-// - size: 0.6 (standard enemy collision size)
-//
-// 🔗 THEME INTEGRATION EXAMPLES:
-// - Classic theme: Red sphere geometry for geometric fast enemy
-// - Space theme: Small, agile spacecraft model with energy effects
-// - Post-apocalyptic theme: Fast scavenger robot with worn textures
-// - Custom themes: Any fast-moving enemy model with appropriate scaling
 //
 // ⚠️ IMPORTANT NOTES:
 // - FastEnemy contains NO custom logic - all behavior comes from BaseEnemy
@@ -82,83 +62,6 @@
 // - Theme switching automatically updates FastEnemy appearance and properties
 // - Spawning system uses component name to create appropriate enemy types
 // - Object pooling system treats FastEnemy instances like any other enemy
-//
-// 🚀 QUICK MODIFICATIONS FOR COMMON USE CASES:
-// ============================================================================
-//
-// 📝 ADD CUSTOM FAST ENEMY BEHAVIOR:
-// ```javascript
-// export const FastEnemy = (props) => {
-//   // Add speed-specific logic here
-//   const enhancedProps = {
-//     ...props,
-//     speed: props.speed * 1.2, // 20% speed boost
-//     onPlayerNear: (distance) => {
-//       if (distance < 5) {
-//         // Trigger dash attack
-//       }
-//     }
-//   };
-//   
-//   return <BaseEnemy {...enhancedProps} />;
-// };
-// ```
-//
-// 🎮 ADD SPEED TRAIL EFFECTS:
-// ```javascript
-// import { SpeedTrail } from '../effects/SpeedTrail';
-// 
-// export const FastEnemy = (props) => (
-//   <>
-//     <BaseEnemy {...props} />
-//     <SpeedTrail position={props.position} speed={props.speed} />
-//   </>
-// );
-// ```
-//
-// 🎨 ADD CONDITIONAL RENDERING:
-// ```javascript
-// export const FastEnemy = (props) => {
-//   const isHighSpeed = props.speed > 3;
-//   
-//   return (
-//     <BaseEnemy 
-//       {...props}
-//       color={isHighSpeed ? 0xFF4444 : props.color} // Red tint for high speed
-//       scale={isHighSpeed ? [0.8, 0.8, 0.8] : props.scale} // Smaller when faster
-//     />
-//   );
-// };
-// ```
-//
-// 📱 ADD PERFORMANCE OPTIMIZATION:
-// ```javascript
-// import { memo } from 'react';
-// 
-// export const FastEnemy = memo((props) => (
-//   <BaseEnemy {...props} />
-// ), (prevProps, nextProps) => {
-//   // Custom comparison for fast enemy optimization
-//   return prevProps.position === nextProps.position && 
-//          prevProps.health === nextProps.health;
-// });
-// ```
-//
-// 🔊 ADD AUDIO INTEGRATION:
-// ```javascript
-// import { useEffect } from 'react';
-// import { playSound } from '../audio/soundManager';
-// 
-// export const FastEnemy = (props) => {
-//   useEffect(() => {
-//     playSound('fastEnemySpawn', { volume: 0.3 });
-//   }, []);
-//   
-//   return <BaseEnemy {...props} />;
-// };
-// ```
-// ============================================================================
-
 import React from "react";
 import { BaseEnemy } from "./BaseEnemy";
 
@@ -176,26 +79,6 @@ import { BaseEnemy } from "./BaseEnemy";
  * - Provide component identity for enemy spawning and type recognition
  * - Enable theme-based configuration through enemy type mapping
  *
- * 🏃‍♂️ FAST ENEMY CHARACTERISTICS (from ENEMY_BASES.fast):
- * - High Speed: 4 units/second (fast movement toward player)
- * - Low Health: 30 hit points (easy to kill, glass cannon)
- * - Low Damage: 5 damage per attack (not very dangerous individually)
- * - Moderate Reward: 15 points when defeated
- * - Normal Spawn Rate: 1.0 (appears frequently in enemy waves)
- * - Standard Size: 0.6 collision radius (same as other enemy types)
- *
- * 🎮 GAMEPLAY ROLE:
- * - Pressure Enemy: Forces player to stay mobile and aware
- * - Swarm Threat: Dangerous in groups, manageable individually
- * - Early Game: Common enemy type for building player skills
- * - Speed Challenge: Tests player reaction time and aiming
- * - Resource Management: Low health makes them efficient to eliminate
- *
- * 🎨 THEME-BASED APPEARANCE:
- * - Classic: Red sphere geometry (geometric theme)
- * - Space: Small, agile spacecraft with energy effects
- * - Post-apocalyptic: Fast scavenger robot with weathered textures
- * - Custom: Any fast-moving model defined in theme configuration
  *
  * 🚀 USAGE PATTERNS:
  * - Enemy Data Creation: useEnemySpawner creates enemy data objects with type: 'fast'

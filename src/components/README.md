@@ -6,31 +6,51 @@ This directory contains all React components for the Three.js top-down shooter. 
 
 ## 🚀 CORE GAME COMPONENTS (Start Here)
 
-### **🌍 Scene.jsx** - MAIN GAME STATE MANAGER
-**Purpose:** 3D Game World Container that manages atoms and coordinates rendering layers
+### **🌍 Scene.jsx** - MAIN GAME COORDINATOR
+**Purpose:** 3D Game World Container that coordinates rendering layers with hybrid state management
 ```javascript
 // Key responsibilities:
-- Manages all game state atoms (enemies, projectiles, player data, score)
-- Sets up Three.js Canvas with camera configuration
-- Passes state data and callbacks to child components
-- Initializes default projectile type on mount
+- Manages essential game state atoms (gameState, player data, UI state)
+- Sets up Three.js Canvas with camera configuration and mobile optimizations
+- Passes player state and game control props to GameRenderer component
 - Renders 3D scene and 2D HUD as separate layers
-- Provides world bounds data to child components
+- Provides world bounds and mobile detection to child components
 - Coordinates LightingManager, EnvironmentSetup, and GameRenderer
-```
-**AI Modification:** Start here for Canvas setup, atom management, component coordination, or adding new rendering layers
+- Detects mobile devices and conditionally renders mobile controls
+- Passes setGameState to HUD for settings navigation
 
-### **🎮 GameRenderer.jsx** - 3D ENTITY COORDINATOR  
-**Purpose:** Physics world container that renders game entities with conditional state-based logic
+// Key props passed to children:
+- HUD: playerHealth, score, enemiesKilled, showHUD, gameState, setGameState
+- GameRenderer: playerPosition, playerHealth, gameState, worldBounds, setScore, setEnemiesKilled, isMobile
+- MobileGameControls: conditionally rendered based on mobile detection
+
+// Hybrid state management:
+- Reads atoms directly: gameState, playerPosition, playerHealth, score, enemiesKilled, showHUD
+- GameRenderer reads atoms directly: enemies, projectiles, currentProjectileType
+```
+**AI Modification:** Start here for Canvas setup, component coordination, adding new rendering layers, or mobile detection logic
+
+### **🎮 GameRenderer.jsx** - 3D ENTITY COORDINATOR
+**Purpose:** Physics world container that manages game entities with hybrid state management (Some are passed as props and some refrenced thorugh atoms in the component)
 ```javascript
 // Key responsibilities:
-- Sets up physics world with gravity and collision materials
-- Player component instantiation (always rendered)
+- Sets up physics world with gravity and collision materials (mobile optimized)(Current body is kinematic so no use of gravity and collision)
+- Reads game entities (enemies, projectiles) directly from atoms
+- Processes projectile type configuration from atoms
+- Player component instantiation with props from Scene
 - Conditional enemy/projectile rendering (only during PLAYING state)
 - Enemy spawning system coordination
 - Projectile-enemy collision detection management
 - Renders static Floor component
 - Suspense-wrapped async component loading
+
+// Hybrid State Management (Props + Direct Atom Access):
+// Definition: A React pattern combining prop-based data flow with direct atom access.
+// Components receive stable, essential state as props while reading frequently-changing
+// shared state directly from Jotai atoms. This reduces prop drilling for reactive data
+// while maintaining clear component boundaries and predictable data flow.
+- Props received from Scene (7): playerPosition, playerHealth, gameState, worldBounds, setScore, setEnemiesKilled, isMobile
+- Atoms read directly: enemies, projectiles, currentProjectileType
 ```
 **AI Modification:** Modify for new entity types, physics changes, conditional rendering logic, or game state management
 
@@ -39,7 +59,7 @@ This directory contains all React components for the Three.js top-down shooter. 
 ```javascript
 // Integrated hooks:
 - usePlayerMovement (WASD physics movement)
-- usePlayerRotation (mouse-based rotation)
+- usePlayerRotation (multi-platform rotation with props)
 - usePlayerShooting (weapon system)
 - usePlayerCamera (smooth camera following)
 - usePlayerHealth (damage and health management)
@@ -58,6 +78,40 @@ This directory contains all React components for the Three.js top-down shooter. 
 - Integrates with EnemySpawner for continuous gameplay
 ```
 **AI Modification:** Add new enemy types, modify rendering behavior, or adjust enemy-player interactions
+
+### **💎 CollectibleManager.jsx** - COLLECTIBLE SYSTEM COORDINATOR
+**Purpose:** Manages collectible spawning, rendering, and lifecycle with random type selection
+```javascript
+// Key responsibilities:
+- Manages collectible pool and spawning system
+- Randomly selects collectible types for spawning (currently only health implemented)
+- Handles time-based spawning with configurable intervals
+- Integrates with useCollectibleSpawner for spawn logic
+- Integrates with useCollectibleCollector for collection detection
+- Renders active collectibles using BaseCollectible components
+- Supports theme-based collectible models and fallbacks
+
+// TO ADD NEW COLLECTIBLE TYPES:
+// 1. Add to collectibleTypes.js with id, effect, value, duration
+// 2. Add effect logic to useCollectibleCollector applyCollectibleEffect
+// 3. Add required state setters as props to useCollectibleCollector
+// 4. Update this component to pass new props to useCollectibleCollector
+// 5. Add visual config to themes.js collectibles section
+```
+**AI Modification:** Modify for new collectible types, spawn rates, collection behavior, or visual customization
+
+### **💊 BaseCollectible.jsx** - INDIVIDUAL COLLECTIBLE RENDERER
+**Purpose:** Individual collectible component with theme integration and lifecycle management
+```javascript
+// Key responsibilities:
+- Renders individual collectible with theme-based models/geometry
+- Handles rotation animation for visual appeal
+- Manages collectible lifetime and auto-expiration
+- Loads GLB models with fallback geometry support
+- Uses theme.collectibles[type] for visual configuration
+- Integrates with BaseModel for consistent model loading
+```
+**AI Modification:** Modify for visual effects, animation behavior, model loading, or theme integration
 
 ### **🚀 Projectiles.jsx** - WEAPON SYSTEM
 **Purpose:** Projectile management with distance-based hit detection and object pooling
@@ -114,9 +168,33 @@ This directory contains all React components for the Three.js top-down shooter. 
 - Health bar display
 - Score counter
 - Enemies killed tracker
+- Settings button (only during 'playing' state)
 - Mobile-responsive positioning
+
+// Props required:
+- playerHealth, score, enemiesKilled, showHUD, gameState, setGameState
+
+// Settings integration:
+- Uses useSettingsNavigation hook with gameState and setGameState props
+- Settings button appears only when gameState === 'playing'
+- Preserves game state when navigating to settings
 ```
-**AI Modification:** Add new HUD elements, modify positioning, or enhance visual design
+**AI Modification:** Add new HUD elements, modify positioning, enhance visual design, or add new navigation buttons
+
+### **📱 MobileGameControls.jsx** - MOBILE TOUCH INTERFACE
+**Purpose:** Complete mobile control interface with dual joysticks and action buttons
+```javascript
+// Key responsibilities:
+- Provides virtual joystick for movement (left side)
+- Provides virtual joystick for rotation/aiming (right side)
+- Provides shoot button for primary action (center bottom)
+- Integrates with useMobileControls hook for input processing
+- Responsive design for various screen sizes
+- Touch event handling with smooth input tracking
+- Visual feedback for touch interactions
+- Configurable joystick and button sizes
+```
+**AI Modification:** Add more action buttons, modify joystick appearance, add haptic feedback, or adjust touch sensitivity
 
 ## 🎨 UI COMPONENTS (`ui/` subfolder)
 
@@ -164,7 +242,7 @@ This directory contains all React components for the Three.js top-down shooter. 
 // Key features:
 - Theme-based model loading with fallback geometry
 - Health management and damage processing
-- Physics integration with collision detection
+- Physics integration with dynamic collision detection (size calculated from scale)
 ```
 **AI Modification:** Modify core enemy behavior, add new behavior hooks, or enhance visual effects
 
@@ -318,9 +396,13 @@ const ProjectileComponents = {
 
 ## 🔄 COMPONENT INTERACTION PATTERNS
 
-### **State Management Flow:**
+### **State Management Flow (Hybrid Pattern):**
 ```
-Scene.jsx (atoms) → Components (useAtom) → Hooks (game logic) → State updates
+Scene.jsx (reads atoms, passes props)
+    ↓
+GameRenderer (receives props, reads atoms, passes props)
+    ↓
+Components (receive props, read atoms) → Hooks (game logic) → State updates
 ```
 
 ### **Rendering Hierarchy:**
@@ -330,6 +412,11 @@ Scene.jsx
 │   ├── Player.jsx
 │   ├── Enemies.jsx  
 │   ├── Projectiles.jsx
+│   ├── collectibles/
+│   │   ├── CollectibleManager.jsx
+│   │   └── BaseCollectible.jsx
+│   ├── MobileControls/
+│   │   └── MobileGameControls.jsx
 │   └── Environment components
 ├── StartScreen.jsx (menu state)
 ├── SettingsScreen.jsx (settings state)
@@ -342,7 +429,7 @@ Scene.jsx
 // Components use hooks for game logic:
 function Player() {
   usePlayerMovement();    // Physics movement
-  usePlayerRotation();    // Mouse rotation
+  usePlayerRotation(api, gameState, callback, mobilePos);  // Multi-platform rotation
   usePlayerShooting();    // Weapon system
   usePlayerCamera();      // Camera following
   usePlayerHealth();      // Health management

@@ -48,13 +48,14 @@ const HUD = ({
   score,
   enemiesKilled,
   showHUD,
-  gameState
+  gameState,
+  setGameState
 }) => {
   // 💊 MAX HEALTH - Get player's maximum health for health bar calculation
   const [maxPlayerHealth] = useAtom(basePlayerHealthAtom);
 
-  // ⚙️ NAVIGATION - Hook for navigating to settings screen
-  const { goToSettings } = useSettingsNavigation();
+  // ⚙️ NAVIGATION - Hook for navigating to settings screen (prop-based, no atoms)
+  const { goToSettings } = useSettingsNavigation(gameState, setGameState);
 
   // 👁️ VISIBILITY CHECK - Don't render anything if HUD is disabled
   if (!showHUD) return null;

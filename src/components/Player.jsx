@@ -96,12 +96,12 @@
 //
 // 🔗 HOOK DEPENDENCIES:
 // - usePlayerMovement: WASD/arrow key movement with boundary checking
-// - usePlayerRotation: Mouse-based rotation and aiming
+// - usePlayerRotation: Multi-platform rotation (mouse + mobile) with mobilePosition prop
 // - usePlayerShooting: Space key shooting with fire rate limiting
 // - usePlayerCamera: Camera following with smooth interpolation
 // - usePlayerHealth: Health management and damage system
 // - useKeyControls: Keyboard input state management
-// - useMouseControls: Mouse position and click state management
+// - useMouseControls: Mouse position tracking (managed by usePlayerRotation)
 //
 // ⚠️ IMPORTANT NOTES:
 // - Player position is synced between physics body and atoms
@@ -169,8 +169,9 @@ import {
   playerPositionAtom,
   playerRotationAtom,
   basePlayerSpeedAtom,
-  basePlayerFireRateAtom,
+  playerFireRateMultiplierAtom,
   basePlayerHealthAtom,
+  inputPositionAtom,
 } from "../config/atoms";
 import { gameConfig, useCurrentPlayerConfig } from "../config/gameConfig";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
@@ -204,6 +205,7 @@ const initialVelocity = gameConfig.player.initialVelocity;
  *
  * 🎯 COMPONENT RESPONSIBILITIES:
  * - Physics body creation and collision detection
+ * - Calculate dynamic collision size from scale maximum (Math.max(...scale))
  * - Position synchronization between physics and atoms
  * - Movement handling via keyboard input
  * - Mouse-based rotation and aiming
@@ -229,15 +231,20 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
   // Gets current theme's player configuration (model, colors, scale, etc.)
   const playerConfig = useCurrentPlayerConfig();
 
+  // 📏 DYNAMIC SIZE CALCULATION - Calculate collision size from scale maximum
+  const playerScale = playerConfig.scale || [1, 1, 1];
+  const dynamicSize = Math.max(...playerScale);
+  const actualSize = playerConfig.size || gameConfig.player.size || dynamicSize;
+
   // 🔮 PHYSICS BODY CREATION
   // Creates kinematic physics body for collision detection and position control
   const [ref, api] = useBox(() => ({
     mass: 1,                    // Physics mass (affects collision response)
     type: "Kinematic",          // Controlled by code, not physics simulation
-    args: [                     // Collision box dimensions [width, height, depth]
-      playerConfig.size || gameConfig.player.size,
-      playerConfig.size || gameConfig.player.size,
-      playerConfig.size || gameConfig.player.size
+    args: [                     // Collision box dimensions [width, height, depth] (matches visual scale)
+      actualSize,
+      actualSize,
+      actualSize
     ],
     position: initialPosition,  // Starting position from gameConfig passed as props
     name: "player",            // Identifier for collision detection
@@ -250,7 +257,7 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
   const [playerRotation, setPlayerRotation] = useAtom(playerRotationAtom);
   // User-configurable settings from settings screen
   const [playerSpeed] = useAtom(basePlayerSpeedAtom);           // Movement speed
-  const [playerFireRate] = useAtom(basePlayerFireRateAtom);     // Shooting speed
+  const [playerFireRateMultiplier] = useAtom(playerFireRateMultiplierAtom);     // Shooting speed multiplier
   const [playerHealthSetting] = useAtom(basePlayerHealthAtom);  // Max health capacity
 
   // 🔄 POSITION RESET EFFECT - Reset player to initial state when game starts/resets
@@ -259,7 +266,6 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
     if(!initialPosition || !initialRotation || !initialVelocity) return;
     if(gameState === "playing" || gameState === "settings") return;
     
-    console.log("Initial Position:", initialPosition);
     // Reset physics body to starting state
     api.position.set(...initialPosition);    // Move to spawn point
     api.rotation.set(...initialRotation);    // Face default direction
@@ -302,11 +308,13 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
     worldBounds                              // World boundaries for collision
   );
   
-  // 🔄 ROTATION SYSTEM - Mouse-based rotation and aiming
+  // 🔄 ROTATION SYSTEM - Multi-platform rotation (mouse + mobile)
+  const [mobilePosition] = useAtom(inputPositionAtom);
   usePlayerRotation(
     api,                                      // Physics body API
     gameState,                               // Game state for rotation gating
-    setPlayerRotation                        // Callback to update rotation atom
+    setPlayerRotation,                       // Callback to update rotation atom
+    mobilePosition                           // Mobile joystick position (prop-based)
   );
   
   // 🔫 SHOOTING SYSTEM - Space key shooting with fire rate limiting
@@ -316,7 +324,7 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
     gameState,                               // Game state for shooting gating
     selectedProjectileType,                  // Current weapon configuration
     onShoot,                                 // Callback to spawn projectiles
-    playerFireRate                           // Fire rate from settings
+    playerFireRateMultiplier                 // Fire rate multiplier from settings
   );
   
   // ❤️ HEALTH SYSTEM - Damage handling and game over detection
@@ -340,7 +348,7 @@ export default function Player({ worldBounds, playerPosition, playerHealth, game
       <BaseModel
         url={playerConfig.modelUrl}                                    // GLTF model URL from current theme
         fallbackComponent={BasePlayer}                                 // Fallback component when no model
-        size={playerConfig.size || gameConfig.player.size}           // Model/geometry size
+        size={actualSize}                                             // Model/geometry size (matches collision box)
         color={playerConfig.color || gameConfig.player.color}        // Fallback geometry color
         fallbackGeometry={playerConfig.fallbackGeometry || 'box'}    // Geometry type ('box', 'sphere', etc.)
         rotation={playerConfig.rotation || [0, -Math.PI, 0]}         // Model rotation [x, y, z] radians

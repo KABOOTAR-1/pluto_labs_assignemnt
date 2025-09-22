@@ -31,6 +31,8 @@
  * - Colors use hex format for Three.js compatibility
  * - Lifetime is in milliseconds (5000 = 5 seconds)
  * - Mass is required for cannon physics bodies but unused for Kinematic projectiles
+ * - speed determines projectile travel speed (units per second)
+ * - fireRate determines shots per second for this projectile type (multiplied by global settings)
  */
 
 export const projectileTypes = [
@@ -62,7 +64,10 @@ export const projectileTypes = [
     // ⏰ LIFETIME - Milliseconds before auto-despawn (prevents memory leaks)
     lifetimeMs: 5000,
 
-    // 📝 DESCRIPTION - Human-readable explanation for developers
+    // 🔫 FIRE RATE - Shots per second for this projectile type
+    fireRate: 2,
+
+    // � DESCRIPTION - Human-readable explanation for developers
     description: 'Standard projectile'
   }
 ];
